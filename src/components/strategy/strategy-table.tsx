@@ -13,7 +13,7 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,11 +43,11 @@ export function StrategyTable({ data }: StrategyTableProps) {
 	const navigate = useNavigate();
 
 	// Add computed fields
-	const enrichedData = data.map((item) => ({
+	const enrichedData = useMemo(() => data.map((item) => ({
 		...item,
 		"✨": computeTopPerformer(item),
 		"🔔": getNotificationBadge(item),
-	}));
+	})), [data]);
 
 	// Initialize state from storage
 	const [sorting, setSorting] = useState<SortingState>(() => {
@@ -74,9 +74,11 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		storage.setSession("strategy-page", pagination.pageIndex);
 	}, [pagination.pageIndex]);
 
-	const columns: ColumnDef<
-		KeyStrategyBacktestStats & { "✨": string; "🔔": string }
-	>[] = [
+	const columns = useMemo<
+		ColumnDef<
+			KeyStrategyBacktestStats & { "✨": string; "🔔": string }
+		>[]
+	>(() => [
 		{ accessorKey: "🔔", header: "🔔", size: 50 },
 		{ accessorKey: "✨", header: "✨ Top Performer", size: 120 },
 		{ accessorKey: "strategy", header: "Strategy" },
@@ -106,7 +108,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 			header: "Sharpe Ratio",
 			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
-	];
+	], []);
 
 	const table = useReactTable({
 		data: enrichedData,

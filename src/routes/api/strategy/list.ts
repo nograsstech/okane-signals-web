@@ -5,7 +5,6 @@ export const Route = createFileRoute("/api/strategy/list")({
 	server: {
 		handlers: {
 			GET: async () => {
-				console.log("HELLO WORLD")
 				const strategyList = await db
 					.selectDistinct({
 						id: backtestStats.id,
