@@ -18,36 +18,44 @@ This is a **TanStack Start** application - a React SSR framework built on Vite w
 
 ### Development
 ```bash
-pnpm dev              # Start dev server on port 3000
-pnpm build            # Build for production
-pnpm preview          # Preview production build
+bun dev              # Start dev server on port 3000
+bun build            # Build for production
+bun preview          # Preview production build
 ```
 
 ### Code Quality
 ```bash
-pnpm lint             # Run Biome linter
-pnpm format           # Format code with Biome
-pnpm check            # Run all Biome checks (lint + format)
+bun lint             # Run Biome linter
+bun format           # Format code with Biome
+bun check            # Run all Biome checks (lint + format)
 ```
 
 ### Testing
 ```bash
-pnpm test             # Run all tests with Vitest
+bun test             # Run all tests with Vitest
 ```
 
 ### Database
 ```bash
-pnpm db:generate      # Generate Drizzle migrations from schema changes
-pnpm db:migrate       # Run database migrations
-pnpm db:push          # Push schema changes directly to database (dev only)
-pnpm db:pull          # Pull schema from database
-pnpm db:studio        # Open Drizzle Studio (database GUI)
+bun db:generate      # Generate Drizzle migrations from schema changes
+bun db:migrate       # Run database migrations
+bun db:push          # Push schema changes directly to database (dev only)
+bun db:pull          # Pull schema from database
+bun db:studio        # Open Drizzle Studio (database GUI)
 ```
 
-### UI Components
+### UI Components (shadcn/ui)
 ```bash
-pnpm dlx shadcn@latest add <component>    # Add shadcn UI component
+# Initialize shadcn/ui (if not already set up)
+bunx shadcn@latest init
+
+# Add shadcn UI components
+bunx shadcn@latest add <component>
 ```
+
+**Available components:** button, input, card, dialog, dropdown-menu, form, label, select, table, toast, and many more. See [shadcn/ui docs](https://ui.shadcn.com/docs/components) for full list.
+
+**IMPORTANT:** Always check `src/components/ui/` for existing components before creating custom UI elements. If a component exists, use it. If not, install it via the command above.
 
 ## Architecture
 
@@ -152,10 +160,12 @@ The Drizzle config is in `drizzle.config.ts`:
 *   **Minimalism:** Reduction is the ultimate sophistication.
 
 ## 4. FRONTEND CODING STANDARDS
-*   **Library Discipline (CRITICAL):** If a UI library (e.g., Shadcn UI, Radix, MUI) is detected or active in the project, **YOU MUST USE IT**.
-    *   **Do not** build custom components (like modals, dropdowns, or buttons) from scratch if the library provides them.
-    *   **Do not** pollute the codebase with redundant CSS.
-    *   *Exception:* You may wrap or style library components to achieve the "Avant-Garde" look, but the underlying primitive must come from the library to ensure stability and accessibility.
+*   **Library Discipline (CRITICAL - NON-NEGOTIABLE):** This project uses **shadcn/ui**. **YOU MUST USE IT** for all UI primitives.
+    *   **ALWAYS** check `src/components/ui/` for existing components first
+    *   **NEVER** build custom components (buttons, inputs, cards, modals, dropdowns, forms, etc.) from scratch
+    *   **NEVER** pollute the codebase with redundant CSS for components that shadcn provides
+    *   **ALWAYS** install missing components via: `bunx shadcn@latest add <component>`
+    *   *Exception:* You may wrap or style library components to achieve the "Avant-Garde" look, but the underlying primitive must come from shadcn/ui to ensure stability, accessibility, and design consistency
 *   **Stack:** Modern (React/Vue/Svelte), Tailwind/Custom CSS, semantic HTML5.
 *   **Visuals:** Focus on micro-interactions, perfect spacing, and "invisible" UX.
 
