@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { ProtectedRoute } from '@/components/auth'
 import { authClient } from '@/lib/auth-client'
 import { TrendingUp, TrendingDown, Activity, DollarSign } from 'lucide-react'
+import Layout from '@/components/Layout'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
@@ -9,9 +10,11 @@ export const Route = createFileRoute('/dashboard/')({
 
 function DashboardPage() {
   return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
+    <Layout>
+      <ProtectedRoute>
+        <DashboardContent />
+      </ProtectedRoute>
+    </Layout>
   )
 }
 
