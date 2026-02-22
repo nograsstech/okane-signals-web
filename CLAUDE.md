@@ -50,7 +50,8 @@ bun db:studio        # Open Drizzle Studio (database GUI)
 bunx shadcn@latest init
 
 # Add shadcn UI components
-bunx shadcn@latest add <component>
+bunx --bun shadcn@latest add <component>
+
 ```
 
 **Available components:** button, input, card, dialog, dropdown-menu, form, label, select, table, toast, and many more. See [shadcn/ui docs](https://ui.shadcn.com/docs/components) for full list.
