@@ -5,14 +5,32 @@ import {
 	getPaginationRowModel,
 	getSortedRowModel,
 	type PaginationState,
+	type Row,
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Activity, ArrowUpRight, Bell, Clock, Target, TrendingDown, TrendingUp } from "lucide-react";
+import {
+	Activity,
+	ArrowDown,
+	ArrowUp,
+	ArrowUpRight,
+	Bell,
+	Clock,
+	Target,
+	TrendingDown,
+	TrendingUp,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
@@ -59,16 +77,47 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	}, [pagination.pageIndex]);
 
 	// Setup table for data management (filtering, pagination, sorting)
-	const columns = useMemo(() => [
-		{ accessorKey: "strategy" },
-		{ accessorKey: "ticker" },
-		{ accessorKey: "period" },
-		{ accessorKey: "interval" },
-		{ accessorKey: "winRate", sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)) },
-		{ accessorKey: "returnPercentage", sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)) },
-		{ accessorKey: "averageDrawdownPercentage", sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)) },
-		{ accessorKey: "sharpeRatio", sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)) },
-	], []);
+	const columns = useMemo(
+		() => [
+			{ accessorKey: "strategy" },
+			{ accessorKey: "ticker" },
+			{ accessorKey: "period" },
+			{ accessorKey: "interval" },
+			{
+				accessorKey: "winRate",
+				sortingFn: (
+					a: Row<KeyStrategyBacktestStats>,
+					b: Row<KeyStrategyBacktestStats>,
+					id: string,
+				) => Number(a.getValue(id)) - Number(b.getValue(id)),
+			},
+			{
+				accessorKey: "returnPercentage",
+				sortingFn: (
+					a: Row<KeyStrategyBacktestStats>,
+					b: Row<KeyStrategyBacktestStats>,
+					id: string,
+				) => Number(a.getValue(id)) - Number(b.getValue(id)),
+			},
+			{
+				accessorKey: "averageDrawdownPercentage",
+				sortingFn: (
+					a: Row<KeyStrategyBacktestStats>,
+					b: Row<KeyStrategyBacktestStats>,
+					id: string,
+				) => Number(a.getValue(id)) - Number(b.getValue(id)),
+			},
+			{
+				accessorKey: "sharpeRatio",
+				sortingFn: (
+					a: Row<KeyStrategyBacktestStats>,
+					b: Row<KeyStrategyBacktestStats>,
+					id: string,
+				) => Number(a.getValue(id)) - Number(b.getValue(id)),
+			},
+		],
+		[],
+	);
 
 	const table = useReactTable({
 		data,
@@ -88,24 +137,62 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	});
 
 	const formatPercent = (val: number | string) => {
-		return (Number(val)).toFixed(2) + "%";
+		return Number(val).toFixed(2) + "%";
 	};
 
 	const formatDecimal = (val: number | string) => {
-		return (Number(val)).toFixed(2);
+		return Number(val).toFixed(2);
 	};
 
 	return (
 		<div className="mt-8 flex flex-col gap-6">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
 				<Input
 					placeholder="Filter Strategies..."
 					value={globalFilter}
 					onChange={(e) => setGlobalFilter(e.target.value)}
-					className="max-w-sm bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50"
+					className="w-full sm:max-w-sm bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50"
 				/>
-				
-				{/* Simple Sort Dropdown/Buttons could go here, for now using default sort. */}
+
+				<div className="flex items-center gap-2 w-full sm:w-auto self-start sm:self-auto">
+					<Select
+						value={sorting[0]?.id ?? "winRate"}
+						onValueChange={(value) => {
+							setSorting([{ id: value, desc: sorting[0]?.desc ?? true }]);
+						}}
+					>
+						<SelectTrigger className="w-full sm:w-45 bg-background/50 border-border/50">
+							<SelectValue placeholder="Sort by" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="winRate">Win Rate</SelectItem>
+							<SelectItem value="returnPercentage">Return</SelectItem>
+							<SelectItem value="averageDrawdownPercentage">
+								Avg Drawdown
+							</SelectItem>
+							<SelectItem value="sharpeRatio">Sharpe Ratio</SelectItem>
+						</SelectContent>
+					</Select>
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => {
+							setSorting((prev) => [
+								{
+									id: prev[0]?.id ?? "winRate",
+									desc: !(prev[0]?.desc ?? true),
+								},
+							]);
+						}}
+						className="bg-background/50 border-border/50 shrink-0"
+					>
+						{sorting[0]?.desc ? (
+							<ArrowDown className="h-4 w-4" />
+						) : (
+							<ArrowUp className="h-4 w-4" />
+						)}
+					</Button>
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
@@ -143,16 +230,23 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 						>
 							{/* Subtle background gradient on hover */}
 							<div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-							
+
 							<div className="flex flex-col gap-4 w-full">
 								<div className="flex justify-between items-start w-full">
 									<div className="space-y-1">
 										<h3 className="font-semibold text-lg leading-tight tracking-tight text-foreground flex items-center gap-2">
 											{item.strategy}
-											{item.notificationsOn && <Bell className="w-3.5 h-3.5 text-primary animate-pulse" />}
+											{item.notificationsOn && (
+												<Bell className="w-3.5 h-3.5 text-primary animate-pulse" />
+											)}
 										</h3>
 										<div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-											<Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border/50">{item.ticker}</Badge>
+											<Badge
+												variant="outline"
+												className="text-[10px] px-1.5 py-0 border-border/50"
+											>
+												{item.ticker}
+											</Badge>
 											<span>{item.period}</span>
 											<span className="opacity-50">•</span>
 											<span>{item.interval}</span>
@@ -176,7 +270,12 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<Target className="w-3 h-3" /> Win Rate
 										</span>
-										<div className={cn("text-lg font-mono tracking-tight", winRateVal >= 50 ? "text-emerald-500" : "text-red-500")}>
+										<div
+											className={cn(
+												"text-lg font-mono tracking-tight",
+												winRateVal >= 50 ? "text-emerald-500" : "text-red-500",
+											)}
+										>
 											{formatPercent(winRateVal)}
 										</div>
 									</div>
@@ -185,8 +284,14 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<Activity className="w-3 h-3" /> Return
 										</span>
-										<div className={cn("text-lg font-mono tracking-tight", returnVal >= 0 ? "text-emerald-500" : "text-red-500")}>
-											{returnVal >= 0 ? "+" : ""}{formatPercent(returnVal)}
+										<div
+											className={cn(
+												"text-lg font-mono tracking-tight",
+												returnVal >= 0 ? "text-emerald-500" : "text-red-500",
+											)}
+										>
+											{returnVal >= 0 ? "+" : ""}
+											{formatPercent(returnVal)}
 										</div>
 									</div>
 
@@ -194,7 +299,14 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<TrendingDown className="w-3 h-3" /> Max DD
 										</span>
-										<div className={cn("text-sm font-mono tracking-tight", drawdownVal >= -10 ? "text-emerald-500" : "text-red-500")}>
+										<div
+											className={cn(
+												"text-sm font-mono tracking-tight",
+												drawdownVal >= -10
+													? "text-emerald-500"
+													: "text-red-500",
+											)}
+										>
 											{formatPercent(drawdownVal)}
 										</div>
 									</div>
@@ -203,7 +315,12 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<TrendingUp className="w-3 h-3" /> Sharpe
 										</span>
-										<div className={cn("text-sm font-mono tracking-tight", sharpeVal >= 1 ? "text-emerald-500" : "text-yellow-500")}>
+										<div
+											className={cn(
+												"text-sm font-mono tracking-tight",
+												sharpeVal >= 1 ? "text-emerald-500" : "text-yellow-500",
+											)}
+										>
 											{formatDecimal(sharpeVal)}
 										</div>
 									</div>
@@ -246,8 +363,12 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 			{table.getRowModel().rows.length === 0 && (
 				<div className="flex flex-col items-center justify-center py-24 text-center border border-dashed rounded-xl border-border/50 opacity-50">
 					<Clock className="w-10 h-10 mb-4 text-muted-foreground" />
-					<p className="text-lg font-medium text-foreground">No strategies found</p>
-					<p className="text-sm text-muted-foreground">Try adjusting your filters.</p>
+					<p className="text-lg font-medium text-foreground">
+						No strategies found
+					</p>
+					<p className="text-sm text-muted-foreground">
+						Try adjusting your filters.
+					</p>
 				</div>
 			)}
 		</div>
