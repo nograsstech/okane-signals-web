@@ -1,28 +1,13 @@
-import { betterAuth } from 'better-auth'
-import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db"; // your drizzle instance
 import * as schema from "@/db/schema";
-
 // export const auth = betterAuth({
-//   emailAndPassword: {
-//     enabled: true,
-//     requireEmailVerification: false,
-//   },
-//   socialProviders: {
-//     google: {
-//       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-//       enabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
-//     },
-//     github: {
-//       clientId: process.env.GITHUB_ID ?? '',
-//       clientSecret: process.env.GITHUB_SECRET ?? '',
-//       enabled: !!(process.env.GITHUB_ID && process.env.GITHUB_SECRET),
-//     },
-//   },
-//   plugins: [tanstackStartCookies()],
-// })
+//     database: drizzleAdapter(db, {
+//         provider: "pg", // or "mysql", "sqlite"
+//     }),
+// });
+
 
 export const auth = betterAuth({
     secret: process.env.BETTER_AUTH_SECRET || (import.meta as any).env?.VITE_BETTER_AUTH_SECRET || "fallback_secret_for_dev_only", 

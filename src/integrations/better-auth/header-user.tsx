@@ -1,4 +1,4 @@
-import { authClient } from '#/lib/auth-client'
+import { authClient } from '@/lib/auth-client'
 import { Link } from '@tanstack/react-router'
 
 export default function BetterAuthHeader() {
@@ -6,29 +6,48 @@ export default function BetterAuthHeader() {
 
   if (isPending) {
     return (
-      <div className="h-8 w-8 bg-neutral-100 dark:bg-neutral-800 animate-pulse" />
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 bg-foreground/10 animate-pulse rounded" />
+        <div className="h-8 w-20 bg-foreground/10 animate-pulse rounded" />
+      </div>
     )
   }
 
   if (session?.user) {
+    const initials = session.user.name
+      ?.split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'U'
+
     return (
-      <div className="flex items-center gap-2">
-        {session.user.image ? (
-          <img src={session.user.image} alt="" className="h-8 w-8" />
-        ) : (
-          <div className="h-8 w-8 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-            <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
-              {session.user.name?.charAt(0).toUpperCase() || 'U'}
-            </span>
-          </div>
-        )}
+      <div className="flex items-center gap-3">
+        {/* User Avatar with Initials */}
+        <div className="h-9 w-9 bg-foreground/10 border border-border/50 flex items-center justify-center">
+          <span className="text-xs font-mono font-medium text-foreground/80">
+            {initials}
+          </span>
+        </div>
+
+        {/* User Info */}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-foreground truncate">
+            {session.user.name || 'User'}
+          </p>
+          <p className="text-xs font-mono text-foreground/50 truncate">
+            {session.user.email}
+          </p>
+        </div>
+
+        {/* Sign Out Button */}
         <button
           onClick={() => {
             void authClient.signOut()
           }}
-          className="flex-1 h-9 px-4 text-sm font-medium bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+          className="h-9 px-3 text-xs font-mono uppercase tracking-wider bg-foreground/10 hover:bg-foreground/20 text-foreground border border-border/50 transition-colors"
         >
-          Sign out
+          Exit
         </button>
       </div>
     )
@@ -36,10 +55,10 @@ export default function BetterAuthHeader() {
 
   return (
     <Link
-      to="/demo/better-auth"
-      className="h-9 px-4 text-sm font-medium bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors inline-flex items-center"
+      to="/auth"
+      className="h-9 px-4 text-xs font-mono uppercase tracking-wider bg-foreground text-background hover:bg-foreground/90 transition-colors inline-flex items-center"
     >
-      Sign in
+      Access Terminal
     </Link>
   )
 }

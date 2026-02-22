@@ -1,73 +1,133 @@
 import { Link } from '@tanstack/react-router'
-
-import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
-
+import BetterAuthHeader from '@/integrations/better-auth/header-user'
 import { useState } from 'react'
-import { Home, Menu, X } from 'lucide-react'
+import { Home, Menu, X, TrendingUp, Activity, Settings } from 'lucide-react'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img
-              src="/tanstack-word-logo-white.svg"
-              alt="TanStack Logo"
-              className="h-10"
-            />
-          </Link>
-        </h1>
+      {/* Top Bar */}
+      <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="p-2 hover:bg-foreground/10 rounded transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+
+            <Link to="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center">
+                <TrendingUp size={18} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold tracking-tight">OKANE SIGNALS</span>
+                <span className="text-[10px] font-mono text-foreground/50 uppercase tracking-widest">
+                  Financial Terminal
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Terminal Status */}
+          <div className="hidden sm:flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-mono text-foreground/50">MARKET: OPEN</span>
+            </div>
+            <div className="text-xs font-mono text-foreground/30">
+              {new Date().toLocaleTimeString('en-US', { hour12: false })}
+            </div>
+          </div>
+        </div>
       </header>
 
+      {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed top-0 left-0 h-full w-80 bg-background border-r border-border/50 shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold">Navigation</h2>
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-foreground text-background flex items-center justify-center">
+              <TrendingUp size={14} />
+            </div>
+            <span className="text-sm font-semibold">OKANE TERMINAL</span>
+          </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-foreground/10 rounded transition-colors"
             aria-label="Close menu"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
-          </Link>
-
-          {/* Demo Links Start */}
-
-          {/* Demo Links End */}
+        {/* Navigation */}
+        <nav className="flex-1 p-4 overflow-y-auto space-y-1">
+          <NavLink to="/" icon={Home} onClick={() => setIsOpen(false)}>
+            Dashboard
+          </NavLink>
+          <NavLink to="/signals" icon={Activity} onClick={() => setIsOpen(false)}>
+            Signals
+          </NavLink>
+          <NavLink to="/settings" icon={Settings} onClick={() => setIsOpen(false)}>
+            Settings
+          </NavLink>
         </nav>
 
-        <div className="p-4 border-t border-gray-700 bg-gray-800 flex flex-col gap-2">
+        {/* Auth Section */}
+        <div className="p-4 border-t border-border/50">
           <BetterAuthHeader />
         </div>
+
+        {/* Footer */}
+        <div className="px-4 py-2 border-t border-border/30">
+          <p className="text-[10px] font-mono text-foreground/30 text-center">
+            v1.0.0 — TERMINAL READY
+          </p>
+        </div>
       </aside>
+
+      {/* Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-foreground/5 backdrop-blur-sm z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
     </>
+  )
+}
+
+function NavLink({
+  to,
+  icon: Icon,
+  onClick,
+  children,
+}: {
+  to: string
+  icon: React.ComponentType<{ size?: number }>
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="flex items-center gap-3 px-3 py-2 rounded text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all"
+      activeProps={{
+        className: 'flex items-center gap-3 px-3 py-2 rounded text-sm font-medium bg-foreground/10 text-foreground',
+      }}
+    >
+      <Icon size={18} />
+      <span className="font-mono text-xs uppercase tracking-wider">{children}</span>
+    </Link>
   )
 }
