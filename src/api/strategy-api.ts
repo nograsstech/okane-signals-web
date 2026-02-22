@@ -1,28 +1,28 @@
 // Strategy API client
 // Handles all strategy-related API calls
 
-import { apiFetch } from "./api-client";
 import type {
 	KeyStrategyBacktestStats,
-	TradeAction,
 	SignalResponseDTO,
+	TradeAction,
 } from "@/lib/types/strategy";
+import { apiFetchOkaneSignals } from "./api-client";
 
 // Get all strategies list
 export function getStrategyList(): Promise<KeyStrategyBacktestStats[]> {
-	return apiFetch<KeyStrategyBacktestStats[]>("/api/strategy/list");
+	return apiFetchOkaneSignals<KeyStrategyBacktestStats[]>("/api/strategy/list");
 }
 
 // Get single strategy backtest data
 export function getStrategy(id: string): Promise<KeyStrategyBacktestStats[]> {
-	return apiFetch<KeyStrategyBacktestStats[]>(`/api/strategy?id=${id}`);
+	return apiFetchOkaneSignals<KeyStrategyBacktestStats[]>(`/api/strategy?id=${id}`);
 }
 
 // Get trade actions for a backtest
 export function getTradeActions(
 	backtestId: string,
 ): Promise<{ tradeActionsList: TradeAction[] }> {
-	return apiFetch(`/api/strategy/tradeActions?backtest_id=${backtestId}`);
+	return apiFetchOkaneSignals(`/api/strategy/tradeActions?backtest_id=${backtestId}`);
 }
 
 // Get signals for a strategy
@@ -38,20 +38,14 @@ export function getSignals(params: {
 		interval: params.interval,
 		strategy: params.strategy,
 	});
-	return apiFetch(`/api/strategy/signals?${searchParams}`);
+	return apiFetchOkaneSignals(`/api/strategy/signals?${searchParams}`);
 }
 
 // Get backtest HTML (compressed with pako)
 // This function fetches and decompresses the backtest HTML for visualization
 export async function getBacktestHtml(id: string): Promise<string> {
-	const API_BASE_URL =
-		import.meta.env.PUBLIC_OKANE_FINANCE_API_URL ||
-		import.meta.env.OKANE_FINANCE_API_URL ||
-		"http://localhost:8000";
-
-	const response = await fetch(
-		`${API_BASE_URL}/api/strategy?id=${id}&html=true`,
-	);
+	// Use the local API endpoint which will query the database
+	const response = await fetch(`/api/strategy?id=${id}&html=true`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch backtest HTML: ${response.statusText}`);
 	}

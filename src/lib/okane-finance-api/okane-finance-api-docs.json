@@ -1,1 +1,927 @@
-{"openapi":"3.1.0","info":{"title":"FastAPI","version":"0.1.0"},"paths":{"/news/":{"get":{"tags":["news"],"summary":"Archive Ticker News","operationId":"archive_ticker_news_news__get","parameters":[{"name":"from_date","in":"query","required":true,"schema":{"type":"string","title":"From Date"}},{"name":"to_date","in":"query","required":true,"schema":{"type":"string","title":"To Date"}},{"name":"tickers","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Tickers"}},{"name":"limit","in":"query","required":false,"schema":{"anyOf":[{"type":"integer"},{"type":"null"}],"default":1000,"title":"Limit"}},{"name":"sort","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"default":"RELEVANCE","title":"Sort"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AlphaVantageNewsResponseDTO"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/news/6h":{"get":{"tags":["news"],"summary":"Archive Ticker News","operationId":"archive_ticker_news_news_6h_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"}}}},"/news/yfinance":{"get":{"tags":["news"],"summary":"Archive Ticker News","operationId":"archive_ticker_news_news_yfinance_get","parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}},{"name":"limit","in":"query","required":false,"schema":{"type":"integer","default":10,"title":"Limit"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/news/periodic-sentiment":{"get":{"tags":["news"],"summary":"Get News","operationId":"get_news_news_periodic_sentiment_get","parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"object","additionalProperties":true,"title":"Response Get News News Periodic Sentiment Get"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/tickers/history":{"get":{"tags":["tickers"],"summary":"Archieve Ticker Price History","operationId":"archieve_ticker_price_history_tickers_history_get","parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/TickerResponseDTO"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/tickers/info":{"get":{"tags":["tickers"],"summary":"Achieve Ticker Info","operationId":"achieve_ticker_info_tickers_info_get","parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/TickerResponseDTO"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/signals/":{"get":{"tags":["signals"],"summary":"Get Signals","operationId":"get_signals_signals__get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}},{"name":"period","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Period"}},{"name":"interval","in":"query","required":true,"schema":{"type":"string","title":"Interval"}},{"name":"strategy","in":"query","required":false,"schema":{"anyOf":[{"enum":["ema_bollinger","ema_bollinger_1_low_risk","macd_1","clf_bollinger_rsi","clf_bollinger_rsi_15m","eurjpy_bollinger_rsi_60m","grid_trading","super_safe_strategy","fvg_confirmation"],"type":"string"},{"type":"null"}],"title":"Strategy"}},{"name":"parameters","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Parameters"}},{"name":"start","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Start"}},{"name":"end","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"End"}},{"name":"strategy_id","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Strategy Id"}},{"name":"backtest_process_uuid","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Backtest Process Uuid"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SignalResponseDTO"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/signals/backtest":{"get":{"tags":["signals"],"summary":"Backtest","operationId":"backtest_signals_backtest_get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}},{"name":"period","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Period"}},{"name":"interval","in":"query","required":true,"schema":{"type":"string","title":"Interval"}},{"name":"strategy","in":"query","required":false,"schema":{"anyOf":[{"enum":["ema_bollinger","ema_bollinger_1_low_risk","macd_1","clf_bollinger_rsi","clf_bollinger_rsi_15m","eurjpy_bollinger_rsi_60m","grid_trading","super_safe_strategy","fvg_confirmation"],"type":"string"},{"type":"null"}],"title":"Strategy"}},{"name":"parameters","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Parameters"}},{"name":"start","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Start"}},{"name":"end","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"End"}},{"name":"strategy_id","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Strategy Id"}},{"name":"backtest_process_uuid","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Backtest Process Uuid"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"string","title":"Response Backtest Signals Backtest Get"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/signals/backtest/sync":{"get":{"tags":["signals"],"summary":"Backtest Sync","operationId":"backtest_sync_signals_backtest_sync_get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"ticker","in":"query","required":true,"schema":{"type":"string","title":"Ticker"}},{"name":"period","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Period"}},{"name":"interval","in":"query","required":true,"schema":{"type":"string","title":"Interval"}},{"name":"strategy","in":"query","required":false,"schema":{"anyOf":[{"enum":["ema_bollinger","ema_bollinger_1_low_risk","macd_1","clf_bollinger_rsi","clf_bollinger_rsi_15m","eurjpy_bollinger_rsi_60m","grid_trading","super_safe_strategy","fvg_confirmation"],"type":"string"},{"type":"null"}],"title":"Strategy"}},{"name":"parameters","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Parameters"}},{"name":"start","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Start"}},{"name":"end","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"End"}},{"name":"strategy_id","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Strategy Id"}},{"name":"backtest_process_uuid","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Backtest Process Uuid"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/BacktestResponseDTO"}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/signals/strategy-notification-job":{"post":{"tags":["signals"],"summary":"Strategy Notification","operationId":"strategy_notification_signals_strategy_notification_job_post","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"}},"security":[{"HTTPBasic":[]}]}},"/ai/chatbot-with-tool":{"post":{"tags":["ai"],"summary":"Chatbot","operationId":"chatbot_ai_chatbot_with_tool_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/MessageRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/ai/chat":{"get":{"tags":["ai"],"summary":"Get Chat","operationId":"get_chat_ai_chat_get","parameters":[{"name":"thread_id","in":"query","required":true,"schema":{"type":"string","title":"Thread Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/notification/discord-webhook":{"get":{"tags":["ai"],"summary":"Test Discord Webhook","operationId":"test_discord_webhook_notification_discord_webhook_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"}}},"post":{"tags":["ai"],"summary":"Receive Discord Message","operationId":"receive_discord_message_notification_discord_webhook_post","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"404":{"description":"Not found"}}}},"/":{"get":{"summary":"Read Root","operationId":"read_root__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RootResponse"}}}}}}}},"components":{"schemas":{"AlphaVantageNewsResponseDTO":{"properties":{"status":{"type":"integer","title":"Status"},"message":{"type":"string","title":"Message"}},"type":"object","required":["status","message"],"title":"AlphaVantageNewsResponseDTO"},"BacktestResponseDTO":{"properties":{"status":{"type":"integer","title":"Status"},"message":{"type":"string","title":"Message"},"data":{"$ref":"#/components/schemas/BacktestStats"}},"type":"object","required":["status","message","data"],"title":"BacktestResponseDTO"},"BacktestStats":{"properties":{"ticker":{"title":"Ticker"},"max_drawdown_percentage":{"type":"number","title":"Max Drawdown Percentage"},"start_time":{"title":"Start Time"},"end_time":{"title":"End Time"},"duration":{"title":"Duration"},"exposure_time_percentage":{"type":"number","title":"Exposure Time Percentage"},"final_equity":{"type":"number","title":"Final Equity"},"peak_equity":{"type":"number","title":"Peak Equity"},"return_percentage":{"type":"number","title":"Return Percentage"},"buy_and_hold_return":{"type":"number","title":"Buy And Hold Return"},"return_annualized":{"type":"number","title":"Return Annualized"},"volatility_annualized":{"type":"number","title":"Volatility Annualized"},"sharpe_ratio":{"type":"number","title":"Sharpe Ratio"},"sortino_ratio":{"type":"number","title":"Sortino Ratio"},"calmar_ratio":{"type":"number","title":"Calmar Ratio"},"average_drawdown_percentage":{"type":"number","title":"Average Drawdown Percentage"},"max_drawdown_duration":{"title":"Max Drawdown Duration"},"average_drawdown_duration":{"title":"Average Drawdown Duration"},"trade_count":{"type":"integer","title":"Trade Count"},"win_rate":{"type":"number","title":"Win Rate"},"best_trade":{"type":"number","title":"Best Trade"},"worst_trade":{"type":"number","title":"Worst Trade"},"avg_trade":{"type":"number","title":"Avg Trade"},"max_trade_duration":{"title":"Max Trade Duration"},"average_trade_duration":{"title":"Average Trade Duration"},"profit_factor":{"type":"number","title":"Profit Factor"},"html":{"title":"Html"},"tpslRatio":{"type":"number","title":"Tpslratio"},"sl_coef":{"type":"number","title":"Sl Coef"}},"type":"object","required":["ticker","max_drawdown_percentage","start_time","end_time","duration","exposure_time_percentage","final_equity","peak_equity","return_percentage","buy_and_hold_return","return_annualized","volatility_annualized","sharpe_ratio","sortino_ratio","calmar_ratio","average_drawdown_percentage","max_drawdown_duration","average_drawdown_duration","trade_count","win_rate","best_trade","worst_trade","avg_trade","max_trade_duration","average_trade_duration","profit_factor","html","tpslRatio","sl_coef"],"title":"BacktestStats"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"MessageRequest":{"properties":{"message":{"type":"string","title":"Message"},"thread_id":{"type":"string","title":"Thread Id"}},"type":"object","required":["message","thread_id"],"title":"MessageRequest"},"RootResponse":{"properties":{"status":{"type":"integer","title":"Status"},"message":{"type":"string","title":"Message"}},"type":"object","required":["status","message"],"title":"RootResponse"},"Signal":{"properties":{"gmtTime":{"type":"string","title":"Gmttime"},"Open":{"type":"number","title":"Open"},"High":{"type":"number","title":"High"},"Low":{"type":"number","title":"Low"},"Close":{"type":"number","title":"Close"},"Volume":{"type":"number","title":"Volume"},"TotalSignal":{"type":"number","title":"Totalsignal"}},"type":"object","required":["gmtTime"],"title":"Signal"},"SignalRequestData":{"properties":{"ticker":{"type":"string","title":"Ticker"},"period":{"type":"string","title":"Period"},"interval":{"type":"string","title":"Interval"},"strategy":{"type":"string","title":"Strategy"},"signals":{"$ref":"#/components/schemas/SignalsDict"}},"type":"object","required":["ticker","period","interval","strategy","signals"],"title":"SignalRequestData"},"SignalResponseDTO":{"properties":{"status":{"type":"integer","title":"Status"},"message":{"type":"string","title":"Message"},"data":{"$ref":"#/components/schemas/SignalRequestData"}},"type":"object","required":["status","message","data"],"title":"SignalResponseDTO"},"SignalsDict":{"properties":{"latest_signal":{"$ref":"#/components/schemas/Signal"},"all_signals":{"items":{"$ref":"#/components/schemas/Signal"},"type":"array","title":"All Signals"}},"type":"object","required":["latest_signal","all_signals"],"title":"SignalsDict"},"TickerResponseDTO":{"properties":{"status":{"type":"integer","title":"Status"},"message":{"type":"string","title":"Message"}},"type":"object","required":["status","message"],"title":"TickerResponseDTO"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}},"securitySchemes":{"HTTPBasic":{"type":"http","scheme":"basic"}}}}
+{
+	"openapi": "3.1.0",
+	"info": { "title": "FastAPI", "version": "0.1.0" },
+	"paths": {
+		"/news/": {
+			"get": {
+				"tags": ["news"],
+				"summary": "Archive Ticker News",
+				"operationId": "archive_ticker_news_news__get",
+				"parameters": [
+					{
+						"name": "from_date",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "From Date" }
+					},
+					{
+						"name": "to_date",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "To Date" }
+					},
+					{
+						"name": "tickers",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Tickers"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"default": 1000,
+							"title": "Limit"
+						}
+					},
+					{
+						"name": "sort",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"default": "RELEVANCE",
+							"title": "Sort"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AlphaVantageNewsResponseDTO"
+								}
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/news/6h": {
+			"get": {
+				"tags": ["news"],
+				"summary": "Archive Ticker News",
+				"operationId": "archive_ticker_news_news_6h_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" }
+				}
+			}
+		},
+		"/news/yfinance": {
+			"get": {
+				"tags": ["news"],
+				"summary": "Archive Ticker News",
+				"operationId": "archive_ticker_news_news_yfinance_get",
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": { "type": "integer", "default": 10, "title": "Limit" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/news/periodic-sentiment": {
+			"get": {
+				"tags": ["news"],
+				"summary": "Get News",
+				"operationId": "get_news_news_periodic_sentiment_get",
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": true,
+									"title": "Response Get News News Periodic Sentiment Get"
+								}
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tickers/history": {
+			"get": {
+				"tags": ["tickers"],
+				"summary": "Archieve Ticker Price History",
+				"operationId": "archieve_ticker_price_history_tickers_history_get",
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/TickerResponseDTO" }
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tickers/info": {
+			"get": {
+				"tags": ["tickers"],
+				"summary": "Achieve Ticker Info",
+				"operationId": "achieve_ticker_info_tickers_info_get",
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/TickerResponseDTO" }
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/signals/": {
+			"get": {
+				"tags": ["signals"],
+				"summary": "Get Signals",
+				"operationId": "get_signals_signals__get",
+				"security": [{ "HTTPBasic": [] }],
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					},
+					{
+						"name": "period",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Period"
+						}
+					},
+					{
+						"name": "interval",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Interval" }
+					},
+					{
+						"name": "strategy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"enum": [
+										"ema_bollinger",
+										"ema_bollinger_1_low_risk",
+										"macd_1",
+										"clf_bollinger_rsi",
+										"clf_bollinger_rsi_15m",
+										"eurjpy_bollinger_rsi_60m",
+										"grid_trading",
+										"super_safe_strategy",
+										"fvg_confirmation"
+									],
+									"type": "string"
+								},
+								{ "type": "null" }
+							],
+							"title": "Strategy"
+						}
+					},
+					{
+						"name": "parameters",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Parameters"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Start"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "End"
+						}
+					},
+					{
+						"name": "strategy_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Strategy Id"
+						}
+					},
+					{
+						"name": "backtest_process_uuid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Backtest Process Uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/SignalResponseDTO" }
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/signals/backtest": {
+			"get": {
+				"tags": ["signals"],
+				"summary": "Backtest",
+				"operationId": "backtest_signals_backtest_get",
+				"security": [{ "HTTPBasic": [] }],
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					},
+					{
+						"name": "period",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Period"
+						}
+					},
+					{
+						"name": "interval",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Interval" }
+					},
+					{
+						"name": "strategy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"enum": [
+										"ema_bollinger",
+										"ema_bollinger_1_low_risk",
+										"macd_1",
+										"clf_bollinger_rsi",
+										"clf_bollinger_rsi_15m",
+										"eurjpy_bollinger_rsi_60m",
+										"grid_trading",
+										"super_safe_strategy",
+										"fvg_confirmation"
+									],
+									"type": "string"
+								},
+								{ "type": "null" }
+							],
+							"title": "Strategy"
+						}
+					},
+					{
+						"name": "parameters",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Parameters"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Start"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "End"
+						}
+					},
+					{
+						"name": "strategy_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Strategy Id"
+						}
+					},
+					{
+						"name": "backtest_process_uuid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Backtest Process Uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string",
+									"title": "Response Backtest Signals Backtest Get"
+								}
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/signals/backtest/sync": {
+			"get": {
+				"tags": ["signals"],
+				"summary": "Backtest Sync",
+				"operationId": "backtest_sync_signals_backtest_sync_get",
+				"security": [{ "HTTPBasic": [] }],
+				"parameters": [
+					{
+						"name": "ticker",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Ticker" }
+					},
+					{
+						"name": "period",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Period"
+						}
+					},
+					{
+						"name": "interval",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Interval" }
+					},
+					{
+						"name": "strategy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"enum": [
+										"ema_bollinger",
+										"ema_bollinger_1_low_risk",
+										"macd_1",
+										"clf_bollinger_rsi",
+										"clf_bollinger_rsi_15m",
+										"eurjpy_bollinger_rsi_60m",
+										"grid_trading",
+										"super_safe_strategy",
+										"fvg_confirmation"
+									],
+									"type": "string"
+								},
+								{ "type": "null" }
+							],
+							"title": "Strategy"
+						}
+					},
+					{
+						"name": "parameters",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Parameters"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Start"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "End"
+						}
+					},
+					{
+						"name": "strategy_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Strategy Id"
+						}
+					},
+					{
+						"name": "backtest_process_uuid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Backtest Process Uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/BacktestResponseDTO" }
+							}
+						}
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/signals/strategy-notification-job": {
+			"post": {
+				"tags": ["signals"],
+				"summary": "Strategy Notification",
+				"operationId": "strategy_notification_signals_strategy_notification_job_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" }
+				},
+				"security": [{ "HTTPBasic": [] }]
+			}
+		},
+		"/ai/chatbot-with-tool": {
+			"post": {
+				"tags": ["ai"],
+				"summary": "Chatbot",
+				"operationId": "chatbot_ai_chatbot_with_tool_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/MessageRequest" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/ai/chat": {
+			"get": {
+				"tags": ["ai"],
+				"summary": "Get Chat",
+				"operationId": "get_chat_ai_chat_get",
+				"parameters": [
+					{
+						"name": "thread_id",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Thread Id" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" },
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/notification/discord-webhook": {
+			"get": {
+				"tags": ["ai"],
+				"summary": "Test Discord Webhook",
+				"operationId": "test_discord_webhook_notification_discord_webhook_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" }
+				}
+			},
+			"post": {
+				"tags": ["ai"],
+				"summary": "Receive Discord Message",
+				"operationId": "receive_discord_message_notification_discord_webhook_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"404": { "description": "Not found" }
+				}
+			}
+		},
+		"/": {
+			"get": {
+				"summary": "Read Root",
+				"operationId": "read_root__get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/RootResponse" }
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"AlphaVantageNewsResponseDTO": {
+				"properties": {
+					"status": { "type": "integer", "title": "Status" },
+					"message": { "type": "string", "title": "Message" }
+				},
+				"type": "object",
+				"required": ["status", "message"],
+				"title": "AlphaVantageNewsResponseDTO"
+			},
+			"BacktestResponseDTO": {
+				"properties": {
+					"status": { "type": "integer", "title": "Status" },
+					"message": { "type": "string", "title": "Message" },
+					"data": { "$ref": "#/components/schemas/BacktestStats" }
+				},
+				"type": "object",
+				"required": ["status", "message", "data"],
+				"title": "BacktestResponseDTO"
+			},
+			"BacktestStats": {
+				"properties": {
+					"ticker": { "title": "Ticker" },
+					"max_drawdown_percentage": {
+						"type": "number",
+						"title": "Max Drawdown Percentage"
+					},
+					"start_time": { "title": "Start Time" },
+					"end_time": { "title": "End Time" },
+					"duration": { "title": "Duration" },
+					"exposure_time_percentage": {
+						"type": "number",
+						"title": "Exposure Time Percentage"
+					},
+					"final_equity": { "type": "number", "title": "Final Equity" },
+					"peak_equity": { "type": "number", "title": "Peak Equity" },
+					"return_percentage": {
+						"type": "number",
+						"title": "Return Percentage"
+					},
+					"buy_and_hold_return": {
+						"type": "number",
+						"title": "Buy And Hold Return"
+					},
+					"return_annualized": {
+						"type": "number",
+						"title": "Return Annualized"
+					},
+					"volatility_annualized": {
+						"type": "number",
+						"title": "Volatility Annualized"
+					},
+					"sharpe_ratio": { "type": "number", "title": "Sharpe Ratio" },
+					"sortino_ratio": { "type": "number", "title": "Sortino Ratio" },
+					"calmar_ratio": { "type": "number", "title": "Calmar Ratio" },
+					"average_drawdown_percentage": {
+						"type": "number",
+						"title": "Average Drawdown Percentage"
+					},
+					"max_drawdown_duration": { "title": "Max Drawdown Duration" },
+					"average_drawdown_duration": { "title": "Average Drawdown Duration" },
+					"trade_count": { "type": "integer", "title": "Trade Count" },
+					"win_rate": { "type": "number", "title": "Win Rate" },
+					"best_trade": { "type": "number", "title": "Best Trade" },
+					"worst_trade": { "type": "number", "title": "Worst Trade" },
+					"avg_trade": { "type": "number", "title": "Avg Trade" },
+					"max_trade_duration": { "title": "Max Trade Duration" },
+					"average_trade_duration": { "title": "Average Trade Duration" },
+					"profit_factor": { "type": "number", "title": "Profit Factor" },
+					"html": { "title": "Html" },
+					"tpslRatio": { "type": "number", "title": "Tpslratio" },
+					"sl_coef": { "type": "number", "title": "Sl Coef" }
+				},
+				"type": "object",
+				"required": [
+					"ticker",
+					"max_drawdown_percentage",
+					"start_time",
+					"end_time",
+					"duration",
+					"exposure_time_percentage",
+					"final_equity",
+					"peak_equity",
+					"return_percentage",
+					"buy_and_hold_return",
+					"return_annualized",
+					"volatility_annualized",
+					"sharpe_ratio",
+					"sortino_ratio",
+					"calmar_ratio",
+					"average_drawdown_percentage",
+					"max_drawdown_duration",
+					"average_drawdown_duration",
+					"trade_count",
+					"win_rate",
+					"best_trade",
+					"worst_trade",
+					"avg_trade",
+					"max_trade_duration",
+					"average_trade_duration",
+					"profit_factor",
+					"html",
+					"tpslRatio",
+					"sl_coef"
+				],
+				"title": "BacktestStats"
+			},
+			"HTTPValidationError": {
+				"properties": {
+					"detail": {
+						"items": { "$ref": "#/components/schemas/ValidationError" },
+						"type": "array",
+						"title": "Detail"
+					}
+				},
+				"type": "object",
+				"title": "HTTPValidationError"
+			},
+			"MessageRequest": {
+				"properties": {
+					"message": { "type": "string", "title": "Message" },
+					"thread_id": { "type": "string", "title": "Thread Id" }
+				},
+				"type": "object",
+				"required": ["message", "thread_id"],
+				"title": "MessageRequest"
+			},
+			"RootResponse": {
+				"properties": {
+					"status": { "type": "integer", "title": "Status" },
+					"message": { "type": "string", "title": "Message" }
+				},
+				"type": "object",
+				"required": ["status", "message"],
+				"title": "RootResponse"
+			},
+			"Signal": {
+				"properties": {
+					"gmtTime": { "type": "string", "title": "Gmttime" },
+					"Open": { "type": "number", "title": "Open" },
+					"High": { "type": "number", "title": "High" },
+					"Low": { "type": "number", "title": "Low" },
+					"Close": { "type": "number", "title": "Close" },
+					"Volume": { "type": "number", "title": "Volume" },
+					"TotalSignal": { "type": "number", "title": "Totalsignal" }
+				},
+				"type": "object",
+				"required": ["gmtTime"],
+				"title": "Signal"
+			},
+			"SignalRequestData": {
+				"properties": {
+					"ticker": { "type": "string", "title": "Ticker" },
+					"period": { "type": "string", "title": "Period" },
+					"interval": { "type": "string", "title": "Interval" },
+					"strategy": { "type": "string", "title": "Strategy" },
+					"signals": { "$ref": "#/components/schemas/SignalsDict" }
+				},
+				"type": "object",
+				"required": ["ticker", "period", "interval", "strategy", "signals"],
+				"title": "SignalRequestData"
+			},
+			"SignalResponseDTO": {
+				"properties": {
+					"status": { "type": "integer", "title": "Status" },
+					"message": { "type": "string", "title": "Message" },
+					"data": { "$ref": "#/components/schemas/SignalRequestData" }
+				},
+				"type": "object",
+				"required": ["status", "message", "data"],
+				"title": "SignalResponseDTO"
+			},
+			"SignalsDict": {
+				"properties": {
+					"latest_signal": { "$ref": "#/components/schemas/Signal" },
+					"all_signals": {
+						"items": { "$ref": "#/components/schemas/Signal" },
+						"type": "array",
+						"title": "All Signals"
+					}
+				},
+				"type": "object",
+				"required": ["latest_signal", "all_signals"],
+				"title": "SignalsDict"
+			},
+			"TickerResponseDTO": {
+				"properties": {
+					"status": { "type": "integer", "title": "Status" },
+					"message": { "type": "string", "title": "Message" }
+				},
+				"type": "object",
+				"required": ["status", "message"],
+				"title": "TickerResponseDTO"
+			},
+			"ValidationError": {
+				"properties": {
+					"loc": {
+						"items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+						"type": "array",
+						"title": "Location"
+					},
+					"msg": { "type": "string", "title": "Message" },
+					"type": { "type": "string", "title": "Error Type" },
+					"input": { "title": "Input" },
+					"ctx": { "type": "object", "title": "Context" }
+				},
+				"type": "object",
+				"required": ["loc", "msg", "type"],
+				"title": "ValidationError"
+			}
+		},
+		"securitySchemes": { "HTTPBasic": { "type": "http", "scheme": "basic" } }
+	}
+}

@@ -1,25 +1,25 @@
 // Strategy table with sorting, filtering, pagination, and persistent state
-import { useState, useEffect } from "react";
+
 import { useNavigate } from "@tanstack/react-router";
 import {
+	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	type ColumnDef,
 	type PaginationState,
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUpDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
-import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 
 interface StrategyTableProps {
 	data: KeyStrategyBacktestStats[];
@@ -87,24 +87,24 @@ export function StrategyTable({ data }: StrategyTableProps) {
 			accessorKey: "winRate",
 			header: "Win Rate %",
 			cell: ({ getValue }) => {
-				const value = (getValue() as number) * 100;
+				const value = (Number(`${getValue()}`)) * 100;
 				return value.toFixed(2);
 			},
 		},
 		{
 			accessorKey: "returnPercentage",
 			header: "Return %",
-			cell: ({ getValue }) => (getValue() as number).toFixed(2),
+			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
 		{
 			accessorKey: "averageDrawdownPercentage",
 			header: "Avg Drawdown %",
-			cell: ({ getValue }) => (getValue() as number).toFixed(2),
+			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
 		{
 			accessorKey: "sharpeRatio",
 			header: "Sharpe Ratio",
-			cell: ({ getValue }) => (getValue() as number).toFixed(2),
+			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
 	];
 
@@ -129,7 +129,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 	const getCellClass = (value: any, columnId: string) => {
 		const numValue =
 			typeof value === "number" ? value : parseFloat(String(value));
-		if (isNaN(numValue)) return "";
+		if (Number.isNaN(numValue)) return "";
 
 		// Win rate specific
 		if (columnId === "winRate") {

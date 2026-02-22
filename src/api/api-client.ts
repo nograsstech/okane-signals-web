@@ -1,6 +1,6 @@
 // Base API client with fetch wrapper
 
-const API_BASE_URL =
+const OKANE_FINANCE_API_BASE_URL =
 	import.meta.env.PUBLIC_OKANE_FINANCE_API_URL ||
 	import.meta.env.OKANE_FINANCE_API_URL ||
 	"http://localhost:8000";
@@ -20,11 +20,32 @@ export class APIError extends Error implements ApiError {
 	}
 }
 
-export async function apiFetch<T>(
+export async function apiFetchOkaneFinanceAPI<T>(
 	endpoint: string,
 	options?: RequestInit,
 ): Promise<T> {
-	const url = `${API_BASE_URL}${endpoint}`;
+	const url = `${OKANE_FINANCE_API_BASE_URL}${endpoint}`;
+
+	const response = await fetch(url, {
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options?.headers,
+		},
+	});
+
+	if (!response.ok) {
+		throw new APIError(`API Error: ${response.statusText}`, response.status);
+	}
+
+	return response.json() as Promise<T>;
+}
+
+export async function apiFetchOkaneSignals<T>(
+	endpoint: string,
+	options?: RequestInit,
+): Promise<T> {
+	const url = `${endpoint}`;
 
 	const response = await fetch(url, {
 		...options,
