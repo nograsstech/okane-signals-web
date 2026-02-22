@@ -9,12 +9,12 @@ import { Eye, EyeOff } from 'lucide-react'
 type AuthMode = 'signin' | 'signup' | 'forgot'
 
 interface AuthFormProps {
-  mode?: AuthMode
+  mode: AuthMode
   onSuccess?: () => void
 }
 
-export function AuthForm({ mode = 'signin', onSuccess }: AuthFormProps) {
-  const [currentMode, setCurrentMode] = useState<AuthMode>(mode)
+export function AuthForm({ mode, onSuccess }: AuthFormProps) {
+  const currentMode = mode
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -72,10 +72,8 @@ export function AuthForm({ mode = 'signin', onSuccess }: AuthFormProps) {
           name: formData.name,
         })
       } else if (currentMode === 'forgot') {
-        await authClient.forgetPassword({
-          email: formData.email,
-          redirectTo: '/auth/reset-password',
-        })
+        // TODO: Implement forgot password
+        throw new Error('Forgot password not yet implemented')
       }
 
       onSuccess?.()
@@ -177,7 +175,7 @@ export function AuthForm({ mode = 'signin', onSuccess }: AuthFormProps) {
                 {currentMode === 'signin' && (
                   <button
                     type="button"
-                    onClick={() => setCurrentMode('forgot')}
+                    onClick={() => {/* TODO: forgot password */}}
                     className="text-xs font-mono text-foreground/40 hover:text-foreground/60 transition-colors"
                   >
                     Forgot?
@@ -257,10 +255,7 @@ export function AuthForm({ mode = 'signin', onSuccess }: AuthFormProps) {
             Don't have terminal access?{' '}
             <button
               type="button"
-              onClick={() => {
-                setCurrentMode('signup')
-                setErrors({})
-              }}
+              onClick={() => navigate({ to: '/auth/register' })}
               className="font-mono text-xs uppercase tracking-wider text-foreground hover:underline"
             >
               Register
@@ -272,10 +267,7 @@ export function AuthForm({ mode = 'signin', onSuccess }: AuthFormProps) {
             Already have access?{' '}
             <button
               type="button"
-              onClick={() => {
-                setCurrentMode('signin')
-                setErrors({})
-              }}
+              onClick={() => navigate({ to: '/auth/login' })}
               className="font-mono text-xs uppercase tracking-wider text-foreground hover:underline"
             >
               Sign In
@@ -287,10 +279,7 @@ export function AuthForm({ mode = 'signin', onSuccess }: AuthFormProps) {
             Remember your password?{' '}
             <button
               type="button"
-              onClick={() => {
-                setCurrentMode('signin')
-                setErrors({})
-              }}
+              onClick={() => navigate({ to: '/auth/login' })}
               className="font-mono text-xs uppercase tracking-wider text-foreground hover:underline"
             >
               Back to Sign In
