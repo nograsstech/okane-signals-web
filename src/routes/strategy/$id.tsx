@@ -28,7 +28,7 @@ function StrategyDetailPage() {
 				<StrategyDetailContent id={id} />
 			</ProtectedRoute>
 		</Layout>
-	);
+	)
 }
 
 function StrategyDetailContent({ id }: { id: string }) {
@@ -55,7 +55,7 @@ function StrategyDetailContent({ id }: { id: string }) {
 					<p className="text-sm text-foreground/70">{error.message}</p>
 				</div>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -123,5 +123,5 @@ function StrategyDetailContent({ id }: { id: string }) {
 				</>
 			)}
 		</div>
-	);
+	)
 }

@@ -1,24 +1,24 @@
 // Strategy stats display with collapsible sections
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Timer } from "lucide-react";
 
+import { Link } from "@tanstack/react-router";
+import { ChevronDown, ChevronUp, Timer } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
+	CardContent,
+	CardDescription,
 	CardHeader,
 	CardTitle,
-	CardDescription,
-	CardContent,
 } from "@/components/ui/card";
 import {
 	Collapsible,
-	CollapsibleTrigger,
 	CollapsibleContent,
+	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-
-import { StrategyStatCard } from "./strategy-stat-card";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
+import { StrategyStatCard } from "./strategy-stat-card";
 
 interface StrategyStatsProps {
 	backtestData: KeyStrategyBacktestStats;
@@ -45,13 +45,17 @@ export function StrategyStats({ backtestData }: StrategyStatsProps) {
 						</CardDescription>
 					</div>
 					<Button variant="secondary" asChild>
-						<a
+						{/* <a
 							href={`/strategy/${backtestData.id}/backtest`}
 							target="_blank"
 							rel="noopener noreferrer"
 						>
 							View Backtest Performance
-						</a>
+						</a> */}
+						{/* @ts-ignore */}
+						<Link to={`/strategy/${backtestData.id}/backtest`}>
+							View Backtest Performance
+						</Link>
 					</Button>
 				</CardHeader>
 
@@ -113,10 +117,10 @@ export function StrategyStats({ backtestData }: StrategyStatsProps) {
 								/>
 								<StrategyStatCard
 									field="Win Rate %"
-									value={backtestData.winRate * 100}
+									value={backtestData.winRate}
 									description="Win percentage"
 									textColor={
-										backtestData.winRate >= 0.5 ? "positive" : "negative"
+										"positive"
 									}
 								/>
 							</>
@@ -207,7 +211,7 @@ export function StrategyStats({ backtestData }: StrategyStatsProps) {
 							/>
 							<StrategyStatCard
 								field="Win Rate %"
-								value={backtestData.winRate * 100}
+								value={backtestData.winRate}
 								description="Win percentage"
 							/>
 							<StrategyStatCard

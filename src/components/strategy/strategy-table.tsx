@@ -59,7 +59,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		const savedPageIndex = storage.getSession<number>("strategy-page");
 		return {
 			pageIndex: savedPageIndex ?? 0,
-			pageSize: 10,
+			pageSize: 20,
 		};
 	});
 
@@ -88,24 +88,28 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		{
 			accessorKey: "winRate",
 			header: "Win Rate %",
+			sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)),
 			cell: ({ getValue }) => {
-				const value = (Number(`${getValue()}`)) * 100;
+				const value = Number(`${getValue()}`);
 				return value.toFixed(2);
 			},
 		},
 		{
 			accessorKey: "returnPercentage",
 			header: "Return %",
+			sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)),
 			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
 		{
 			accessorKey: "averageDrawdownPercentage",
 			header: "Avg Drawdown %",
+			sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)),
 			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
 		{
 			accessorKey: "sharpeRatio",
 			header: "Sharpe Ratio",
+			sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)),
 			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
 	], []);
@@ -162,75 +166,77 @@ export function StrategyTable({ data }: StrategyTableProps) {
 				<div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-foreground/20" />
 				<div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-foreground/20" />
 
-				<table className="w-full">
-					<thead className="border-b border-border/30">
-						{table.getHeaderGroups().map((headerGroup) => (
-							<tr key={headerGroup.id}>
-								{headerGroup.headers.map((header) => (
-									<th
-										key={header.id}
-										className="px-4 py-3 text-left text-sm font-mono uppercase tracking-wider"
-									>
-										{header.column.getCanSort() ? (
-											<button
-												type="button"
-												onClick={header.column.getToggleSortingHandler()}
-												className="flex items-center gap-2 hover:text-accent-foreground"
-											>
-												{flexRender(
+				<div className="w-full overflow-x-auto">
+					<table className="w-full min-w-200">
+						<thead className="border-b border-border/30">
+							{table.getHeaderGroups().map((headerGroup) => (
+								<tr key={headerGroup.id}>
+									{headerGroup.headers.map((header) => (
+										<th
+											key={header.id}
+											className="px-4 py-3 text-left text-sm font-mono uppercase tracking-wider whitespace-nowrap"
+										>
+											{header.column.getCanSort() ? (
+												<button
+													type="button"
+													onClick={header.column.getToggleSortingHandler()}
+													className="flex items-center gap-2 hover:text-accent-foreground"
+												>
+													{flexRender(
+														header.column.columnDef.header,
+														header.getContext(),
+													)}
+													{header.column.getIsSorted() === "asc" && (
+														<ArrowUp className="h-4 w-4" />
+													)}
+													{header.column.getIsSorted() === "desc" && (
+														<ArrowDown className="h-4 w-4" />
+													)}
+													{header.column.getIsSorted() === false && (
+														<ArrowUpDown className="h-4 w-4" />
+													)}
+												</button>
+											) : (
+												flexRender(
 													header.column.columnDef.header,
 													header.getContext(),
-												)}
-												{header.column.getIsSorted() === "asc" && (
-													<ArrowUp className="h-4 w-4" />
-												)}
-												{header.column.getIsSorted() === "desc" && (
-													<ArrowDown className="h-4 w-4" />
-												)}
-												{header.column.getIsSorted() === false && (
-													<ArrowUpDown className="h-4 w-4" />
-												)}
-											</button>
-										) : (
-											flexRender(
-												header.column.columnDef.header,
-												header.getContext(),
-											)
-										)}
-									</th>
-								))}
-							</tr>
-						))}
-					</thead>
-					<tbody>
-						{table.getRowModel().rows.map((row) => (
-							<tr
-								key={row.id}
-								className="border-b border-border/20 hover:bg-muted/50 cursor-pointer"
-								onClick={() =>
-									navigate({
-										to: "/strategy/$id",
-										params: {
-											id: (row.original as KeyStrategyBacktestStats).id,
-										},
-									})
-								}
-							>
-								{row.getVisibleCells().map((cell) => (
-									<td
-										key={cell.id}
-										className={cn(
-											"px-4 py-4 h-14",
-											getCellClass(cell.getValue(), cell.column.id),
-										)}
-									>
-										{flexRender(cell.column.columnDef.cell, cell.getContext())}
-									</td>
-								))}
-							</tr>
-						))}
-					</tbody>
-				</table>
+												)
+											)}
+										</th>
+									))}
+								</tr>
+							))}
+						</thead>
+						<tbody>
+							{table.getRowModel().rows.map((row) => (
+								<tr
+									key={row.id}
+									className="border-b border-border/20 hover:bg-muted/50 cursor-pointer"
+									onClick={() =>
+										navigate({
+											to: "/strategy/$id",
+											params: {
+												id: (row.original as KeyStrategyBacktestStats).id,
+											},
+										})
+									}
+								>
+									{row.getVisibleCells().map((cell) => (
+										<td
+											key={cell.id}
+											className={cn(
+												"px-4 py-4 h-14 whitespace-nowrap",
+												getCellClass(cell.getValue(), cell.column.id),
+											)}
+										>
+											{flexRender(cell.column.columnDef.cell, cell.getContext())}
+										</td>
+									))}
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			</div>
 
 			{/* Pagination */}
