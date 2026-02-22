@@ -1,5 +1,7 @@
 import { InputHTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -13,25 +15,23 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
     return (
       <div className="space-y-1">
         {label && (
-          <label
+          <Label
             htmlFor={inputId}
             className="text-xs uppercase tracking-widest text-foreground/60 font-mono"
           >
             {label}
-          </label>
+          </Label>
         )}
-        <input
+        <Input
           id={inputId}
           ref={ref}
           className={cn(
-            'w-full bg-background/50 border border-border/50',
-            'font-mono text-sm px-4 py-3',
-            'focus:outline-none focus:border-accent-foreground focus:bg-background/80',
-            'transition-all duration-200',
+            'font-mono px-4 py-3 h-auto bg-background/50',
             'placeholder:text-foreground/30',
-            error && 'border-destructive/50',
+            error && 'border-destructive/50 aria-invalid:border-destructive',
             className
           )}
+          aria-invalid={!!error}
           {...props}
         />
         {error && (
@@ -42,6 +42,6 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
   }
 )
 
-AuthInput.displayName = 'Input'
+AuthInput.displayName = 'AuthInput'
 
 export { AuthInput }

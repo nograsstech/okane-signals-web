@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 import BetterAuthHeader from '@/integrations/better-auth/header-user'
 import { Home, TrendingUp, Activity, Settings } from 'lucide-react'
 import {
@@ -15,8 +15,9 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { Link } from '@tanstack/react-router'
 
-export default function Header() {
+export default function Layout() {
   return (
     <SidebarProvider defaultOpen={false}>
       <Sidebar collapsible="offcanvas">
@@ -109,6 +110,9 @@ export default function Header() {
             </div>
           </div>
         </header>
+
+        {/* Page Content */}
+        <Outlet />
       </SidebarInset>
     </SidebarProvider>
   )

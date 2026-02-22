@@ -1,5 +1,6 @@
 import { authClient } from '@/lib/auth-client'
 import { Link } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 
 export default function BetterAuthHeader() {
   const { data: session, isPending } = authClient.useSession()
@@ -41,24 +42,29 @@ export default function BetterAuthHeader() {
         </div>
 
         {/* Sign Out Button */}
-        <button
+        <Button
           onClick={() => {
             void authClient.signOut()
           }}
-          className="h-9 px-3 text-xs font-mono uppercase tracking-wider bg-foreground/10 hover:bg-foreground/20 text-foreground border border-border/50 transition-colors"
+          size="sm"
+          variant="outline"
+          className="h-9 text-xs font-mono uppercase tracking-wider"
         >
           Exit
-        </button>
+        </Button>
       </div>
     )
   }
 
   return (
-    <Link
-      to="/auth"
-      className="h-9 px-4 text-xs font-mono uppercase tracking-wider bg-foreground text-background hover:bg-foreground/90 transition-colors inline-flex items-center"
+    <Button
+      asChild
+      size="sm"
+      className="h-9 text-xs font-mono uppercase tracking-wider"
     >
-      Access Terminal
-    </Link>
+      <Link to="/auth">
+        Access Terminal
+      </Link>
+    </Button>
   )
 }

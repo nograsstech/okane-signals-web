@@ -1,6 +1,7 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export interface SocialButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   provider: 'google' | 'github'
@@ -38,16 +39,12 @@ const providerIcons = {
 const SocialButton = forwardRef<HTMLButtonElement, SocialButtonProps>(
   ({ className, provider, loading, children, disabled, ...props }, ref) => {
     return (
-      <button
+      <Button
         ref={ref}
         disabled={disabled || loading}
+        variant="outline"
         className={cn(
-          'relative inline-flex items-center justify-center gap-3',
-          'w-full font-mono text-sm uppercase tracking-wider',
-          'px-4 py-3 transition-all duration-200',
-          'bg-background/50 border border-border/50',
-          'hover:bg-background hover:border-border',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
+          'w-full font-mono text-sm uppercase tracking-wider justify-start gap-3',
           className
         )}
         {...props}
@@ -55,10 +52,10 @@ const SocialButton = forwardRef<HTMLButtonElement, SocialButtonProps>(
         {loading ? (
           <Loader2 className="w-5 h-5 animate-spin" />
         ) : (
-          <span className="text-foreground/80">{providerIcons[provider]}</span>
+          <span className="text-foreground/80 shrink-0">{providerIcons[provider]}</span>
         )}
         <span>{children || `Continue with ${provider.charAt(0).toUpperCase() + provider.slice(1)}`}</span>
-      </button>
+      </Button>
     )
   }
 )
