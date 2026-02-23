@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import BetterAuthHeader from "@/integrations/better-auth/header-user";
-import { Home, TrendingUp, Activity, Settings } from "lucide-react";
+import { Activity, Home, Settings, TrendingUp } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -15,6 +14,8 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import BetterAuthHeader from "@/integrations/better-auth/header-user";
+import { ModeToggle } from "./ui/mode-toggle";
 
 export default function Header() {
 	return (
@@ -106,6 +107,7 @@ export default function Header() {
 							<div className="text-xs font-mono text-foreground/30">
 								{new Date().toLocaleTimeString("en-US", { hour12: false })}
 							</div>
+							<ModeToggle />
 						</div>
 					</div>
 				</header>

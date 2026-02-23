@@ -25,7 +25,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
 	Select,
 	SelectContent,
@@ -33,10 +32,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
-import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 
 interface StrategyGridProps {
 	data: KeyStrategyBacktestStats[];
@@ -224,105 +224,88 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 					const sharpeVal = Number(item.sharpeRatio);
 
 					return (
-						<button
-							type="button"
+						<div
 							key={item.id}
-							onClick={() =>
-								navigate({
-									to: "/strategy/$id",
-									params: { id: item.id },
-								})
-							}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
-									e.preventDefault();
-									navigate({
-										to: "/strategy/$id",
-										params: { id: item.id },
-									});
-								}
-							}}
-							className="group relative flex flex-col justify-between p-5 cursor-pointer 
-                                bg-card hover:bg-muted/30 border border-border/40 hover:border-border/80 
-                                transition-all duration-300 ease-out z-10 
-                                shadow-sm hover:shadow-md overflow-hidden rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 text-left w-full h-full"
+							className="group relative flex flex-col bg-card border border-border/40 hover:border-border/80 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:shadow-lg"
 						>
-							{/* Subtle background gradient on hover */}
-							<div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+							{/* Top gradient accent */}
+							<div className="h-1 bg-linear-to-r from-primary/60 via-primary to-primary/60" />
 
-							<div className="flex flex-col gap-4 w-full">
-								<div className="flex justify-between items-start w-full">
-									<div className="space-y-1">
-										<h3 className="font-semibold text-lg leading-tight tracking-tight text-foreground flex items-center gap-2">
+							{/* Header with notification toggle */}
+							<div className="p-4 pb-3 border-b border-border/20">
+								<div className="flex items-start justify-between gap-2 mb-2">
+									<div className="min-w-0 flex-1">
+										<h3
+											className="font-semibold text-base leading-tight tracking-tight text-foreground truncate pr-2"
+											title={item.strategy}
+										>
 											{item.strategy}
-											<button
-												type="button"
-												onClick={(e) =>
-													handleToggleNotification(
-														e,
-														item.id,
-														item.notificationsOn,
-													)
-												}
-												onKeyDown={(e) => {
-													if (e.key === "Enter" || e.key === " ") {
-														e.preventDefault();
-														e.stopPropagation();
-														handleToggleNotification(
-															e,
-															item.id,
-															item.notificationsOn,
-														);
-													}
-												}}
-												className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-md hover:bg-muted/50 transition-colors"
-												aria-label={`Toggle notifications for ${item.strategy}`}
-											>
-												{item.notificationsOn ? (
-													<Bell className="w-3.5 h-3.5 text-primary animate-pulse" />
-												) : (
-													<BellOff className="w-3.5 h-3.5 text-muted-foreground" />
-												)}
-												<Switch
-													checked={item.notificationsOn}
-													onChange={() => {}}
-													className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/50"
-												/>
-											</button>
 										</h3>
-										<div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-											<Badge
-												variant="outline"
-												className="text-[10px] px-1.5 py-0 border-border/50"
-											>
+										<div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+											<Badge className="text-[10px] px-1.5 py-0 font-medium bg-muted/70 text-foreground border-border/60">
 												{item.ticker}
 											</Badge>
-											<span>{item.period}</span>
-											<span className="opacity-50">•</span>
-											<span>{item.interval}</span>
+											<span className="text-[10px] text-muted-foreground font-mono">
+												{item.period}
+											</span>
+											<span className="text-[10px] text-muted-foreground/50">•</span>
+											<span className="text-[10px] text-muted-foreground font-mono">
+												{item.interval}
+											</span>
 										</div>
 									</div>
-									<div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300 shrink-0">
-										<ArrowUpRight className="w-4 h-4 text-primary" />
-									</div>
+
+									{/* Notification Toggle */}
+									<button
+										type="button"
+										onClick={(e) =>
+											handleToggleNotification(e, item.id, item.notificationsOn)
+										}
+										onKeyDown={(e) => {
+											if (e.key === "Enter" || e.key === " ") {
+												e.preventDefault();
+												e.stopPropagation();
+												handleToggleNotification(e, item.id, item.notificationsOn);
+											}
+										}}
+										className={cn(
+											"shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all duration-200",
+											item.notificationsOn
+												? "bg-primary/10 border-primary/30 hover:bg-primary/15"
+												: "bg-muted/30 border-border/40 hover:bg-muted/50",
+										)}
+										aria-label={`Toggle notifications for ${item.strategy}`}
+									>
+										{item.notificationsOn ? (
+											<Bell className="w-3.5 h-3.5 text-primary" />
+										) : (
+											<BellOff className="w-3.5 h-3.5 text-muted-foreground" />
+										)}
+										<Switch
+											checked={item.notificationsOn}
+											onChange={() => {}}
+											className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/60"
+										/>
+									</button>
 								</div>
 
 								{badges && (
-									<div className="flex">
-										<Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 text-[10px] font-mono">
-											{badges}
-										</Badge>
-									</div>
+									<Badge className="bg-primary/5 text-primary border-primary/15 text-[10px] font-mono px-2 py-0.5 w-fit">
+										{badges}
+									</Badge>
 								)}
+							</div>
 
-								<div className="grid grid-cols-2 gap-y-4 gap-x-2 mt-2 w-full">
-									<div className="space-y-1">
+							{/* Stats Grid */}
+							<div className="p-4 flex-1">
+								<div className="grid grid-cols-2 gap-3">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<Target className="w-3 h-3" /> Win Rate
 										</span>
 										<div
 											className={cn(
-												"text-lg font-mono tracking-tight",
+												"text-base font-mono tracking-tight font-medium",
 												winRateVal >= 50 ? "text-emerald-500" : "text-red-500",
 											)}
 										>
@@ -330,13 +313,13 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<Activity className="w-3 h-3" /> Return
 										</span>
 										<div
 											className={cn(
-												"text-lg font-mono tracking-tight",
+												"text-base font-mono tracking-tight font-medium",
 												returnVal >= 0 ? "text-emerald-500" : "text-red-500",
 											)}
 										>
@@ -345,7 +328,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<TrendingDown className="w-3 h-3" /> Max DD
 										</span>
@@ -361,7 +344,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<TrendingUp className="w-3 h-3" /> Sharpe
 										</span>
@@ -376,7 +359,33 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 									</div>
 								</div>
 							</div>
-						</button>
+
+							{/* Footer Action */}
+							<button
+								type="button"
+								onClick={() =>
+									navigate({
+										to: "/strategy/$id",
+										params: { id: item.id },
+									})
+								}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										navigate({
+											to: "/strategy/$id",
+											params: { id: item.id },
+										});
+									}
+								}}
+								className="flex items-center justify-between px-4 py-2.5 bg-muted/20 hover:bg-muted/40 border-t border-border/20 transition-colors group/btn"
+							>
+								<span className="text-xs font-medium text-foreground/70 group-hover/btn:text-foreground transition-colors">
+									View Details
+								</span>
+								<ArrowUpRight className="w-4 h-4 text-foreground/50 group-hover/btn:text-foreground group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all" />
+							</button>
+						</div>
 					);
 				})}
 			</div>
