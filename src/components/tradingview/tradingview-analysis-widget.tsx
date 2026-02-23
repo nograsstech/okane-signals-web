@@ -17,7 +17,7 @@ export function TradingViewAnalysisWidget({
 			interval: "30m",
 			width: "100%",
 			isTransparent: false,
-			height: 450,
+			height: 400,
 			symbol: symbol,
 			showIntervalTabs: true,
 			displayMode: "single",
@@ -27,7 +27,7 @@ export function TradingViewAnalysisWidget({
 
 		// Clear and recreate
 		containerRef.current.innerHTML = `
-			<div class="tradingview-widget-container">
+			<div class="tradingview-widget-container w-full h-full">
 				<div class="tradingview-widget-container__widget"></div>
 			</div>
 		`;
@@ -49,7 +49,7 @@ export function TradingViewAnalysisWidget({
 
 	return (
 		<div className="my-4">
-			<div ref={containerRef} className="tradingview-widget-container" />
+			<div ref={containerRef} className="tradingview-widget-container w-full h-[400px]" />
 		</div>
 	);
 }
