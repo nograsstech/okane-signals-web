@@ -22,6 +22,7 @@ import { Route as ApiStrategyTradeActionsRouteImport } from './routes/api/strate
 import { Route as ApiStrategySignalsRouteImport } from './routes/api/strategy/signals'
 import { Route as ApiStrategyListRouteImport } from './routes/api/strategy/list'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiStrategyIdNotificationRouteImport } from './routes/api/strategy/$id/notification'
 import { Route as ApiStrategyIdBacktestRouteImport } from './routes/api/strategy/$id/backtest'
 
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +90,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStrategyIdNotificationRoute =
+  ApiStrategyIdNotificationRouteImport.update({
+    id: '/$id/notification',
+    path: '/$id/notification',
+    getParentRoute: () => ApiStrategyRoute,
+  } as any)
 const ApiStrategyIdBacktestRoute = ApiStrategyIdBacktestRouteImport.update({
   id: '/$id/backtest',
   path: '/$id/backtest',
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/api/strategy/$id/backtest': typeof ApiStrategyIdBacktestRoute
+  '/api/strategy/$id/notification': typeof ApiStrategyIdNotificationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/api/strategy/$id/backtest': typeof ApiStrategyIdBacktestRoute
+  '/api/strategy/$id/notification': typeof ApiStrategyIdNotificationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/api/strategy/$id/backtest': typeof ApiStrategyIdBacktestRoute
+  '/api/strategy/$id/notification': typeof ApiStrategyIdNotificationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/auth/login/'
     | '/auth/register/'
     | '/api/strategy/$id/backtest'
+    | '/api/strategy/$id/notification'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/api/strategy/$id/backtest'
+    | '/api/strategy/$id/notification'
   id:
     | '__root__'
     | '/'
@@ -193,6 +205,7 @@ export interface FileRouteTypes {
     | '/auth/login/'
     | '/auth/register/'
     | '/api/strategy/$id/backtest'
+    | '/api/strategy/$id/notification'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/strategy/$id/notification': {
+      id: '/api/strategy/$id/notification'
+      path: '/$id/notification'
+      fullPath: '/api/strategy/$id/notification'
+      preLoaderRoute: typeof ApiStrategyIdNotificationRouteImport
+      parentRoute: typeof ApiStrategyRoute
+    }
     '/api/strategy/$id/backtest': {
       id: '/api/strategy/$id/backtest'
       path: '/$id/backtest'
@@ -316,6 +336,7 @@ interface ApiStrategyRouteChildren {
   ApiStrategySignalsRoute: typeof ApiStrategySignalsRoute
   ApiStrategyTradeActionsRoute: typeof ApiStrategyTradeActionsRoute
   ApiStrategyIdBacktestRoute: typeof ApiStrategyIdBacktestRoute
+  ApiStrategyIdNotificationRoute: typeof ApiStrategyIdNotificationRoute
 }
 
 const ApiStrategyRouteChildren: ApiStrategyRouteChildren = {
@@ -323,6 +344,7 @@ const ApiStrategyRouteChildren: ApiStrategyRouteChildren = {
   ApiStrategySignalsRoute: ApiStrategySignalsRoute,
   ApiStrategyTradeActionsRoute: ApiStrategyTradeActionsRoute,
   ApiStrategyIdBacktestRoute: ApiStrategyIdBacktestRoute,
+  ApiStrategyIdNotificationRoute: ApiStrategyIdNotificationRoute,
 }
 
 const ApiStrategyRouteWithChildren = ApiStrategyRoute._addFileChildren(

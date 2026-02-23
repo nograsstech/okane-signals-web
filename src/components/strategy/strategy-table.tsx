@@ -12,14 +12,16 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Bell, BellOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
+import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 
 interface StrategyTableProps {
 	data: KeyStrategyBacktestStats[];
@@ -34,20 +36,19 @@ function computeTopPerformer(item: KeyStrategyBacktestStats): string {
 	return badges;
 }
 
-// Get notification badge
-function getNotificationBadge(item: KeyStrategyBacktestStats): string {
-	return item.notificationsOn ? "🔔" : "";
-}
-
 export function StrategyTable({ data }: StrategyTableProps) {
 	const navigate = useNavigate();
+	const notificationToggle = useNotificationToggle();
 
 	// Add computed fields
-	const enrichedData = useMemo(() => data.map((item) => ({
-		...item,
-		"✨": computeTopPerformer(item),
-		"🔔": getNotificationBadge(item),
-	})), [data]);
+	const enrichedData = useMemo(
+		() =>
+			data.map((item) => ({
+				...item,
+				"✨": computeTopPerformer(item),
+			})),
+		[data],
+	);
 
 	// Initialize state from storage
 	const [sorting, setSorting] = useState<SortingState>(() => {
@@ -74,13 +75,42 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		storage.setSession("strategy-page", pagination.pageIndex);
 	}, [pagination.pageIndex]);
 
-	const columns = useMemo<
-		ColumnDef<
-			KeyStrategyBacktestStats & { "✨": string; "🔔": string }
-		>[]
-	>(() => [
-		{ accessorKey: "🔔", header: "🔔", size: 50 },
+	const columns = useMemo<ColumnDef<KeyStrategyBacktestStats & { "✨": string }>[]>(
+		() => [
 		{ accessorKey: "✨", header: "✨ Top Performer", size: 120 },
+		{
+			id: "notifications",
+			header: "Notifications",
+			size: 100,
+			cell: ({ row }) => {
+				const item = row.original as KeyStrategyBacktestStats;
+				return (
+					<button
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation();
+							notificationToggle.mutate({
+								id: item.id,
+								notificationsOn: !item.notificationsOn,
+							});
+						}}
+						className="flex items-center gap-2 hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+						aria-label={`Toggle notifications for ${item.strategy}`}
+					>
+						{item.notificationsOn ? (
+							<Bell className="w-4 h-4 text-primary" />
+						) : (
+							<BellOff className="w-4 h-4 text-muted-foreground" />
+						)}
+						<Switch
+							checked={item.notificationsOn}
+							onChange={() => {}}
+							className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/50"
+						/>
+					</button>
+				);
+			},
+		},
 		{ accessorKey: "strategy", header: "Strategy" },
 		{ accessorKey: "ticker", header: "Ticker" },
 		{ accessorKey: "period", header: "Period" },
@@ -112,7 +142,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 			sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)),
 			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
-	], []);
+	], [notificationToggle.mutate]);
 
 	const table = useReactTable({
 		data: enrichedData,

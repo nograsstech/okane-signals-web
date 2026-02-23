@@ -15,6 +15,7 @@ import {
 	ArrowUp,
 	ArrowUpRight,
 	Bell,
+	BellOff,
 	Clock,
 	Target,
 	TrendingDown,
@@ -24,6 +25,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
 	Select,
 	SelectContent,
@@ -34,6 +36,7 @@ import {
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
+import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 
 interface StrategyGridProps {
 	data: KeyStrategyBacktestStats[];
@@ -50,6 +53,7 @@ function computeTopPerformer(item: KeyStrategyBacktestStats): string {
 
 export function StrategyGrid({ data }: StrategyGridProps) {
 	const navigate = useNavigate();
+	const notificationToggle = useNotificationToggle();
 
 	// Initialize state from storage
 	const [sorting, setSorting] = useState<SortingState>(() => {
@@ -144,6 +148,21 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 		return Number(val).toFixed(2);
 	};
 
+	const handleToggleNotification = (
+		e: React.MouseEvent | React.KeyboardEvent,
+		id: string,
+		currentState: boolean,
+	) => {
+		// Prevent navigation when clicking toggle
+		e.stopPropagation();
+		e.preventDefault();
+
+		notificationToggle.mutate({
+			id,
+			notificationsOn: !currentState,
+		});
+	};
+
 	return (
 		<div className="mt-8 flex flex-col gap-6">
 			<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -236,9 +255,40 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 									<div className="space-y-1">
 										<h3 className="font-semibold text-lg leading-tight tracking-tight text-foreground flex items-center gap-2">
 											{item.strategy}
-											{item.notificationsOn && (
-												<Bell className="w-3.5 h-3.5 text-primary animate-pulse" />
-											)}
+											<button
+												type="button"
+												onClick={(e) =>
+													handleToggleNotification(
+														e,
+														item.id,
+														item.notificationsOn,
+													)
+												}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ") {
+														e.preventDefault();
+														e.stopPropagation();
+														handleToggleNotification(
+															e,
+															item.id,
+															item.notificationsOn,
+														);
+													}
+												}}
+												className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-md hover:bg-muted/50 transition-colors"
+												aria-label={`Toggle notifications for ${item.strategy}`}
+											>
+												{item.notificationsOn ? (
+													<Bell className="w-3.5 h-3.5 text-primary animate-pulse" />
+												) : (
+													<BellOff className="w-3.5 h-3.5 text-muted-foreground" />
+												)}
+												<Switch
+													checked={item.notificationsOn}
+													onChange={() => {}}
+													className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/50"
+												/>
+											</button>
 										</h3>
 										<div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
 											<Badge
