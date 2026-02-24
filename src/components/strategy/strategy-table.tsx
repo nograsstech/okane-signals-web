@@ -12,14 +12,23 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Bell, BellOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
+import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 
 interface StrategyTableProps {
 	data: KeyStrategyBacktestStats[];
@@ -34,20 +43,19 @@ function computeTopPerformer(item: KeyStrategyBacktestStats): string {
 	return badges;
 }
 
-// Get notification badge
-function getNotificationBadge(item: KeyStrategyBacktestStats): string {
-	return item.notificationsOn ? "🔔" : "";
-}
-
 export function StrategyTable({ data }: StrategyTableProps) {
 	const navigate = useNavigate();
+	const notificationToggle = useNotificationToggle();
 
 	// Add computed fields
-	const enrichedData = useMemo(() => data.map((item) => ({
-		...item,
-		"✨": computeTopPerformer(item),
-		"🔔": getNotificationBadge(item),
-	})), [data]);
+	const enrichedData = useMemo(
+		() =>
+			data.map((item) => ({
+				...item,
+				"✨": computeTopPerformer(item),
+			})),
+		[data],
+	);
 
 	// Initialize state from storage
 	const [sorting, setSorting] = useState<SortingState>(() => {
@@ -55,15 +63,24 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		return saved ?? [{ id: "winRate", desc: true }];
 	});
 
+	const [pageSize, setPageSize] = useState<number>(() => {
+		const saved = storage.get<number>("strategy-page-size");
+		return saved ?? 20;
+	});
+
 	const [pagination, setPagination] = useState<PaginationState>(() => {
 		const savedPageIndex = storage.getSession<number>("strategy-page");
 		return {
 			pageIndex: savedPageIndex ?? 0,
-			pageSize: 20,
+			pageSize: pageSize,
 		};
 	});
 
 	const [globalFilter, setGlobalFilter] = useState("");
+	const [tickerFilter, setTickerFilter] = useState("");
+	const [columnFilters, setColumnFilters] = useState<{ id: string; value: unknown }[]>(
+		[],
+	);
 
 	// Persist state changes
 	useEffect(() => {
@@ -74,13 +91,51 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		storage.setSession("strategy-page", pagination.pageIndex);
 	}, [pagination.pageIndex]);
 
-	const columns = useMemo<
-		ColumnDef<
-			KeyStrategyBacktestStats & { "✨": string; "🔔": string }
-		>[]
-	>(() => [
-		{ accessorKey: "🔔", header: "🔔", size: 50 },
+	useEffect(() => {
+		storage.set("strategy-page-size", pageSize);
+		setPagination((prev) => ({ ...prev, pageSize }));
+	}, [pageSize]);
+
+	useEffect(() => {
+		setColumnFilters(tickerFilter ? [{ id: "ticker", value: tickerFilter }] : []);
+	}, [tickerFilter]);
+
+	const columns = useMemo<ColumnDef<KeyStrategyBacktestStats & { "✨": string }>[]>(
+		() => [
 		{ accessorKey: "✨", header: "✨ Top Performer", size: 120 },
+		{
+			id: "notifications",
+			header: "Notifications",
+			size: 100,
+			cell: ({ row }) => {
+				const item = row.original as KeyStrategyBacktestStats;
+				return (
+					<button
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation();
+							notificationToggle.mutate({
+								id: item.id,
+								notificationsOn: !item.notificationsOn,
+							});
+						}}
+						className="flex items-center gap-2 hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+						aria-label={`Toggle notifications for ${item.strategy}`}
+					>
+						{item.notificationsOn ? (
+							<Bell className="w-4 h-4 text-primary" />
+						) : (
+							<BellOff className="w-4 h-4 text-muted-foreground" />
+						)}
+						<Switch
+							checked={item.notificationsOn}
+							onChange={() => {}}
+							className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/50"
+						/>
+					</button>
+				);
+			},
+		},
 		{ accessorKey: "strategy", header: "Strategy" },
 		{ accessorKey: "ticker", header: "Ticker" },
 		{ accessorKey: "period", header: "Period" },
@@ -112,7 +167,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 			sortingFn: (a, b, id) => Number(a.getValue(id)) - Number(b.getValue(id)),
 			cell: ({ getValue }) => (Number(`${getValue()}`) as number).toFixed(2),
 		},
-	], []);
+	], [notificationToggle.mutate]);
 
 	const table = useReactTable({
 		data: enrichedData,
@@ -128,6 +183,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 			sorting,
 			pagination,
 			globalFilter,
+			columnFilters,
 		},
 	});
 
@@ -151,13 +207,33 @@ export function StrategyTable({ data }: StrategyTableProps) {
 
 	return (
 		<div className="mt-8">
-			<div className="mb-4 flex items-center">
+			<div className="mb-4 flex flex-col sm:flex-row items-center gap-3">
+				<Input
+					placeholder="Filter by Ticker..."
+					value={tickerFilter}
+					onChange={(e) => setTickerFilter(e.target.value)}
+					className="max-w-sm"
+				/>
 				<Input
 					placeholder="Filter Okane Signals..."
 					value={globalFilter}
 					onChange={(e) => setGlobalFilter(e.target.value)}
 					className="max-w-sm"
 				/>
+				<Select
+					value={String(pageSize)}
+					onValueChange={(value) => setPageSize(Number(value))}
+				>
+					<SelectTrigger className="w-30">
+						<SelectValue placeholder="Per page" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="10">10 / page</SelectItem>
+						<SelectItem value="20">20 / page</SelectItem>
+						<SelectItem value="50">50 / page</SelectItem>
+						<SelectItem value="100">100 / page</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
 			<div className="relative rounded-md border border-border/50">

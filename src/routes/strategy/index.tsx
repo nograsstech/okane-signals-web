@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { LayoutGrid, List } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { LayoutGrid, List, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth";
 import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
 import { StrategyGrid } from "@/components/strategy/strategy-grid";
 import { StrategyTable } from "@/components/strategy/strategy-table";
 import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skeleton";
@@ -56,28 +57,36 @@ function StrategyListContent() {
 
 	return (
 		<div className="min-h-screen p-6">
-			<div className="flex justify-between items-end mb-8">
+			<div className="flex justify-between items-center mb-8">
 				<h2 className="text-4xl font-bold tracking-tight">
 					Trading Strategies
 				</h2>
-				
-				<div className="flex bg-muted/30 p-1 rounded-lg border border-border/50 gap-1">
-					<button
-						type="button"
-						onClick={() => setViewMode("table")}
-						className={`p-2 rounded-md transition-all ${viewMode === "table" ? "bg-background text-foreground shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
-						title="Table View"
-					>
-						<List className="w-5 h-5" />
-					</button>
-					<button
-						type="button"
-						onClick={() => setViewMode("grid")}
-						className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-background text-foreground shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
-						title="Grid View"
-					>
-						<LayoutGrid className="w-5 h-5" />
-					</button>
+
+				<div className="flex items-center gap-3">
+					<Link to="/strategy/create">
+						<Button size="sm" className="gap-2">
+							<Plus className="w-4 h-4" />
+							<span>Create Strategy</span>
+						</Button>
+					</Link>
+					<div className="flex bg-muted/30 p-1 rounded-lg border border-border/50 gap-1">
+						<button
+							type="button"
+							onClick={() => setViewMode("table")}
+							className={`p-2 rounded-md transition-all ${viewMode === "table" ? "bg-background text-foreground shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
+							title="Table View"
+						>
+							<List className="w-5 h-5" />
+						</button>
+						<button
+							type="button"
+							onClick={() => setViewMode("grid")}
+							className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-background text-foreground shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
+							title="Grid View"
+						>
+							<LayoutGrid className="w-5 h-5" />
+						</button>
+					</div>
 				</div>
 			</div>
 
@@ -94,9 +103,17 @@ function StrategyListContent() {
 function LoadingState() {
 	return (
 		<div className="min-h-screen p-6">
-			<h2 className="text-4xl font-bold tracking-tight mb-8">
-				Trading Strategies
-			</h2>
+			<div className="flex justify-between items-center mb-8">
+				<h2 className="text-4xl font-bold tracking-tight">
+					Trading Strategies
+				</h2>
+				<Link to="/strategy/create">
+					<Button size="sm" className="gap-2" disabled>
+						<Plus className="w-4 h-4" />
+						<span>Create Strategy</span>
+					</Button>
+				</Link>
+			</div>
 			<TableLoadingSkeleton />
 		</div>
 	);

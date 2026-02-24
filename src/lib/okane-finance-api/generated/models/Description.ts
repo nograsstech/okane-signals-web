@@ -14,29 +14,29 @@
 
 import { mapValues } from '../runtime';
 /**
- * 
+ * Optional description of the strategy
  * @export
- * @interface Period
+ * @interface Description
  */
-export interface Period {
+export interface Description {
 }
 
 /**
- * Check if a given object implements the Period interface.
+ * Check if a given object implements the Description interface.
  */
-export function instanceOfPeriod(value: object): boolean {
+export function instanceOfDescription(value: object): boolean {
     return true;
 }
 
-export function PeriodFromJSON(json: any): Period {
-    return PeriodFromJSONTyped(json, false);
+export function DescriptionFromJSON(json: any): Description {
+    return DescriptionFromJSONTyped(json, false);
 }
 
-export function PeriodFromJSONTyped(json: any, ignoreDiscriminator: boolean): Period {
+export function DescriptionFromJSONTyped(json: any, ignoreDiscriminator: boolean): Description {
     return json;
 }
 
-export function PeriodToJSON(value?: Period | null): any {
+export function DescriptionToJSON(value?: Description | null): any {
     return value;
 }
 

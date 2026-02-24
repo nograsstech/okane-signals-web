@@ -69,3 +69,28 @@ export async function getBacktestHtml(id: string): Promise<string> {
 
 	return decompressedData;
 }
+
+export interface ToggleNotificationParams {
+	id: string;
+	notificationsOn: boolean;
+}
+
+// Toggle notification for a strategy
+export async function toggleNotification(
+	params: ToggleNotificationParams,
+): Promise<KeyStrategyBacktestStats> {
+	const response = await fetch(`/api/strategy/${params.id}/notification`, {
+		method: "PATCH",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ notificationsOn: params.notificationsOn }),
+	});
+
+	if (!response.ok) {
+		const error = (await response.json()) as { error: string };
+		throw new Error(error.error || "Failed to update notification");
+	}
+
+	return response.json();
+}

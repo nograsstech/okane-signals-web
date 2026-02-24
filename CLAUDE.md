@@ -8,15 +8,16 @@ This is a **TanStack Start** application - a React SSR framework built on Vite w
 
 - **Frontend**: React 19, TanStack Router, TanStack Query
 - **Styling**: Tailwind CSS v4 with Vite plugin
-- **Database**: PostgreSQL with Drizzle ORM
-- **Auth**: Better Auth (email/password authentication)
+- **Database**: PostgreSQL (Supabase) with Drizzle ORM
+- **Auth**: Better Auth (email/password + Google OAuth)
+- **API Client**: Auto-generated TypeScript client from OpenAPI spec
 - **Build Tool**: Vite
 - **Testing**: Vitest
 - **Linting/Formatting**: Biome
 
-## Common Commands
+## Development Commands
 
-### Development
+### Running the Application
 ```bash
 bun dev              # Start dev server on port 3000
 bun build            # Build for production
@@ -35,7 +36,7 @@ bun check            # Run all Biome checks (lint + format)
 bun test             # Run all tests with Vitest
 ```
 
-### Database
+### Database (Drizzle ORM)
 ```bash
 bun db:generate      # Generate Drizzle migrations from schema changes
 bun db:migrate       # Run database migrations
@@ -46,19 +47,47 @@ bun db:studio        # Open Drizzle Studio (database GUI)
 
 ### UI Components (shadcn/ui)
 ```bash
-# Initialize shadcn/ui (if not already set up)
-bunx shadcn@latest init
-
-# Add shadcn UI components
-bunx --bun shadcn@latest add <component>
-
+bunx shadcn@latest add <component>
 ```
 
 **Available components:** button, input, card, dialog, dropdown-menu, form, label, select, table, toast, and many more. See [shadcn/ui docs](https://ui.shadcn.com/docs/components) for full list.
 
 **IMPORTANT:** Always check `src/components/ui/` for existing components before creating custom UI elements. If a component exists, use it. If not, install it via the command above.
 
-## Architecture
+### API Client Generation
+The frontend communicates with the `okane-finance-api` backend via an auto-generated TypeScript client.
+
+```bash
+# From src/lib/okane-finance-api/
+./generate-client.sh
+```
+
+This generates the client in `src/lib/okane-finance-api/generated/` from the OpenAPI spec (`okane-finance-api-docs.json`).
+
+**Regenerate the client when:**
+- The backend API schema changes
+- New endpoints are added to the backend
+- API response/request models are modified
+
+## Environment Variables
+
+Required in `.env`:
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection string (Supabase) |
+| `BETTER_AUTH_SECRET` | Better Auth secret key (generate with `bunx @better-auth/cli secret`) |
+| `BETTER_AUTH_URL` | Frontend URL for auth callbacks |
+| `VITE_BETTER_AUTH_URL` | Client-side auth URL |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `VITE_GOOGLE_CLIENT_ID` | Client-side Google OAuth ID |
+| `OKANE_FINANCE_API_URL` | Backend API base URL |
+| `OKANE_FINANCE_API_USER` | Backend API username |
+| `OKANE_FINANCE_API_PASSWORD` | Backend API password |
+| `PUBLIC_OKANE_FINANCE_API_URL` | Public client-side API URL |
+
+## Architecture Overview
 
 ### Project Structure
 
@@ -66,21 +95,37 @@ bunx --bun shadcn@latest add <component>
 src/
 ├── db/
 │   ├── index.ts              # Drizzle client instance
-│   ├── schemas/              # Database schema definitions
-│   │   ├── schema.ts         # Main schema export barrel file
-│   │   ├── auth-schema.ts    # Better Auth tables (user, session, account, verification)
-│   │   └── backtestStats.ts  # Application-specific tables
-├── integrations/
-│   ├── better-auth/          # Better Auth integration
-│   └── tanstack-query/       # TanStack Query provider and devtools
+│   ├── schema.ts             # Core auth tables (user, session, account, verification)
+│   └── schemas/              # Domain-specific database schemas
+│       ├── schema.ts         # Schema barrel file (exports all schemas)
+│       ├── auth-schema.ts    # Auth-related tables
+│       ├── backtestStats.ts  # Backtest results storage
+│       └── tradeActions.ts   # Trade actions storage
 ├── lib/
 │   ├── auth.ts               # Better Auth server instance
 │   ├── auth-client.ts        # Better Auth client instance
-│   └── utils.ts              # Utilities (cn for className merging)
+│   ├── utils.ts              # Utilities (cn for className merging)
+│   └── okane-finance-api/    # Backend API integration
+│       ├── okane-client.ts   # API client factory & singleton
+│       ├── okane-finance-api-docs.json  # OpenAPI spec
+│       ├── generate-client.sh # Script to regenerate API client
+│       └── generated/        # Auto-generated TypeScript API client
 ├── routes/
 │   ├── __root.tsx            # Root route with providers and layout
+│   ├── index.tsx             # Home page
 │   ├── api/auth/$.ts         # Better Auth API handler
-│   └── ...
+│   ├── auth/                 # Authentication routes
+│   ├── dashboard/            # Dashboard pages
+│   └── strategy/             # Strategy/backtest pages
+├── components/
+│   ├── ui/                   # shadcn/ui components (install via CLI)
+│   ├── auth/                 # Auth-related components
+│   ├── strategy/             # Strategy/backtest components
+│   ├── Header.tsx            # Site header
+│   └── Layout.tsx            # Layout wrapper
+├── integrations/
+│   ├── better-auth/          # Better Auth integration
+│   └── tanstack-query/       # TanStack Query provider and devtools
 ├── router.tsx                # TanStack Router configuration
 └── routeTree.gen.ts          # Auto-generated route tree (DO NOT EDIT)
 ```
@@ -92,18 +137,29 @@ src/
 **Context Passing**: The router is initialized with a context object containing the QueryClient. Route components receive this context via `getRouteContext`.
 
 **Database Schema Organization**:
-- `src/db/schema.ts` - Contains core auth tables (user, session, account, verification) with a custom `credits` field on user
-- `src/db/schemas/` - Contains domain-specific schemas like backtest stats
-- The barrel file `src/db/schemas/schema.ts` exports all schemas for the Drizzle client
+- `src/db/schema.ts` - Core auth tables with a custom `credits` field on user
+- `src/db/schemas/` - Domain-specific schemas (backtest stats, trade actions)
+- `src/db/schemas/schema.ts` - Barrel file exporting all schemas for Drizzle client
 
-**Auth Integration**: Better Auth is configured in `src/lib/auth.ts` with TanStack Start cookies plugin. The auth handler is at `src/routes/api/auth/$.ts`.
+**Auth Integration**: Better Auth is configured in `src/lib/auth.ts` with:
+- Drizzle adapter for PostgreSQL
+- TanStack Start cookies plugin
+- Email/password authentication
+- Google OAuth integration
+- Custom `credits` field on user model
+
+**API Client Architecture**:
+- Client generated from OpenAPI spec stored in `okane-finance-api-docs.json`
+- Factory pattern in `okane-client.ts` creates configured client instances
+- Singleton pattern in `getOkaneClient()` for convenience
+- Uses HTTP Basic Auth for API authentication
 
 ### Path Aliases
 
 - `@/*` maps to `./src/*` (configured in tsconfig.json)
 - `#/*` maps to `./src/*` (configured in package.json imports)
 
-Use `@/` for TypeScript imports (e.g., `@/lib/auth`).
+Use `@/` for TypeScript imports (e.g., `@/lib/auth`, `@/db/schema`).
 
 ### Code Style
 
@@ -111,24 +167,33 @@ This project uses **Biome** with:
 - Tab indentation
 - Double quotes for JavaScript/TypeScript
 - Recommended linting rules enabled
+- Auto-organize imports on save
 
-Run `pnpm format` before committing to ensure consistent formatting.
+Run `bun format` before committing to ensure consistent formatting.
 
 ### Database Migrations Workflow
 
 When modifying database schemas:
 1. Edit schema files in `src/db/schemas/`
-2. Run `pnpm db:generate` to create migration files in `drizzle/`
-3. Run `pnpm db:migrate` to apply migrations
-4. For development, `pnpm db:push` can skip migration generation
+2. Run `bun db:generate` to create migration files in `drizzle/`
+3. Run `bun db:migrate` to apply migrations
+4. For development, `bun db:push` can skip migration generation
 
 ### Drizzle Configuration
 
 The Drizzle config is in `drizzle.config.ts`:
 - Schema location: `./src/db/schemas/schema.ts`
 - Migration output: `./drizzle`
-- Dialect: PostgreSQL
+- Dialect: `postgresql`
 - Environment variables loaded from `.env.local` then `.env`
+
+### Related Projects
+
+This frontend works with the backend API in `../okane-finance-api/`:
+- FastAPI backend with endpoints for signals, backtesting, AI analysis, news, and ticker data
+- Both projects share the same PostgreSQL database (Supabase)
+- Backend uses SQLAlchemy 2.0+ with async/await throughout
+- CORS configured to allow this frontend's Vercel deployment
 
 ---
 

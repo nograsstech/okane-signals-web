@@ -15,7 +15,9 @@ import {
 	ArrowUp,
 	ArrowUpRight,
 	Bell,
+	BellOff,
 	Clock,
+	Filter,
 	Target,
 	TrendingDown,
 	TrendingUp,
@@ -31,9 +33,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
+import { Combobox } from "@base-ui/react/combobox";
 
 interface StrategyGridProps {
 	data: KeyStrategyBacktestStats[];
@@ -50,6 +55,13 @@ function computeTopPerformer(item: KeyStrategyBacktestStats): string {
 
 export function StrategyGrid({ data }: StrategyGridProps) {
 	const navigate = useNavigate();
+	const notificationToggle = useNotificationToggle();
+
+	// Extract unique tickers for autocomplete
+	const uniqueTickers = useMemo(() => {
+		const tickers = new Set(data.map((item) => item.ticker));
+		return Array.from(tickers).sort();
+	}, [data]);
 
 	// Initialize state from storage
 	const [sorting, setSorting] = useState<SortingState>(() => {
@@ -57,15 +69,32 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 		return saved ?? [{ id: "winRate", desc: true }];
 	});
 
+	const [pageSize, setPageSize] = useState<number>(() => {
+		const saved = storage.get<number>("strategy-page-size-grid");
+		return saved ?? 12;
+	});
+
 	const [pagination, setPagination] = useState<PaginationState>(() => {
 		const savedPageIndex = storage.getSession<number>("strategy-page-grid");
 		return {
 			pageIndex: savedPageIndex ?? 0,
-			pageSize: 12, // More items for grid
+			pageSize: pageSize,
 		};
 	});
 
 	const [globalFilter, setGlobalFilter] = useState("");
+	const [tickerFilter, setTickerFilter] = useState("");
+	const [tickerSearch, setTickerSearch] = useState("");
+	const [columnFilters, setColumnFilters] = useState<{ id: string; value: unknown }[]>(
+		[],
+	);
+
+	const filteredTickers = useMemo(() => {
+		if (!tickerSearch) return uniqueTickers;
+		return uniqueTickers.filter((ticker) =>
+			ticker.toLowerCase().includes(tickerSearch.toLowerCase()),
+		);
+	}, [uniqueTickers, tickerSearch]);
 
 	// Persist state changes
 	useEffect(() => {
@@ -75,6 +104,15 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	useEffect(() => {
 		storage.setSession("strategy-page-grid", pagination.pageIndex);
 	}, [pagination.pageIndex]);
+
+	useEffect(() => {
+		storage.set("strategy-page-size-grid", pageSize);
+		setPagination((prev) => ({ ...prev, pageSize }));
+	}, [pageSize]);
+
+	useEffect(() => {
+		setColumnFilters(tickerFilter ? [{ id: "ticker", value: tickerFilter }] : []);
+	}, [tickerFilter]);
 
 	// Setup table for data management (filtering, pagination, sorting)
 	const columns = useMemo(
@@ -133,6 +171,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 			sorting,
 			pagination,
 			globalFilter,
+			columnFilters,
 		},
 	});
 
@@ -144,15 +183,89 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 		return Number(val).toFixed(2);
 	};
 
+	const handleToggleNotification = (
+		e: React.MouseEvent | React.KeyboardEvent,
+		id: string,
+		currentState: boolean,
+	) => {
+		// Prevent navigation when clicking toggle
+		e.stopPropagation();
+		e.preventDefault();
+
+		notificationToggle.mutate({
+			id,
+			notificationsOn: !currentState,
+		});
+	};
+
 	return (
 		<div className="mt-8 flex flex-col gap-6">
 			<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-				<Input
-					placeholder="Filter Strategies..."
-					value={globalFilter}
-					onChange={(e) => setGlobalFilter(e.target.value)}
-					className="w-full sm:max-w-sm bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50"
-				/>
+				<div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+					<div className="relative w-full sm:max-w-40">
+						<Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+						<Combobox.Root
+							value={tickerFilter}
+							onValueChange={(value) => setTickerFilter(value ?? "")}
+							inputValue={tickerSearch}
+							onInputValueChange={setTickerSearch}
+						>
+							<Combobox.Input
+								placeholder="Filter by Ticker..."
+								className="w-full h-9 pl-9 pr-8 py-1 rounded-md bg-background/50 border border-border/50 text-sm focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:outline-none"
+							/>
+							<Combobox.Clear className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center h-5 w-5 rounded-sm hover:bg-accent cursor-pointer text-muted-foreground hover:text-foreground">
+								×
+							</Combobox.Clear>
+							<Combobox.Portal>
+								<Combobox.Positioner align="start" sideOffset={4}>
+									<Combobox.Popup
+										className="z-50 bg-popover text-popover-foreground max-h-60 overflow-auto rounded-md border shadow-md p-1 outline-none"
+										style={{ minWidth: "var(--anchor-width)" }}
+									>
+										<Combobox.List className="w-full">
+											{filteredTickers.length === 0 ? (
+												<div className="py-2 text-center text-sm text-muted-foreground w-full">
+													No results
+												</div>
+											) : (
+												filteredTickers.map((ticker) => (
+													<Combobox.Item
+														key={ticker}
+														value={ticker}
+														className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-highlighted:bg-accent data-highlighted:text-accent-foreground w-full"
+													>
+														{ticker}
+													</Combobox.Item>
+												))
+											)}
+										</Combobox.List>
+									</Combobox.Popup>
+								</Combobox.Positioner>
+							</Combobox.Portal>
+						</Combobox.Root>
+					</div>
+					<Input
+						placeholder="Filter Strategies..."
+						value={globalFilter}
+						onChange={(e) => setGlobalFilter(e.target.value)}
+						className="w-full sm:max-w-sm bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50"
+					/>
+					<Select
+						value={String(pageSize)}
+						onValueChange={(value) => setPageSize(Number(value))}
+					>
+						<SelectTrigger className="w-30 bg-background/50 border-border/50">
+							<SelectValue placeholder="Per page" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="8">8 / page</SelectItem>
+							<SelectItem value="12">12 / page</SelectItem>
+							<SelectItem value="24">24 / page</SelectItem>
+							<SelectItem value="48">48 / page</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 
 				<div className="flex items-center gap-2 w-full sm:w-auto self-start sm:self-auto">
 					<Select
@@ -205,74 +318,88 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 					const sharpeVal = Number(item.sharpeRatio);
 
 					return (
-						<button
-							type="button"
+						<div
 							key={item.id}
-							onClick={() =>
-								navigate({
-									to: "/strategy/$id",
-									params: { id: item.id },
-								})
-							}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
-									e.preventDefault();
-									navigate({
-										to: "/strategy/$id",
-										params: { id: item.id },
-									});
-								}
-							}}
-							className="group relative flex flex-col justify-between p-5 cursor-pointer 
-                                bg-card hover:bg-muted/30 border border-border/40 hover:border-border/80 
-                                transition-all duration-300 ease-out z-10 
-                                shadow-sm hover:shadow-md overflow-hidden rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 text-left w-full h-full"
+							className="group relative flex flex-col bg-card border border-border/40 hover:border-border/80 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:shadow-lg"
 						>
-							{/* Subtle background gradient on hover */}
-							<div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+							{/* Top gradient accent */}
+							<div className="h-1 bg-linear-to-r from-primary/60 via-primary to-primary/60" />
 
-							<div className="flex flex-col gap-4 w-full">
-								<div className="flex justify-between items-start w-full">
-									<div className="space-y-1">
-										<h3 className="font-semibold text-lg leading-tight tracking-tight text-foreground flex items-center gap-2">
+							{/* Header with notification toggle */}
+							<div className="p-4 pb-3 border-b border-border/20">
+								<div className="flex items-start justify-between gap-2 mb-2">
+									<div className="min-w-0 flex-1">
+										<h3
+											className="font-semibold text-base leading-tight tracking-tight text-foreground truncate pr-2"
+											title={item.strategy}
+										>
 											{item.strategy}
-											{item.notificationsOn && (
-												<Bell className="w-3.5 h-3.5 text-primary animate-pulse" />
-											)}
 										</h3>
-										<div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-											<Badge
-												variant="outline"
-												className="text-[10px] px-1.5 py-0 border-border/50"
-											>
+										<div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+											<Badge className="text-[10px] px-1.5 py-0 font-medium bg-muted/70 text-foreground border-border/60">
 												{item.ticker}
 											</Badge>
-											<span>{item.period}</span>
-											<span className="opacity-50">•</span>
-											<span>{item.interval}</span>
+											<span className="text-[10px] text-muted-foreground font-mono">
+												{item.period}
+											</span>
+											<span className="text-[10px] text-muted-foreground/50">•</span>
+											<span className="text-[10px] text-muted-foreground font-mono">
+												{item.interval}
+											</span>
 										</div>
 									</div>
-									<div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300 shrink-0">
-										<ArrowUpRight className="w-4 h-4 text-primary" />
-									</div>
+
+									{/* Notification Toggle */}
+									<button
+										type="button"
+										onClick={(e) =>
+											handleToggleNotification(e, item.id, item.notificationsOn)
+										}
+										onKeyDown={(e) => {
+											if (e.key === "Enter" || e.key === " ") {
+												e.preventDefault();
+												e.stopPropagation();
+												handleToggleNotification(e, item.id, item.notificationsOn);
+											}
+										}}
+										className={cn(
+											"shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all duration-200",
+											item.notificationsOn
+												? "bg-primary/10 border-primary/30 hover:bg-primary/15"
+												: "bg-muted/30 border-border/40 hover:bg-muted/50",
+										)}
+										aria-label={`Toggle notifications for ${item.strategy}`}
+									>
+										{item.notificationsOn ? (
+											<Bell className="w-3.5 h-3.5 text-primary" />
+										) : (
+											<BellOff className="w-3.5 h-3.5 text-muted-foreground" />
+										)}
+										<Switch
+											checked={item.notificationsOn}
+											onChange={() => {}}
+											className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/60"
+										/>
+									</button>
 								</div>
 
 								{badges && (
-									<div className="flex">
-										<Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 text-[10px] font-mono">
-											{badges}
-										</Badge>
-									</div>
+									<Badge className="bg-primary/5 text-primary border-primary/15 text-[10px] font-mono px-2 py-0.5 w-fit">
+										{badges}
+									</Badge>
 								)}
+							</div>
 
-								<div className="grid grid-cols-2 gap-y-4 gap-x-2 mt-2 w-full">
-									<div className="space-y-1">
+							{/* Stats Grid */}
+							<div className="p-4 flex-1">
+								<div className="grid grid-cols-2 gap-3">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<Target className="w-3 h-3" /> Win Rate
 										</span>
 										<div
 											className={cn(
-												"text-lg font-mono tracking-tight",
+												"text-base font-mono tracking-tight font-medium",
 												winRateVal >= 50 ? "text-emerald-500" : "text-red-500",
 											)}
 										>
@@ -280,13 +407,13 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<Activity className="w-3 h-3" /> Return
 										</span>
 										<div
 											className={cn(
-												"text-lg font-mono tracking-tight",
+												"text-base font-mono tracking-tight font-medium",
 												returnVal >= 0 ? "text-emerald-500" : "text-red-500",
 											)}
 										>
@@ -295,7 +422,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<TrendingDown className="w-3 h-3" /> Max DD
 										</span>
@@ -311,7 +438,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
 											<TrendingUp className="w-3 h-3" /> Sharpe
 										</span>
@@ -326,7 +453,33 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 									</div>
 								</div>
 							</div>
-						</button>
+
+							{/* Footer Action */}
+							<button
+								type="button"
+								onClick={() =>
+									navigate({
+										to: "/strategy/$id",
+										params: { id: item.id },
+									})
+								}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										navigate({
+											to: "/strategy/$id",
+											params: { id: item.id },
+										});
+									}
+								}}
+								className="flex items-center justify-between px-4 py-2.5 bg-muted/20 hover:bg-muted/40 border-t border-border/20 transition-colors group/btn"
+							>
+								<span className="text-xs font-medium text-foreground/70 group-hover/btn:text-foreground transition-colors">
+									View Details
+								</span>
+								<ArrowUpRight className="w-4 h-4 text-foreground/50 group-hover/btn:text-foreground group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all" />
+							</button>
+						</div>
 					);
 				})}
 			</div>
