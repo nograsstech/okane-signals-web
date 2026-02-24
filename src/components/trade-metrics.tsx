@@ -2,11 +2,16 @@
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { TradeMetrics } from "@/lib/utils/trade-metrics";
+import type { TradeMetrics, TradeMetricsExtended } from "@/lib/utils/trade-metrics";
 
 interface TradeMetricsDisplayProps {
-	metrics: TradeMetrics;
+	metrics: TradeMetrics | TradeMetricsExtended;
 	className?: string;
+}
+
+// Type guard to check if metrics is extended
+function isExtendedMetrics(metrics: TradeMetrics | TradeMetricsExtended): metrics is TradeMetricsExtended {
+	return "tpHitRate" in metrics;
 }
 
 interface MetricItem {
@@ -22,6 +27,22 @@ export function TradeMetricsDisplay({ metrics, className }: TradeMetricsDisplayP
 		if (value > 0) return "green";
 		if (value < 0) return "red";
 		return "neutral";
+	};
+
+	// Helper to format duration in hours to human-readable format
+	const formatDuration = (hours: number): string => {
+		if (hours < 1) {
+			const mins = Math.round(hours * 60);
+			return `${mins}m`;
+		} else if (hours < 24) {
+			const h = Math.floor(hours);
+			const mins = Math.round((hours - h) * 60);
+			return mins > 0 ? `${h}h ${mins}m` : `${h}h`;
+		} else {
+			const days = Math.floor(hours / 24);
+			const h = Math.round(hours % 24);
+			return h > 0 ? `${days}d ${h}h` : `${days}d`;
+		}
 	};
 
 	const colorClass = {
@@ -60,6 +81,37 @@ export function TradeMetricsDisplay({ metrics, className }: TradeMetricsDisplayP
 		],
 	};
 
+	// Add extended metrics if available
+	const extendedMetrics = isExtendedMetrics(metrics);
+	if (extendedMetrics) {
+		metricsByCategory["Close Reasons"] = [
+			{ label: "TP Hit Rate", value: `${metrics.tpHitRate.toFixed(2)}%`, color: "green" },
+			{ label: "SL Hit Rate", value: `${metrics.slHitRate.toFixed(2)}%`, color: "red" },
+			{ label: "Manual Close", value: `${metrics.manualCloseRate.toFixed(2)}%`, color: "neutral" },
+			{ label: "Open Positions", value: metrics.openPositionsCount.toString() },
+			{ label: "Avg Risk/Reward", value: metrics.averageRiskReward.toFixed(2), color: metrics.averageRiskReward >= 1.5 ? "green" : "neutral" },
+		];
+
+		metricsByCategory["Position Type"] = [
+			{ label: "Long Positions", value: metrics.longPositions.toString() },
+			{ label: "Short Positions", value: metrics.shortPositions.toString() },
+			{ label: "Long Win Rate", value: `${metrics.longWinRate.toFixed(2)}%`, color: metrics.longWinRate >= 50 ? "green" : "neutral" },
+			{ label: "Short Win Rate", value: `${metrics.shortWinRate.toFixed(2)}%`, color: metrics.shortWinRate >= 50 ? "green" : "neutral" },
+		];
+
+		metricsByCategory["Win by Exit"] = [
+			{ label: "TP Hit Win Rate", value: `${metrics.winRateTpHit.toFixed(2)}%`, color: metrics.winRateTpHit >= 50 ? "green" : "neutral" },
+			{ label: "SL Hit Win Rate", value: `${metrics.winRateSlHit.toFixed(2)}%`, color: "red" },
+			{ label: "Manual Win Rate", value: `${metrics.winRateManual.toFixed(2)}%`, color: metrics.winRateManual >= 50 ? "green" : "neutral" },
+		];
+
+		metricsByCategory["Duration"] = [
+			{ label: "Avg Duration", value: `${formatDuration(metrics.averageTradeDurationHours)}` },
+			{ label: "Avg Win Duration", value: `${formatDuration(metrics.averageWinDurationHours)}`, color: "green" },
+			{ label: "Avg Loss Duration", value: `${formatDuration(metrics.averageLossDurationHours)}`, color: "red" },
+		];
+	}
+
 	return (
 		<Card className={cn("p-4 bg-background", className)}>
 			<div className="absolute -top-1 -left-1 h-3 w-3 border-t-2 border-l-2 border-foreground/20" />
@@ -69,7 +121,7 @@ export function TradeMetricsDisplay({ metrics, className }: TradeMetricsDisplayP
 
 			<h3 className="mb-4 text-lg font-mono font-semibold">Trade Metrics</h3>
 
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+			<div className={cn("grid gap-4", extendedMetrics ? "md:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-2 lg:grid-cols-4")}>
 				{Object.entries(metricsByCategory).map(([category, items]) => (
 					<div key={category} className="space-y-2">
 						<h4 className="text-muted-foreground border-b border-border/50 pb-1 text-xs font-mono uppercase">

@@ -15,7 +15,7 @@ import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skelet
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { getTradingViewSymbol } from "@/lib/utils/tradingview-mapper";
-import { calculateTradeMetrics } from "@/lib/utils/trade-metrics";
+import { calculateTradeMetricsExtended } from "@/lib/utils/trade-metrics";
 import { useMemo } from "react";
 
 export const Route = createFileRoute("/strategy/$id")({
@@ -41,7 +41,10 @@ function StrategyDetailContent({ id }: { id: string }) {
 	// Calculate trade metrics from trade actions
 	const tradeMetrics = useMemo(() => {
 		const tradeActionsList = tradeActions?.tradeActionsList || [];
-		return calculateTradeMetrics(tradeActionsList, 100000); // Using $100,000 initial capital for better readability
+		return calculateTradeMetricsExtended(tradeActionsList, {
+			initialCapital: 100000, // Using $100,000 initial capital for better readability
+			priceTolerancePercent: 0.1, // 0.1% tolerance for TP/SL detection
+		});
 	}, [tradeActions]);
 
 	if (error) {
