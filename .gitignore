@@ -14,3 +14,7 @@ todos.json
 
 
 client_secret_259799500977-ljdd0uh6686kh8v69p8os9vubu0ru92q.apps.googleusercontent.com.json
+
+.dev.vars*
+!.dev.vars.example
+!.env.example
