@@ -9,17 +9,6 @@ const OKANE_FINANCE_API_BASE_URL =
 function getApiUrl(endpoint: string): string {
 	const url = `${OKANE_FINANCE_API_BASE_URL}${endpoint}`;
 
-	// If page is HTTPS but URL is http:// (not localhost), upgrade to https://
-	if (
-		typeof window !== 'undefined' &&
-		window.location?.protocol === 'https:' &&
-		url.startsWith('http://') &&
-		!url.includes('localhost') &&
-		!/^\d+\.\d+\.\d+\.\d+/.test(url)
-	) {
-		return url.replace(/^http:/, 'https:');
-	}
-
 	return url;
 }
 
