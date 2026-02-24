@@ -16,6 +16,7 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 interface LayoutProps {
 	children: ReactNode;
@@ -90,7 +91,7 @@ export default function Layout({ children }: LayoutProps) {
 
 			<SidebarInset>
 				{/* Top Bar */}
-				<header className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
+				<header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-sm supports-backdrop-filter:bg-background/60">
 					<div className="flex items-center justify-between px-4 py-3">
 						<div className="flex items-center gap-4">
 							<SidebarTrigger />
@@ -110,17 +111,20 @@ export default function Layout({ children }: LayoutProps) {
 							</Link>
 						</div>
 
-						{/* Terminal Status */}
-						<div className="hidden sm:flex items-center gap-4">
-							<div className="flex items-center gap-2">
-								<span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-								<span className="text-xs font-mono text-foreground/50">
-									MARKET: OPEN
-								</span>
+						{/* Terminal Status & Actions */}
+						<div className="flex items-center gap-4">
+							<div className="hidden sm:flex items-center gap-4">
+								<div className="flex items-center gap-2">
+									<span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+									<span className="text-xs font-mono text-foreground/50">
+										MARKET: OPEN
+									</span>
+								</div>
+								<div className="text-xs font-mono text-foreground/30">
+									{new Date().toLocaleTimeString("en-US", { hour12: false })}
+								</div>
 							</div>
-							<div className="text-xs font-mono text-foreground/30">
-								{new Date().toLocaleTimeString("en-US", { hour12: false })}
-							</div>
+							<ModeToggle />
 						</div>
 					</div>
 				</header>

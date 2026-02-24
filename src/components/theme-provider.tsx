@@ -6,6 +6,7 @@ type ThemeProviderProps = {
   children: React.ReactNode
   defaultTheme?: Theme
   storageKey?: string
+  serverTheme?: Theme
 }
 
 type ThemeProviderState = {
@@ -24,15 +25,16 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "vite-ui-theme",
+  serverTheme = "system",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  )
+  const [theme, setTheme] = useState<Theme>(serverTheme)
 
+  // Apply theme class to document
   useEffect(() => {
-    const root = window.document.documentElement
+    if (typeof window === "undefined") return
 
+    const root = window.document.documentElement
     root.classList.remove("light", "dark")
 
     if (theme === "system") {
@@ -50,9 +52,18 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
-      setTheme(theme)
+    setTheme: (newTheme: Theme) => {
+      setTheme(newTheme)
+
+      // Set cookie directly on client for immediate effect
+      if (typeof window !== "undefined") {
+        document.cookie = `theme=${newTheme}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`
+      }
+
+      // Call server function to update cookie (on the server-side state if needed)
+      import("@/server/theme.ts").then(({ setThemeServerFn }) => {
+        setThemeServerFn({ data: newTheme })
+      })
     },
   }
 
