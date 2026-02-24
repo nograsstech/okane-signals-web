@@ -1,4 +1,3 @@
-import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from '@tailwindcss/vite'
 import { devtools } from '@tanstack/devtools-vite'
 
@@ -20,11 +19,6 @@ const config = defineConfig({
     tanstackStart(),
     nitro(),
     viteReact(),
-    cloudflare({
-      viteEnvironment: {
-        name: "ssr"
-      }
-    }),
   ],
 })
 
