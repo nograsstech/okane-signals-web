@@ -23,44 +23,44 @@ import {
 /**
  * 
  * @export
- * @interface BacktestResponseDTO
+ * @interface BacktestReplayResponseDTO
  */
-export interface BacktestResponseDTO {
+export interface BacktestReplayResponseDTO {
     /**
      * 
      * @type {number}
-     * @memberof BacktestResponseDTO
+     * @memberof BacktestReplayResponseDTO
      */
     status: number;
     /**
      * 
      * @type {string}
-     * @memberof BacktestResponseDTO
+     * @memberof BacktestReplayResponseDTO
      */
     message: string;
     /**
      * 
      * @type {BacktestStats}
-     * @memberof BacktestResponseDTO
+     * @memberof BacktestReplayResponseDTO
      */
     data: BacktestStats;
 }
 
 /**
- * Check if a given object implements the BacktestResponseDTO interface.
+ * Check if a given object implements the BacktestReplayResponseDTO interface.
  */
-export function instanceOfBacktestResponseDTO(value: object): boolean {
+export function instanceOfBacktestReplayResponseDTO(value: object): boolean {
     if (!('status' in value)) return false;
     if (!('message' in value)) return false;
     if (!('data' in value)) return false;
     return true;
 }
 
-export function BacktestResponseDTOFromJSON(json: any): BacktestResponseDTO {
-    return BacktestResponseDTOFromJSONTyped(json, false);
+export function BacktestReplayResponseDTOFromJSON(json: any): BacktestReplayResponseDTO {
+    return BacktestReplayResponseDTOFromJSONTyped(json, false);
 }
 
-export function BacktestResponseDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): BacktestResponseDTO {
+export function BacktestReplayResponseDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): BacktestReplayResponseDTO {
     if (json == null) {
         return json;
     }
@@ -72,7 +72,7 @@ export function BacktestResponseDTOFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function BacktestResponseDTOToJSON(value?: BacktestResponseDTO | null): any {
+export function BacktestReplayResponseDTOToJSON(value?: BacktestReplayResponseDTO | null): any {
     if (value == null) {
         return value;
     }
