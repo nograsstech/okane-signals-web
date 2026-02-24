@@ -6,6 +6,7 @@ import { useStrategyDetail } from "@/hooks/use-strategy-detail";
 import { StrategyStats } from "@/components/strategy/strategy-stats";
 import { TradeActionsTable } from "@/components/strategy/trade-actions-table";
 import { SignalsTable } from "@/components/strategy/signals-table";
+import { TradeMetricsDisplay } from "@/components/trade-metrics";
 import { TradingViewAnalysisWidget } from "@/components/tradingview/tradingview-analysis-widget";
 import { TradingviewIframe } from "@/components/tradingview/tradingview-iframe";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -14,6 +15,8 @@ import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skelet
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { getTradingViewSymbol } from "@/lib/utils/tradingview-mapper";
+import { calculateTradeMetrics } from "@/lib/utils/trade-metrics";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/strategy/$id")({
 	component: StrategyDetailPage,
@@ -34,6 +37,12 @@ function StrategyDetailPage() {
 function StrategyDetailContent({ id }: { id: string }) {
 	const { strategy, tradeActions, signals, isLoading, error } =
 		useStrategyDetail(id);
+
+	// Calculate trade metrics from trade actions
+	const tradeMetrics = useMemo(() => {
+		const tradeActionsList = tradeActions?.tradeActionsList || [];
+		return calculateTradeMetrics(tradeActionsList, 100000); // Using $100,000 initial capital for better readability
+	}, [tradeActions]);
 
 	if (error) {
 		return (
@@ -72,7 +81,15 @@ function StrategyDetailContent({ id }: { id: string }) {
 			{isLoading ? (
 				<StatsLoadingSkeleton />
 			) : strategy ? (
-				<StrategyStats backtestData={strategy} />
+				<>
+					<StrategyStats backtestData={strategy} />
+					{/* Trade Metrics Display */}
+					{tradeActions?.tradeActionsList && tradeActions.tradeActionsList.length > 0 && (
+						<div className="mt-6">
+							<TradeMetricsDisplay metrics={tradeMetrics} />
+						</div>
+					)}
+				</>
 			) : null}
 
 			{/* Tabs Section */}
