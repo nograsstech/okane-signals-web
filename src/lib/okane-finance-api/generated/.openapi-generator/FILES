@@ -10,6 +10,7 @@ models/BacktestProcessUuid.ts
 models/BacktestReplayResponseDTO.ts
 models/BacktestResponseDTO.ts
 models/BacktestStats.ts
+models/Description.ts
 models/End.ts
 models/HTTPValidationError.ts
 models/Limit.ts
@@ -25,6 +26,8 @@ models/Sort.ts
 models/Start.ts
 models/Strategy.ts
 models/StrategyId.ts
+models/StrategyInfo.ts
+models/StrategyListResponseDTO.ts
 models/TickerResponseDTO.ts
 models/Tickers.ts
 models/ValidationError.ts

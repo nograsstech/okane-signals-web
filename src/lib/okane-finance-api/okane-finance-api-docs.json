@@ -645,6 +645,28 @@
         "security": [{ "HTTPBasic": [] }]
       }
     },
+    "/signals/strategies": {
+      "get": {
+        "tags": ["signals"],
+        "summary": "Get Strategies",
+        "description": "Get the list of available trading strategies.\n\nReturns a list of all strategies that can be used for backtesting\nand signal generation.",
+        "operationId": "get_strategies_signals_strategies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyListResponseDTO"
+                }
+              }
+            }
+          },
+          "404": { "description": "Not found" }
+        },
+        "security": [{ "HTTPBasic": [] }]
+      }
+    },
     "/ai/chatbot-with-tool": {
       "post": {
         "tags": ["ai"],
@@ -943,6 +965,44 @@
         "type": "object",
         "required": ["latest_signal", "all_signals"],
         "title": "SignalsDict"
+      },
+      "StrategyInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique identifier for the strategy"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Display name of the strategy"
+          },
+          "description": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Description",
+            "description": "Optional description of the strategy"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name"],
+        "title": "StrategyInfo",
+        "description": "Information about a single trading strategy."
+      },
+      "StrategyListResponseDTO": {
+        "properties": {
+          "status": { "type": "integer", "title": "Status" },
+          "message": { "type": "string", "title": "Message" },
+          "data": {
+            "items": { "$ref": "#/components/schemas/StrategyInfo" },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": ["status", "message", "data"],
+        "title": "StrategyListResponseDTO",
+        "description": "Response model for the strategy list endpoint."
       },
       "TickerResponseDTO": {
         "properties": {

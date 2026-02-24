@@ -25,16 +25,20 @@ import {
 	type CreateStrategyFormInput,
 } from "@/lib/schemas/strategy-schema";
 import { ZodError } from "zod";
-
-// Available strategies list
-const AVAILABLE_STRATEGIES = [
-	{ value: "ema_bollinger", label: "EMA Bollinger" },
-	{ value: "super_safe_strategy", label: "Super Safe Strategy" },
-	// Add more strategies as needed
-];
+import { getOkaneClient } from "@/lib/okane-finance-api/okane-client";
 
 export const Route = createFileRoute("/strategy/create")({
 	component: CreateStrategyPage,
+	loader: async () => {
+		try {
+			const client = getOkaneClient();
+			const response = await client.getStrategiesSignalsStrategiesGet();
+			return { strategies: response.data };
+		} catch (error) {
+			console.error("Failed to fetch strategies:", error);
+			return { strategies: [] };
+		}
+	},
 });
 
 function CreateStrategyPage() {
@@ -49,6 +53,7 @@ function CreateStrategyPage() {
 
 function CreateStrategyContent() {
 	const navigate = useNavigate();
+	const { strategies } = Route.useLoaderData();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
 	const [errors, setErrors] = useState<Record<string, string>>({});
@@ -57,7 +62,7 @@ function CreateStrategyContent() {
 		ticker: "",
 		period: "60d",
 		interval: "15m",
-		strategy: "ema_bollinger",
+		strategy: strategies.length > 0 ? strategies[0].id : "",
 		strategy_id: "",
 	});
 
@@ -235,21 +240,23 @@ function CreateStrategyContent() {
 								onValueChange={(value) =>
 									handleInputChange("strategy", value)
 								}
-								disabled={isSubmitting}
+								disabled={isSubmitting || strategies.length === 0}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder="Select a strategy" />
 								</SelectTrigger>
 								<SelectContent>
-									{AVAILABLE_STRATEGIES.map((s) => (
-										<SelectItem key={s.value} value={s.value}>
-											{s.label}
+									{strategies.map((s) => (
+										<SelectItem key={s.id} value={s.id}>
+											{s.name}
 										</SelectItem>
 									))}
 								</SelectContent>
 							</Select>
 							<FieldDescription>
-								Choose the trading strategy to backtest
+								{strategies.length === 0
+									? "No strategies available. Please contact support."
+									: "Choose the trading strategy to backtest"}
 							</FieldDescription>
 							{errors.strategy && (
 								<FieldError

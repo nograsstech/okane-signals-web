@@ -26,6 +26,7 @@ import type {
   Start,
   Strategy,
   StrategyId,
+  StrategyListResponseDTO,
 } from '../models/index';
 import {
     BacktestProcessUuidFromJSON,
@@ -50,6 +51,8 @@ import {
     StrategyToJSON,
     StrategyIdFromJSON,
     StrategyIdToJSON,
+    StrategyListResponseDTOFromJSON,
+    StrategyListResponseDTOToJSON,
 } from '../models/index';
 
 export interface BacktestSignalsBacktestGetRequest {
@@ -335,6 +338,37 @@ export class SignalsApi extends runtime.BaseAPI {
      */
     async getSignalsSignalsGet(requestParameters: GetSignalsSignalsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignalResponseDTO> {
         const response = await this.getSignalsSignalsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Get the list of available trading strategies.  Returns a list of all strategies that can be used for backtesting and signal generation.
+     * Get Strategies
+     */
+    async getStrategiesSignalsStrategiesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StrategyListResponseDTO>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && (this.configuration.username !== undefined || this.configuration.password !== undefined)) {
+            headerParameters["Authorization"] = "Basic " + btoa(this.configuration.username + ":" + this.configuration.password);
+        }
+        const response = await this.request({
+            path: `/signals/strategies`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StrategyListResponseDTOFromJSON(jsonValue));
+    }
+
+    /**
+     * Get the list of available trading strategies.  Returns a list of all strategies that can be used for backtesting and signal generation.
+     * Get Strategies
+     */
+    async getStrategiesSignalsStrategiesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StrategyListResponseDTO> {
+        const response = await this.getStrategiesSignalsStrategiesGetRaw(initOverrides);
         return await response.value();
     }
 

@@ -12,11 +12,6 @@ function getEnvVar(name: string): string {
 
 // Factory function to create the API client with proper config
 export function createOkaneClient() {
-	console.log({
-		basePath: getEnvVar("VITE_OKANE_FINANCE_API_URL"),
-		username: getEnvVar("VITE_OKANE_FINANCE_API_USER"),
-		password: getEnvVar("VITE_OKANE_FINANCE_API_PASSWORD"),
-	})
 	const config = new Configuration({
 		basePath: getEnvVar("VITE_OKANE_FINANCE_API_URL"),
 		username: getEnvVar("VITE_OKANE_FINANCE_API_USER"),
