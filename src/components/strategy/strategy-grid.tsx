@@ -17,6 +17,7 @@ import {
 	Bell,
 	BellOff,
 	Clock,
+	Filter,
 	Target,
 	TrendingDown,
 	TrendingUp,
@@ -37,6 +38,7 @@ import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
+import { Combobox } from "@base-ui/react/combobox";
 
 interface StrategyGridProps {
 	data: KeyStrategyBacktestStats[];
@@ -55,21 +57,44 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	const navigate = useNavigate();
 	const notificationToggle = useNotificationToggle();
 
+	// Extract unique tickers for autocomplete
+	const uniqueTickers = useMemo(() => {
+		const tickers = new Set(data.map((item) => item.ticker));
+		return Array.from(tickers).sort();
+	}, [data]);
+
 	// Initialize state from storage
 	const [sorting, setSorting] = useState<SortingState>(() => {
 		const saved = storage.get<SortingState>("strategy-sort-grid");
 		return saved ?? [{ id: "winRate", desc: true }];
 	});
 
+	const [pageSize, setPageSize] = useState<number>(() => {
+		const saved = storage.get<number>("strategy-page-size-grid");
+		return saved ?? 12;
+	});
+
 	const [pagination, setPagination] = useState<PaginationState>(() => {
 		const savedPageIndex = storage.getSession<number>("strategy-page-grid");
 		return {
 			pageIndex: savedPageIndex ?? 0,
-			pageSize: 12, // More items for grid
+			pageSize: pageSize,
 		};
 	});
 
 	const [globalFilter, setGlobalFilter] = useState("");
+	const [tickerFilter, setTickerFilter] = useState("");
+	const [tickerSearch, setTickerSearch] = useState("");
+	const [columnFilters, setColumnFilters] = useState<{ id: string; value: unknown }[]>(
+		[],
+	);
+
+	const filteredTickers = useMemo(() => {
+		if (!tickerSearch) return uniqueTickers;
+		return uniqueTickers.filter((ticker) =>
+			ticker.toLowerCase().includes(tickerSearch.toLowerCase()),
+		);
+	}, [uniqueTickers, tickerSearch]);
 
 	// Persist state changes
 	useEffect(() => {
@@ -79,6 +104,15 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	useEffect(() => {
 		storage.setSession("strategy-page-grid", pagination.pageIndex);
 	}, [pagination.pageIndex]);
+
+	useEffect(() => {
+		storage.set("strategy-page-size-grid", pageSize);
+		setPagination((prev) => ({ ...prev, pageSize }));
+	}, [pageSize]);
+
+	useEffect(() => {
+		setColumnFilters(tickerFilter ? [{ id: "ticker", value: tickerFilter }] : []);
+	}, [tickerFilter]);
 
 	// Setup table for data management (filtering, pagination, sorting)
 	const columns = useMemo(
@@ -137,6 +171,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 			sorting,
 			pagination,
 			globalFilter,
+			columnFilters,
 		},
 	});
 
@@ -166,12 +201,71 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	return (
 		<div className="mt-8 flex flex-col gap-6">
 			<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-				<Input
-					placeholder="Filter Strategies..."
-					value={globalFilter}
-					onChange={(e) => setGlobalFilter(e.target.value)}
-					className="w-full sm:max-w-sm bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50"
-				/>
+				<div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+					<div className="relative w-full sm:max-w-40">
+						<Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+						<Combobox.Root
+							value={tickerFilter}
+							onValueChange={(value) => setTickerFilter(value ?? "")}
+							inputValue={tickerSearch}
+							onInputValueChange={setTickerSearch}
+						>
+							<Combobox.Input
+								placeholder="Filter by Ticker..."
+								className="w-full h-9 pl-9 pr-8 py-1 rounded-md bg-background/50 border border-border/50 text-sm focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:outline-none"
+							/>
+							<Combobox.Clear className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center h-5 w-5 rounded-sm hover:bg-accent cursor-pointer text-muted-foreground hover:text-foreground">
+								×
+							</Combobox.Clear>
+							<Combobox.Portal>
+								<Combobox.Positioner align="start" sideOffset={4}>
+									<Combobox.Popup
+										className="z-50 bg-popover text-popover-foreground max-h-60 overflow-auto rounded-md border shadow-md p-1 outline-none"
+										style={{ minWidth: "var(--anchor-width)" }}
+									>
+										<Combobox.List className="w-full">
+											{filteredTickers.length === 0 ? (
+												<div className="py-2 text-center text-sm text-muted-foreground w-full">
+													No results
+												</div>
+											) : (
+												filteredTickers.map((ticker) => (
+													<Combobox.Item
+														key={ticker}
+														value={ticker}
+														className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-highlighted:bg-accent data-highlighted:text-accent-foreground w-full"
+													>
+														{ticker}
+													</Combobox.Item>
+												))
+											)}
+										</Combobox.List>
+									</Combobox.Popup>
+								</Combobox.Positioner>
+							</Combobox.Portal>
+						</Combobox.Root>
+					</div>
+					<Input
+						placeholder="Filter Strategies..."
+						value={globalFilter}
+						onChange={(e) => setGlobalFilter(e.target.value)}
+						className="w-full sm:max-w-sm bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50"
+					/>
+					<Select
+						value={String(pageSize)}
+						onValueChange={(value) => setPageSize(Number(value))}
+					>
+						<SelectTrigger className="w-30 bg-background/50 border-border/50">
+							<SelectValue placeholder="Per page" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="8">8 / page</SelectItem>
+							<SelectItem value="12">12 / page</SelectItem>
+							<SelectItem value="24">24 / page</SelectItem>
+							<SelectItem value="48">48 / page</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 
 				<div className="flex items-center gap-2 w-full sm:w-auto self-start sm:self-auto">
 					<Select

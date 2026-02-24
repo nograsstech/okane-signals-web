@@ -17,6 +17,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
@@ -56,15 +63,24 @@ export function StrategyTable({ data }: StrategyTableProps) {
 		return saved ?? [{ id: "winRate", desc: true }];
 	});
 
+	const [pageSize, setPageSize] = useState<number>(() => {
+		const saved = storage.get<number>("strategy-page-size");
+		return saved ?? 20;
+	});
+
 	const [pagination, setPagination] = useState<PaginationState>(() => {
 		const savedPageIndex = storage.getSession<number>("strategy-page");
 		return {
 			pageIndex: savedPageIndex ?? 0,
-			pageSize: 20,
+			pageSize: pageSize,
 		};
 	});
 
 	const [globalFilter, setGlobalFilter] = useState("");
+	const [tickerFilter, setTickerFilter] = useState("");
+	const [columnFilters, setColumnFilters] = useState<{ id: string; value: unknown }[]>(
+		[],
+	);
 
 	// Persist state changes
 	useEffect(() => {
@@ -74,6 +90,15 @@ export function StrategyTable({ data }: StrategyTableProps) {
 	useEffect(() => {
 		storage.setSession("strategy-page", pagination.pageIndex);
 	}, [pagination.pageIndex]);
+
+	useEffect(() => {
+		storage.set("strategy-page-size", pageSize);
+		setPagination((prev) => ({ ...prev, pageSize }));
+	}, [pageSize]);
+
+	useEffect(() => {
+		setColumnFilters(tickerFilter ? [{ id: "ticker", value: tickerFilter }] : []);
+	}, [tickerFilter]);
 
 	const columns = useMemo<ColumnDef<KeyStrategyBacktestStats & { "✨": string }>[]>(
 		() => [
@@ -158,6 +183,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 			sorting,
 			pagination,
 			globalFilter,
+			columnFilters,
 		},
 	});
 
@@ -181,13 +207,33 @@ export function StrategyTable({ data }: StrategyTableProps) {
 
 	return (
 		<div className="mt-8">
-			<div className="mb-4 flex items-center">
+			<div className="mb-4 flex flex-col sm:flex-row items-center gap-3">
+				<Input
+					placeholder="Filter by Ticker..."
+					value={tickerFilter}
+					onChange={(e) => setTickerFilter(e.target.value)}
+					className="max-w-sm"
+				/>
 				<Input
 					placeholder="Filter Okane Signals..."
 					value={globalFilter}
 					onChange={(e) => setGlobalFilter(e.target.value)}
 					className="max-w-sm"
 				/>
+				<Select
+					value={String(pageSize)}
+					onValueChange={(value) => setPageSize(Number(value))}
+				>
+					<SelectTrigger className="w-30">
+						<SelectValue placeholder="Per page" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="10">10 / page</SelectItem>
+						<SelectItem value="20">20 / page</SelectItem>
+						<SelectItem value="50">50 / page</SelectItem>
+						<SelectItem value="100">100 / page</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
 			<div className="relative rounded-md border border-border/50">
