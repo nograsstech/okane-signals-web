@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StrategyIndexRouteImport } from './routes/strategy/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as StrategyCreateRouteImport } from './routes/strategy.create'
 import { Route as StrategyIdRouteImport } from './routes/strategy/$id'
 import { Route as ApiStrategyRouteImport } from './routes/api/strategy'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
@@ -21,6 +22,7 @@ import { Route as StrategyIdBacktestRouteImport } from './routes/strategy_.$id.b
 import { Route as ApiStrategyTradeActionsRouteImport } from './routes/api/strategy/tradeActions'
 import { Route as ApiStrategySignalsRouteImport } from './routes/api/strategy/signals'
 import { Route as ApiStrategyListRouteImport } from './routes/api/strategy/list'
+import { Route as ApiStrategyBacktestRouteImport } from './routes/api/strategy/backtest'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiStrategyIdNotificationRouteImport } from './routes/api/strategy/$id/notification'
 import { Route as ApiStrategyIdBacktestRouteImport } from './routes/api/strategy/$id/backtest'
@@ -43,6 +45,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
   path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StrategyCreateRoute = StrategyCreateRouteImport.update({
+  id: '/strategy/create',
+  path: '/strategy/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StrategyIdRoute = StrategyIdRouteImport.update({
@@ -85,6 +92,11 @@ const ApiStrategyListRoute = ApiStrategyListRouteImport.update({
   path: '/list',
   getParentRoute: () => ApiStrategyRoute,
 } as any)
+const ApiStrategyBacktestRoute = ApiStrategyBacktestRouteImport.update({
+  id: '/backtest',
+  path: '/backtest',
+  getParentRoute: () => ApiStrategyRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -106,10 +118,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
   '/strategy/$id': typeof StrategyIdRoute
+  '/strategy/create': typeof StrategyCreateRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/strategy/': typeof StrategyIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
   '/api/strategy/signals': typeof ApiStrategySignalsRoute
   '/api/strategy/tradeActions': typeof ApiStrategyTradeActionsRoute
@@ -123,10 +137,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
   '/strategy/$id': typeof StrategyIdRoute
+  '/strategy/create': typeof StrategyCreateRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/strategy': typeof StrategyIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
   '/api/strategy/signals': typeof ApiStrategySignalsRoute
   '/api/strategy/tradeActions': typeof ApiStrategyTradeActionsRoute
@@ -141,10 +157,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
   '/strategy/$id': typeof StrategyIdRoute
+  '/strategy/create': typeof StrategyCreateRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/strategy/': typeof StrategyIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
   '/api/strategy/signals': typeof ApiStrategySignalsRoute
   '/api/strategy/tradeActions': typeof ApiStrategyTradeActionsRoute
@@ -160,10 +178,12 @@ export interface FileRouteTypes {
     | '/'
     | '/api/strategy'
     | '/strategy/$id'
+    | '/strategy/create'
     | '/auth/'
     | '/dashboard/'
     | '/strategy/'
     | '/api/auth/$'
+    | '/api/strategy/backtest'
     | '/api/strategy/list'
     | '/api/strategy/signals'
     | '/api/strategy/tradeActions'
@@ -177,10 +197,12 @@ export interface FileRouteTypes {
     | '/'
     | '/api/strategy'
     | '/strategy/$id'
+    | '/strategy/create'
     | '/auth'
     | '/dashboard'
     | '/strategy'
     | '/api/auth/$'
+    | '/api/strategy/backtest'
     | '/api/strategy/list'
     | '/api/strategy/signals'
     | '/api/strategy/tradeActions'
@@ -194,10 +216,12 @@ export interface FileRouteTypes {
     | '/'
     | '/api/strategy'
     | '/strategy/$id'
+    | '/strategy/create'
     | '/auth/'
     | '/dashboard/'
     | '/strategy/'
     | '/api/auth/$'
+    | '/api/strategy/backtest'
     | '/api/strategy/list'
     | '/api/strategy/signals'
     | '/api/strategy/tradeActions'
@@ -212,6 +236,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiStrategyRoute: typeof ApiStrategyRouteWithChildren
   StrategyIdRoute: typeof StrategyIdRoute
+  StrategyCreateRoute: typeof StrategyCreateRoute
   AuthIndexRoute: typeof AuthIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   StrategyIndexRoute: typeof StrategyIndexRoute
@@ -249,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strategy/create': {
+      id: '/strategy/create'
+      path: '/strategy/create'
+      fullPath: '/strategy/create'
+      preLoaderRoute: typeof StrategyCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/strategy/$id': {
@@ -307,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStrategyListRouteImport
       parentRoute: typeof ApiStrategyRoute
     }
+    '/api/strategy/backtest': {
+      id: '/api/strategy/backtest'
+      path: '/backtest'
+      fullPath: '/api/strategy/backtest'
+      preLoaderRoute: typeof ApiStrategyBacktestRouteImport
+      parentRoute: typeof ApiStrategyRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -332,6 +371,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface ApiStrategyRouteChildren {
+  ApiStrategyBacktestRoute: typeof ApiStrategyBacktestRoute
   ApiStrategyListRoute: typeof ApiStrategyListRoute
   ApiStrategySignalsRoute: typeof ApiStrategySignalsRoute
   ApiStrategyTradeActionsRoute: typeof ApiStrategyTradeActionsRoute
@@ -340,6 +380,7 @@ interface ApiStrategyRouteChildren {
 }
 
 const ApiStrategyRouteChildren: ApiStrategyRouteChildren = {
+  ApiStrategyBacktestRoute: ApiStrategyBacktestRoute,
   ApiStrategyListRoute: ApiStrategyListRoute,
   ApiStrategySignalsRoute: ApiStrategySignalsRoute,
   ApiStrategyTradeActionsRoute: ApiStrategyTradeActionsRoute,
@@ -355,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiStrategyRoute: ApiStrategyRouteWithChildren,
   StrategyIdRoute: StrategyIdRoute,
+  StrategyCreateRoute: StrategyCreateRoute,
   AuthIndexRoute: AuthIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   StrategyIndexRoute: StrategyIndexRoute,
