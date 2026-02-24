@@ -5,6 +5,24 @@ const OKANE_FINANCE_API_BASE_URL =
 	import.meta.env.OKANE_FINANCE_API_URL ||
 	"http://localhost:8000";
 
+// Get API URL with protocol matching current page (prevents mixed-content on HTTPS pages)
+function getApiUrl(endpoint: string): string {
+	const url = `${OKANE_FINANCE_API_BASE_URL}${endpoint}`;
+
+	// If page is HTTPS but URL is http:// (not localhost), upgrade to https://
+	if (
+		typeof window !== 'undefined' &&
+		window.location?.protocol === 'https:' &&
+		url.startsWith('http://') &&
+		!url.includes('localhost') &&
+		!/^\d+\.\d+\.\d+\.\d+/.test(url)
+	) {
+		return url.replace(/^http:/, 'https:');
+	}
+
+	return url;
+}
+
 export interface ApiError {
 	message: string;
 	status: number;
@@ -24,7 +42,7 @@ export async function apiFetchOkaneFinanceAPI<T>(
 	endpoint: string,
 	options?: RequestInit,
 ): Promise<T> {
-	const url = `${OKANE_FINANCE_API_BASE_URL}${endpoint}`;
+	const url = getApiUrl(endpoint);
 
 	const response = await fetch(url, {
 		...options,

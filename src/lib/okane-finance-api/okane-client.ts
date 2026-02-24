@@ -10,12 +10,28 @@ function getEnvVar(name: string): string {
 	return process.env[name] || "";
 }
 
+// Custom fetch that upgrades http:// to https:// on HTTPS pages (prevents mixed-content)
+function protocolAwareFetch(url: string, init?: RequestInit): Promise<Response> {
+	// If page is HTTPS but URL is http:// (not localhost/IP), upgrade to https://
+	if (
+		typeof window !== 'undefined' &&
+		window.location?.protocol === 'https:' &&
+		url.startsWith('http://') &&
+		!url.includes('localhost') &&
+		!/^\d+\.\d+\.\d+\.\d+/.test(url)
+	) {
+		url = url.replace(/^http:/, 'https:');
+	}
+	return fetch(url, init);
+}
+
 // Factory function to create the API client with proper config
 export function createOkaneClient() {
 	const config = new Configuration({
 		basePath: getEnvVar("VITE_OKANE_FINANCE_API_URL"),
 		username: getEnvVar("VITE_OKANE_FINANCE_API_USER"),
 		password: getEnvVar("VITE_OKANE_FINANCE_API_PASSWORD"),
+		fetchApi: protocolAwareFetch,
 	});
 	return new SignalsApi(config);
 }
