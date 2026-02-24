@@ -12,16 +12,6 @@ function getEnvVar(name: string): string {
 
 // Custom fetch that upgrades http:// to https:// on HTTPS pages (prevents mixed-content)
 function protocolAwareFetch(url: string, init?: RequestInit): Promise<Response> {
-	// If page is HTTPS but URL is http:// (not localhost/IP), upgrade to https://
-	if (
-		typeof window !== 'undefined' &&
-		window.location?.protocol === 'https:' &&
-		url.startsWith('http://') &&
-		!url.includes('localhost') &&
-		!/^\d+\.\d+\.\d+\.\d+/.test(url)
-	) {
-		url = url.replace(/^http:/, 'https:');
-	}
 	return fetch(url, init);
 }
 
