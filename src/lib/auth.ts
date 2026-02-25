@@ -1,5 +1,4 @@
 import { betterAuth } from "better-auth";
-import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db"; // your drizzle instance
 import * as schema from "@/db/schema";
@@ -32,6 +31,15 @@ export const auth = betterAuth({
 	baseURL:
 		process.env.BETTER_AUTH_URL ||
 		(import.meta as any).env?.VITE_BETTER_AUTH_URL,
+	trustedOrigins: [
+		"https://okane-signals.dhanabordee.com",
+		"https://*.dhanabordee.com",
+		"https://okane-signals-web.vercel.app",
+		"https://okane-signals.vercel.app",
+		"https://*.vercel.app",
+		"http://localhost:5173",
+		"http://localhost:3000",
+	],
 	database: drizzleAdapter(db, {
 		provider: "pg",
 		schema: schema,
