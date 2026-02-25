@@ -30,7 +30,8 @@ export const auth = betterAuth({
 		"fallback_secret_for_dev_only",
 	baseURL:
 		process.env.BETTER_AUTH_URL ||
-		(import.meta as any).env?.VITE_BETTER_AUTH_URL,
+		(import.meta as any).env?.VITE_BETTER_AUTH_URL ||
+		(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
 	trustedOrigins: [
 		"https://okane-signals.dhanabordee.com",
 		"https://*.dhanabordee.com",
@@ -69,6 +70,10 @@ export const auth = betterAuth({
 				(import.meta as any).env?.VITE_GOOGLE_CLIENT_ID) as string,
 			clientSecret: (process.env.GOOGLE_CLIENT_SECRET ||
 				(import.meta as any).env?.VITE_GOOGLE_CLIENT_SECRET) as string,
+			// Note: Google Console requires pre-configured redirect URIs.
+			// For preview deployments, set BETTER_AUTH_URL to a fixed staging domain
+			// and add that domain to Google Console authorized redirect URIs.
+			// Example: https://staging.okane-signals.com
 		},
 	},
 	user: {
