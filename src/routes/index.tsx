@@ -1,118 +1,197 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Activity, ArrowRight, BarChart2, BrainCircuit, ChevronDown, LogOut, Settings, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-	Zap,
-	Server,
-	Route as RouteIcon,
-	Shield,
-	Waves,
-	Sparkles,
-} from "lucide-react";
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/")({ component: App });
+export const Route = createFileRoute("/")({ component: Landing });
 
-function App() {
-	const features = [
-		{
-			icon: <Zap className="w-12 h-12 text-cyan-400" />,
-			title: "Powerful Server Functions",
-			description:
-				"Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.",
-		},
-		{
-			icon: <Server className="w-12 h-12 text-cyan-400" />,
-			title: "Flexible Server Side Rendering",
-			description:
-				"Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.",
-		},
-		{
-			icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-			title: "API Routes",
-			description:
-				"Build type-safe API endpoints alongside your application. No separate backend needed.",
-		},
-		{
-			icon: <Shield className="w-12 h-12 text-cyan-400" />,
-			title: "Strongly Typed Everything",
-			description:
-				"End-to-end type safety from server to client. Catch errors before they reach production.",
-		},
-		{
-			icon: <Waves className="w-12 h-12 text-cyan-400" />,
-			title: "Full Streaming Support",
-			description:
-				"Stream data from server to client progressively. Perfect for AI applications and real-time updates.",
-		},
-		{
-			icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-			title: "Next Generation Ready",
-			description:
-				"Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.",
-		},
-	];
+function UserAccountMenu() {
+	const { data: session, isPending } = authClient.useSession();
 
-	return (
-		<div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-			<section className="relative py-20 px-6 text-center overflow-hidden">
-				<div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-				<div className="relative max-w-5xl mx-auto">
-					<div className="flex items-center justify-center gap-6 mb-6">
-						<img
-							src="/tanstack-circle-logo.png"
-							alt="TanStack Logo"
-							className="w-24 h-24 md:w-32 md:h-32"
-						/>
-						<h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-							<span className="text-gray-300">TANSTACK</span>{" "}
-							<span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-								START
-							</span>
-						</h1>
-					</div>
-					<p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-						The framework for next generation AI applications
-					</p>
-					<p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-						Full-stack framework powered by TanStack Router for React and Solid.
-						Build modern applications with server functions, streaming, and type
-						safety.
-					</p>
-					<div className="flex flex-col items-center gap-4">
-						<a
-							href="https://tanstack.com/start"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
-						>
-							Documentation
-						</a>
-						<p className="text-gray-400 text-sm mt-2">
-							Begin your TanStack Start journey by editing{" "}
-							<code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-								/src/routes/index.tsx
-							</code>
-						</p>
-					</div>
-				</div>
-			</section>
+	if (isPending) {
+		return (
+			<div className="h-9 w-9 bg-zinc-800 animate-pulse rounded-full" />
+		);
+	}
 
-			<section className="py-16 px-6 max-w-7xl mx-auto">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-					{features.map((feature, index) => (
-						<div
-							key={index}
-							className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-						>
-							<div className="mb-4">{feature.icon}</div>
-							<h3 className="text-xl font-semibold text-white mb-3">
-								{feature.title}
-							</h3>
-							<p className="text-gray-400 leading-relaxed">
-								{feature.description}
+	if (session?.user) {
+		const initials =
+			session.user.name
+				?.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.toUpperCase()
+				.slice(0, 2) || "U";
+
+		return (
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type="button"
+						className="flex items-center gap-2 rounded-full hover:bg-zinc-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-600"
+					>
+						<Avatar size="sm" className="border border-zinc-700">
+							<AvatarImage src={session.user.image || undefined} />
+							<AvatarFallback className="text-xs font-mono font-medium bg-zinc-800 text-zinc-100">
+								{initials}
+							</AvatarFallback>
+						</Avatar>
+						<ChevronDown size={14} className="text-zinc-500" />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-zinc-800">
+					<DropdownMenuLabel className="font-normal">
+						<div className="flex flex-col space-y-1">
+							<p className="text-sm font-medium leading-none text-zinc-100">
+								{session.user.name || "User"}
+							</p>
+							<p className="text-xs leading-none text-zinc-400">
+								{session.user.email}
 							</p>
 						</div>
-					))}
+					</DropdownMenuLabel>
+					<DropdownMenuSeparator className="bg-zinc-800" />
+					<DropdownMenuGroup>
+						<DropdownMenuItem asChild>
+							<a href="/settings" className="cursor-pointer focus:bg-zinc-800">
+								<Settings size={16} />
+								<span>Settings</span>
+							</a>
+						</DropdownMenuItem>
+					</DropdownMenuGroup>
+					<DropdownMenuSeparator className="bg-zinc-800" />
+					<DropdownMenuItem
+						onClick={() => {
+							void authClient.signOut();
+						}}
+						className="cursor-pointer focus:bg-zinc-800"
+					>
+						<LogOut size={16} />
+						<span>Sign out</span>
+						<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		);
+	}
+
+	return (
+		<Link to="/auth/login">
+			<Button
+				variant="ghost"
+				className="text-xs uppercase tracking-widest text-zinc-400 hover:text-white px-3"
+			>
+				Log In
+			</Button>
+		</Link>
+	);
+}
+
+function Landing() {
+	return (
+<div className="min-h-screen bg-black text-zinc-100 selection:bg-zinc-800 selection:text-white flex flex-col">
+			{/* Nav — matches Header.tsx brand identity exactly */}
+			<header className="flex items-center justify-between px-4 py-3 border-b border-zinc-900/60 shrink-0 bg-black/80 backdrop-blur-sm">
+				<Link to="/" className="flex items-center gap-2">
+					<div className="h-8 w-8 bg-white text-black flex items-center justify-center rounded">
+						<TrendingUp size={18} />
+					</div>
+					<div className="flex flex-col">
+						<span className="text-sm font-semibold tracking-tight">OKANE SIGNALS</span>
+						<span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Financial Terminal</span>
+					</div>
+				</Link>
+
+				<div className="flex items-center gap-4">
+					<div className="hidden sm:flex items-center gap-4">
+						<span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+						<span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Market: Open</span>
+					</div>
+
+					<UserAccountMenu />
 				</div>
-			</section>
+			</header>
+
+			{/* Hero */}
+			<main className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 relative overflow-hidden">
+				<div
+					aria-hidden="true"
+					className="absolute top-1/2 left-0 -translate-y-1/2 text-[18vw] font-black text-zinc-900/20 leading-none select-none pointer-events-none tracking-tighter"
+				>
+					QUANT
+					<br />
+					SYSTEM
+				</div>
+
+				<div className="max-w-4xl pt-20 pb-32 relative">
+					<h1 className="text-6xl md:text-8xl lg:text-[7rem] font-bold tracking-tighter leading-[0.88] text-white mb-8">
+						Signals, backtest,
+						<br />
+						<span className="text-zinc-500">AI analysis.</span>
+					</h1>
+
+					<p className="max-w-xl text-lg md:text-xl text-zinc-400 font-light leading-relaxed mb-12">
+						Run equity strategies, backtest them against historical data, and get AI-powered market analysis — all in one systematic platform.
+					</p>
+
+					<div className="flex flex-col sm:flex-row items-start gap-4">
+						<Link to="/dashboard" className="w-full sm:w-auto inline-block">
+							<Button
+								size="lg"
+								className="w-full sm:w-auto rounded-none bg-white text-black hover:bg-zinc-200 uppercase tracking-widest text-xs font-bold px-8 h-14 group transition-all"
+							>
+								Enter Terminal
+								<ArrowRight className="ml-3 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+							</Button>
+						</Link>
+						<Link to="/auth/register" className="w-full sm:w-auto inline-block">
+							<Button
+								variant="outline"
+								size="lg"
+								className="w-full sm:w-auto rounded-none border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900 uppercase tracking-widest text-xs font-bold px-8 h-14"
+							>
+								Sign up free
+							</Button>
+						</Link>
+					</div>
+				</div>
+			</main>
+
+			{/* Feature strip */}
+			<footer className="grid grid-cols-1 md:grid-cols-3 border-t border-zinc-900 shrink-0">
+				<div className="p-8 border-b md:border-b-0 md:border-r border-zinc-900 group cursor-pointer hover:bg-zinc-950 transition-colors">
+					<Activity className="w-5 h-5 text-zinc-600 mb-6 group-hover:text-white transition-colors" />
+					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">Live Signals</h3>
+					<p className="text-xs text-zinc-500 leading-relaxed">
+						Systematic buy/sell signals generated from equity strategies running on periodically refreshed market data.
+					</p>
+				</div>
+				<div className="p-8 border-b md:border-b-0 md:border-r border-zinc-900 group cursor-pointer hover:bg-zinc-950 transition-colors">
+					<BarChart2 className="w-5 h-5 text-zinc-600 mb-6 group-hover:text-white transition-colors" />
+					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">Strategy Backtesting</h3>
+					<p className="text-xs text-zinc-500 leading-relaxed">
+						Validate strategies against historical OHLCV data. Track performance stats, drawdowns, and trade actions.
+					</p>
+				</div>
+				<div className="p-8 group cursor-pointer hover:bg-zinc-950 transition-colors">
+					<BrainCircuit className="w-5 h-5 text-zinc-600 mb-6 group-hover:text-white transition-colors" />
+					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">AI Market Analysis</h3>
+					<p className="text-xs text-zinc-500 leading-relaxed">
+						AI-powered analysis of ticker data and market news, surfacing context that complements quantitative signals.
+					</p>
+				</div>
+			</footer>
 		</div>
 	);
 }
