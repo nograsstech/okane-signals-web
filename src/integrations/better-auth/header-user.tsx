@@ -1,6 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function BetterAuthHeader() {
 	const { data: session, isPending } = authClient.useSession();
@@ -26,11 +27,12 @@ export default function BetterAuthHeader() {
 		return (
 			<div className="flex items-center gap-3">
 				{/* User Avatar with Initials */}
-				<div className="h-9 w-9 bg-foreground/10 border border-border/50 flex items-center justify-center">
-					<span className="text-xs font-mono font-medium text-foreground/80">
+				<Avatar size="default" className="border border-border/50">
+					<AvatarImage src={session.user.image || undefined} />
+					<AvatarFallback className="text-xs font-mono font-medium">
 						{initials}
-					</span>
-				</div>
+					</AvatarFallback>
+				</Avatar>
 
 				{/* User Info */}
 				<div className="flex-1 min-w-0">
