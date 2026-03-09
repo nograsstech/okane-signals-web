@@ -15,35 +15,62 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BacktestStats } from "@/lib/okane-finance-api/generated/models";
-import { getOkaneClient } from "@/lib/okane-finance-api/okane-client";
+import { RouteLoadingPage } from "@/components/route-loading";
+import { useBacktestReplay } from "@/hooks/use-backtest-replay";
 
 export const Route = createFileRoute("/strategy_/$id/backtest")({
   component: StrategyBacktestPage,
-  loader: async ({ params }) => {
-    const client = getOkaneClient();
-    const strategyID = parseInt(params.id, 10);
-
-    if (!strategyID || Number.isNaN(strategyID)) {
-      return { replayData: null };
-    }
-
-    try {
-      const replayData =
-        await client.replayBacktestEndpointSignalsBacktestReplayGet({
-          backtestId: strategyID,
-        });
-      return { replayData };
-    } catch (error) {
-      console.error("Failed to fetch replay data:", error);
-      return { replayData: null };
-    }
-  },
+  pendingComponent: ({ params }) => <RouteLoadingPage strategyId={params.id} />,
 });
 
 function StrategyBacktestPage() {
   const { id } = Route.useParams();
-  const { replayData } = Route.useLoaderData();
+  const { data: replayResponse, isLoading, error } = useBacktestReplay(id);
+  const replayData = replayResponse?.data ?? null;
   const [chartExpanded, setChartExpanded] = useState(false);
+
+  // Show loading state while fetching data
+  if (isLoading) {
+    return (
+      <Layout>
+        <ProtectedRoute>
+          <RouteLoadingPage strategyId={id} />
+        </ProtectedRoute>
+      </Layout>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Layout>
+        <ProtectedRoute>
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="w-full max-w-md">
+              <div className="relative border border-red-500/30 bg-red-500/5 p-6">
+                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-red-500/30" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-red-500/30" />
+                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-red-500/30" />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-red-500/30" />
+                <h3 className="text-lg font-semibold text-red-500 mb-2">
+                  Failed to load backtest data
+                </h3>
+                <p className="text-sm text-foreground/70 mb-4">
+                  {error.message || "An error occurred while fetching the backtest replay data."}
+                </p>
+                <Link to="/strategy">
+                  <Button variant="outline" className="gap-2">
+                    <ChevronLeft className="h-4 w-4" />
+                    Back to Strategies
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </ProtectedRoute>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -69,7 +96,7 @@ function StrategyBacktestPage() {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 p-6">
               {/* Compact Stats Summary */}
-              {replayData && replayData.data && (
+              {replayData && (
                 <div className="border-border/50 bg-card overflow-hidden rounded-lg border">
                   <div className="bg-muted/50 border-border/50 border-b px-4 py-2">
                     <h3 className="text-sm font-semibold tracking-tight">
@@ -77,7 +104,7 @@ function StrategyBacktestPage() {
                     </h3>
                   </div>
                   <div className="p-4">
-                    <CompactStatsDisplay backtestData={replayData.data} />
+                    <CompactStatsDisplay backtestData={replayData} />
                   </div>
                 </div>
               )}
@@ -119,7 +146,7 @@ function StrategyBacktestPage() {
                       >
                         Original Backtest
                       </TabsTrigger>
-                      {replayData?.data?.html && (
+                      {replayData?.html && (
                         <TabsTrigger
                           value="replay"
                           className="data-[state=active]:bg-muted data-[state=active]:border-primary rounded-none px-4 data-[state=active]:border-b-2"
@@ -148,10 +175,10 @@ function StrategyBacktestPage() {
                       />
                     </TabsContent>
 
-                    {replayData?.data?.html && (
+                    {replayData?.html && (
                       <TabsContent value="replay" className="m-0 h-full">
                         <iframe
-                          srcDoc={replayData.data.html}
+                          srcDoc={replayData.html}
                           title="Replay Visualization"
                           className="h-full w-full border-none"
                           sandbox="allow-scripts allow-same-origin allow-forms"

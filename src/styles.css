@@ -173,6 +173,16 @@ code,
   }
 }
 
+/* Route Loading Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Auth Page Animations */
 @keyframes scanline {
   0% {
