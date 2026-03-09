@@ -13,16 +13,13 @@ export function useDeleteStrategy() {
 		mutationFn: async (id: string) => {
 			return deleteStrategy(id);
 		},
-		onMutate: async (variables) => {
-			// Cancel outgoing refetches
-			await queryClient.cancelQueries({ queryKey: ["strategies"] });
-
-			// Snapshot previous value
+		onMutate: (variables) => {
+			// Snapshot previous value for rollback
 			const previousStrategies = queryClient.getQueryData<
 				KeyStrategyBacktestStats[]
 			>(["strategies"]);
 
-			// Optimistically update (remove the deleted item)
+			// Optimistically update immediately (remove the deleted item)
 			queryClient.setQueryData(
 				["strategies"],
 				(old: KeyStrategyBacktestStats[] | undefined) => {
@@ -33,7 +30,7 @@ export function useDeleteStrategy() {
 				},
 			);
 
-			// Return context with previous value
+			// Return context with previous value for error rollback
 			return { previousStrategies };
 		},
 		onError: (error, _variables, context) => {

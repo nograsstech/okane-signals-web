@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Activity, ArrowRight, BarChart2, BrainCircuit, ChevronDown, LogOut, Settings, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -146,7 +146,7 @@ function Landing() {
 					</p>
 
 					<div className="flex flex-col sm:flex-row items-start gap-4">
-						<Link to="/dashboard" className="w-full sm:w-auto inline-block">
+						<Link to="/strategy" className="w-full sm:w-auto inline-block">
 							<Button
 								size="lg"
 								className="w-full sm:w-auto rounded-none bg-white text-black hover:bg-zinc-200 uppercase tracking-widest text-xs font-bold px-8 h-14 group transition-all"

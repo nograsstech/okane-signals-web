@@ -17,16 +17,13 @@ export function useNotificationToggle() {
 		}) => {
 			return toggleNotification({ id, notificationsOn });
 		},
-		onMutate: async (variables) => {
-			// Cancel outgoing refetches
-			await queryClient.cancelQueries({ queryKey: ["strategies"] });
-
-			// Snapshot previous value
+		onMutate: (variables) => {
+			// Snapshot previous value for rollback
 			const previousStrategies = queryClient.getQueryData<
 				KeyStrategyBacktestStats[]
 			>(["strategies"]);
 
-			// Optimistically update
+			// Optimistically update immediately (synchronous)
 			queryClient.setQueryData(
 				["strategies"],
 				(old: KeyStrategyBacktestStats[] | undefined) => {
@@ -39,7 +36,7 @@ export function useNotificationToggle() {
 				},
 			);
 
-			// Return context with previous value
+			// Return context with previous value for error rollback
 			return { previousStrategies };
 		},
 		onError: (error, _variables, context) => {
@@ -54,8 +51,19 @@ export function useNotificationToggle() {
 			});
 		},
 		onSuccess: (data, variables) => {
-			// Invalidate to sync with server state
-			queryClient.invalidateQueries({ queryKey: ["strategies"] });
+			// Update cache with server response to confirm the update
+			// (no refetch/flash - directly update the cached item)
+			queryClient.setQueryData(
+				["strategies"],
+				(old: KeyStrategyBacktestStats[] | undefined) => {
+					if (!old) return old;
+					return old.map((strategy) =>
+						String(strategy.id) === String(data.id)
+							? { ...strategy, ...data }
+							: strategy,
+					);
+				},
+			);
 
 			// Show success toast
 			toast.success(

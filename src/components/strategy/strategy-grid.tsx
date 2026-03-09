@@ -24,6 +24,7 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { StrategyDeleteButton } from "@/components/strategy/strategy-delete-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,11 @@ function computeTopPerformer(item: KeyStrategyBacktestStats): string {
 
 export function StrategyGrid({ data }: StrategyGridProps) {
 	const notificationToggle = useNotificationToggle();
+
+	// Optimistic state for notifications - tracks pending toggle states
+	const [optimisticNotifications, setOptimisticNotifications] = useState<
+		Map<string, boolean>
+	>(new Map());
 
 	// Extract unique tickers for autocomplete
 	const uniqueTickers = useMemo(() => {
@@ -194,10 +200,45 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 		e.stopPropagation();
 		e.preventDefault();
 
-		notificationToggle.mutate({
-			id,
-			notificationsOn: !currentState,
-		});
+		const newState = !currentState;
+
+		// Optimistic update - update UI immediately
+		setOptimisticNotifications((prev) => new Map(prev).set(id, newState));
+
+		// Track when the toggle started for minimum animation time
+		const toggleStartTime = Date.now();
+		const MIN_ANIMATION_MS = 300;
+
+		// Trigger mutation in background
+		notificationToggle.mutate(
+			{ id, notificationsOn: newState },
+			{
+				onError: () => {
+					// Rollback on error
+					setOptimisticNotifications((prev) => {
+						const next = new Map(prev);
+						next.delete(id);
+						return next;
+					});
+					toast.error("Failed to update notifications", {
+						description: "Please try again.",
+					});
+				},
+				onSuccess: () => {
+					// Ensure minimum time for smooth animation before clearing optimistic state
+					const elapsed = Date.now() - toggleStartTime;
+					const remainingDelay = Math.max(0, MIN_ANIMATION_MS - elapsed);
+
+					setTimeout(() => {
+						setOptimisticNotifications((prev) => {
+							const next = new Map(prev);
+							next.delete(id);
+							return next;
+						});
+					}, remainingDelay);
+				},
+			},
+		);
 	};
 
 	return (
@@ -319,6 +360,10 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 					const drawdownVal = Number(item.averageDrawdownPercentage);
 					const sharpeVal = Number(item.sharpeRatio);
 
+					// Use optimistic state if available, otherwise use actual state
+					const notificationsOn =
+						optimisticNotifications.get(item.id) ?? item.notificationsOn;
+
 					return (
 						<div
 							key={item.id}
@@ -357,36 +402,28 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 									<button
 										type="button"
 										onClick={(e) =>
-											handleToggleNotification(e, item.id, item.notificationsOn)
+											handleToggleNotification(e, item.id, notificationsOn)
 										}
 										onKeyDown={(e) => {
 											if (e.key === "Enter" || e.key === " ") {
 												e.preventDefault();
 												e.stopPropagation();
-												handleToggleNotification(
-													e,
-													item.id,
-													item.notificationsOn,
-												);
+												handleToggleNotification(e, item.id, notificationsOn);
 											}
 										}}
-										className={cn(
-											"shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all duration-200",
-											item.notificationsOn
-												? "bg-primary/10 border-primary/30 hover:bg-primary/15"
-												: "bg-muted/30 border-border/40 hover:bg-muted/50",
-										)}
+										data-enabled={notificationsOn}
+										className="shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all duration-300 ease-out bg-muted/30 border-border/40 hover:bg-muted/50 data-[enabled=true]:bg-primary/10 data-[enabled=true]:border-primary/30 data-[enabled=true]:hover:bg-primary/15 will-change-[background-color,border-color]"
 										aria-label={`Toggle notifications for ${item.strategy}`}
 									>
-										{item.notificationsOn ? (
-											<Bell className="w-3.5 h-3.5 text-primary" />
+										{notificationsOn ? (
+											<Bell className="w-3.5 h-3.5 text-primary transition-colors duration-300 ease-out" />
 										) : (
-											<BellOff className="w-3.5 h-3.5 text-muted-foreground" />
+											<BellOff className="w-3.5 h-3.5 text-muted-foreground transition-colors duration-300 ease-out" />
 										)}
 										<Switch
-											checked={item.notificationsOn}
+											checked={notificationsOn}
 											onChange={() => {}}
-											className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/60"
+											className="pointer-events-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/60 transition-colors duration-300 ease-out"
 										/>
 									</button>
 								</div>
