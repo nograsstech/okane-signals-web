@@ -40,7 +40,7 @@ function StrategyListContent() {
 
 	if (error) {
 		return (
-			<div className="min-h-screen p-6">
+			<div className="min-h-screen w-full max-w-full overflow-x-hidden p-6">
 				<div className="relative p-6 border border-red-500/30 bg-red-500/5">
 					<div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-red-500/30" />
 					<div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-red-500/30" />
@@ -56,7 +56,7 @@ function StrategyListContent() {
 	}
 
 	return (
-		<div className="min-h-screen p-4 sm:p-6">
+		<div className="min-h-screen w-full max-w-full overflow-x-hidden p-4 sm:p-6">
 			{/* Header - responsive layout */}
 			<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6 sm:mb-8">
 				<h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
@@ -108,7 +108,7 @@ function StrategyListContent() {
 
 function LoadingState() {
 	return (
-		<div className="min-h-screen p-4 sm:p-6">
+		<div className="min-h-screen w-full max-w-full overflow-x-hidden p-4 sm:p-6">
 			{/* Header - responsive layout */}
 			<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6 sm:mb-8">
 				<h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">

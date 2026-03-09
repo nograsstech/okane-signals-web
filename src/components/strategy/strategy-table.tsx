@@ -287,7 +287,7 @@ export function StrategyTable({ data }: StrategyTableProps) {
 	};
 
 	return (
-		<div className="mt-8">
+		<div className="mt-8 w-full max-w-full overflow-hidden">
 			<div className="mb-4 flex flex-col items-center gap-3 sm:flex-row">
 				<Input
 					placeholder="Filter by Ticker..."
@@ -317,14 +317,14 @@ export function StrategyTable({ data }: StrategyTableProps) {
 				</Select>
 			</div>
 
-			<div className="border-border/50 relative rounded-md border">
-				<div className="border-foreground/20 absolute -top-1 -left-1 h-3 w-3 border-t-2 border-l-2" />
-				<div className="border-foreground/20 absolute -top-1 -right-1 h-3 w-3 border-t-2 border-r-2" />
-				<div className="border-foreground/20 absolute -bottom-1 -left-1 h-3 w-3 border-b-2 border-l-2" />
-				<div className="border-foreground/20 absolute -right-1 -bottom-1 h-3 w-3 border-r-2 border-b-2" />
+			<div className="border-border/50 relative rounded-md border overflow-hidden">
+				<div className="border-foreground/20 absolute top-0 left-0 h-3 w-3 border-t-2 border-l-2" />
+				<div className="border-foreground/20 absolute top-0 right-0 h-3 w-3 border-t-2 border-r-2" />
+				<div className="border-foreground/20 absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2" />
+				<div className="border-foreground/20 absolute bottom-0 right-0 h-3 w-3 border-r-2 border-b-2" />
 
 				<div className="w-full overflow-x-auto">
-					<table className="w-full min-w-200">
+					<table className="w-full">
 						<thead className="border-border/30 border-b">
 							{table.getHeaderGroups().map((headerGroup) => (
 								<tr key={headerGroup.id}>
