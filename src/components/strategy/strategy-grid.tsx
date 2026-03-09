@@ -24,6 +24,7 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { StrategyDeleteButton } from "@/components/strategy/strategy-delete-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,9 +85,9 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [tickerFilter, setTickerFilter] = useState("");
 	const [tickerSearch, setTickerSearch] = useState("");
-	const [columnFilters, setColumnFilters] = useState<{ id: string; value: unknown }[]>(
-		[],
-	);
+	const [columnFilters, setColumnFilters] = useState<
+		{ id: string; value: unknown }[]
+	>([]);
 
 	const filteredTickers = useMemo(() => {
 		if (!tickerSearch) return uniqueTickers;
@@ -110,7 +111,9 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 	}, [pageSize]);
 
 	useEffect(() => {
-		setColumnFilters(tickerFilter ? [{ id: "ticker", value: tickerFilter }] : []);
+		setColumnFilters(
+			tickerFilter ? [{ id: "ticker", value: tickerFilter }] : [],
+		);
 	}, [tickerFilter]);
 
 	// Setup table for data management (filtering, pagination, sorting)
@@ -341,7 +344,9 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 											<span className="text-[10px] text-muted-foreground font-mono">
 												{item.period}
 											</span>
-											<span className="text-[10px] text-muted-foreground/50">•</span>
+											<span className="text-[10px] text-muted-foreground/50">
+												•
+											</span>
 											<span className="text-[10px] text-muted-foreground font-mono">
 												{item.interval}
 											</span>
@@ -358,7 +363,11 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 											if (e.key === "Enter" || e.key === " ") {
 												e.preventDefault();
 												e.stopPropagation();
-												handleToggleNotification(e, item.id, item.notificationsOn);
+												handleToggleNotification(
+													e,
+													item.id,
+													item.notificationsOn,
+												);
 											}
 										}}
 										className={cn(
@@ -454,16 +463,27 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 							</div>
 
 							{/* Footer Action */}
-							<Link
-								to="/strategy/$id"
-								params={{ id: item.id }}
-								className="flex items-center justify-between px-4 py-2.5 bg-muted/20 hover:bg-muted/40 border-t border-border/20 transition-colors group/btn"
-							>
-								<span className="text-xs font-medium text-foreground/70 group-hover/btn:text-foreground transition-colors">
-									View Details
-								</span>
-								<ArrowUpRight className="w-4 h-4 text-foreground/50 group-hover/btn:text-foreground group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all" />
-							</Link>
+							<div className="flex items-center divide-x divide-border/20">
+								<Link
+									to="/strategy/$id"
+									params={{ id: item.id }}
+									className="flex items-center justify-between flex-1 px-4 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors group/btn"
+								>
+									<span className="text-xs font-medium text-foreground/70 group-hover/btn:text-foreground transition-colors">
+										View Details
+									</span>
+									<ArrowUpRight className="w-4 h-4 text-foreground/50 group-hover/btn:text-foreground group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all" />
+								</Link>
+								<div className="h-full flex items-center justify-center px-3 bg-muted/10 hover:bg-muted/30 transition-colors">
+									<StrategyDeleteButton
+										id={item.id}
+										strategy={item.strategy}
+										ticker={item.ticker}
+										variant="icon"
+										className="text-muted-foreground/60 hover:text-destructive"
+									/>
+								</div>
+							</div>
 						</div>
 					);
 				})}
