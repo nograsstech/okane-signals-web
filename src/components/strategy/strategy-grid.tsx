@@ -1,4 +1,5 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Combobox } from "@base-ui/react/combobox";
+import { Link } from "@tanstack/react-router";
 import {
 	getCoreRowModel,
 	getFilteredRowModel,
@@ -38,7 +39,6 @@ import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
-import { Combobox } from "@base-ui/react/combobox";
 
 interface StrategyGridProps {
 	data: KeyStrategyBacktestStats[];
@@ -54,7 +54,6 @@ function computeTopPerformer(item: KeyStrategyBacktestStats): string {
 }
 
 export function StrategyGrid({ data }: StrategyGridProps) {
-	const navigate = useNavigate();
 	const notificationToggle = useNotificationToggle();
 
 	// Extract unique tickers for autocomplete
@@ -455,30 +454,16 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 							</div>
 
 							{/* Footer Action */}
-							<button
-								type="button"
-								onClick={() =>
-									navigate({
-										to: "/strategy/$id",
-										params: { id: item.id },
-									})
-								}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " ") {
-										e.preventDefault();
-										navigate({
-											to: "/strategy/$id",
-											params: { id: item.id },
-										});
-									}
-								}}
+							<Link
+								to="/strategy/$id"
+								params={{ id: item.id }}
 								className="flex items-center justify-between px-4 py-2.5 bg-muted/20 hover:bg-muted/40 border-t border-border/20 transition-colors group/btn"
 							>
 								<span className="text-xs font-medium text-foreground/70 group-hover/btn:text-foreground transition-colors">
 									View Details
 								</span>
 								<ArrowUpRight className="w-4 h-4 text-foreground/50 group-hover/btn:text-foreground group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all" />
-							</button>
+							</Link>
 						</div>
 					);
 				})}

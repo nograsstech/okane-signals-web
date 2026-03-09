@@ -56,25 +56,22 @@ function StrategyListContent() {
 	}
 
 	return (
-		<div className="min-h-screen p-6">
-			<div className="flex justify-between items-center mb-8">
-				<h2 className="text-4xl font-bold tracking-tight">
+		<div className="min-h-screen p-4 sm:p-6">
+			{/* Header - responsive layout */}
+			<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6 sm:mb-8">
+				<h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
 					Trading Strategies
 				</h2>
 
-				<div className="flex items-center gap-3">
-					<Link to="/strategy/create">
-						<Button size="sm" className="gap-2">
-							<Plus className="w-4 h-4" />
-							<span>Create Strategy</span>
-						</Button>
-					</Link>
+				{/* Action buttons - stack on mobile, row on desktop */}
+				<div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
 					<div className="flex bg-muted/30 p-1 rounded-lg border border-border/50 gap-1">
 						<button
 							type="button"
 							onClick={() => setViewMode("table")}
 							className={`p-2 rounded-md transition-all ${viewMode === "table" ? "bg-background text-foreground shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
 							title="Table View"
+							aria-label="Table view"
 						>
 							<List className="w-5 h-5" />
 						</button>
@@ -83,10 +80,19 @@ function StrategyListContent() {
 							onClick={() => setViewMode("grid")}
 							className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-background text-foreground shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
 							title="Grid View"
+							aria-label="Grid view"
 						>
 							<LayoutGrid className="w-5 h-5" />
 						</button>
 					</div>
+
+					<Link to="/strategy/create" className="shrink-0">
+						<Button size="sm" className="gap-2">
+							<Plus className="w-4 h-4" />
+							<span className="hidden sm:inline">Create Strategy</span>
+							<span className="sm:hidden">Create</span>
+						</Button>
+					</Link>
 				</div>
 			</div>
 
@@ -102,15 +108,17 @@ function StrategyListContent() {
 
 function LoadingState() {
 	return (
-		<div className="min-h-screen p-6">
-			<div className="flex justify-between items-center mb-8">
-				<h2 className="text-4xl font-bold tracking-tight">
+		<div className="min-h-screen p-4 sm:p-6">
+			{/* Header - responsive layout */}
+			<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6 sm:mb-8">
+				<h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
 					Trading Strategies
 				</h2>
-				<Link to="/strategy/create">
+				<Link to="/strategy/create" className="shrink-0 self-start sm:self-auto">
 					<Button size="sm" className="gap-2" disabled>
 						<Plus className="w-4 h-4" />
-						<span>Create Strategy</span>
+						<span className="hidden sm:inline">Create Strategy</span>
+						<span className="sm:hidden">Create</span>
 					</Button>
 				</Link>
 			</div>
