@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/strategy/list")({
 				return new Response(JSON.stringify(uniqueStrategyList), {
 					headers: {
 						"Content-Type": "application/json",
-						"Cache-Control": "max-age=20",
+						"Cache-Control": "max-age=20, must-revalidate",
 					},
 				});
 			},
