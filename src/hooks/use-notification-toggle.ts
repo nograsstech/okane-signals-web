@@ -54,18 +54,8 @@ export function useNotificationToggle() {
 			});
 		},
 		onSuccess: (data, variables) => {
-			// Update cache with server response to confirm the update
-			queryClient.setQueryData(
-				["strategies"],
-				(old: KeyStrategyBacktestStats[] | undefined) => {
-					if (!old) return old;
-					return old.map((strategy) =>
-						String(strategy.id) === String(data.id)
-							? { ...strategy, ...data }
-							: strategy,
-					);
-				},
-			);
+			// Invalidate to sync with server state
+			queryClient.invalidateQueries({ queryKey: ["strategies"] });
 
 			// Show success toast
 			toast.success(
