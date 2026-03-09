@@ -17,6 +17,7 @@ export const Route = createFileRoute("/api/trades")({
 				const startDate = url.searchParams.get("startDate");
 				const endDate = url.searchParams.get("endDate");
 				const search = url.searchParams.get("search");
+				const notificationsOnly = url.searchParams.get("notificationsOnly");
 
 				// Validate pagination params
 				const page = pageParam ? Number.parseInt(pageParam, 10) : 1;
@@ -93,6 +94,10 @@ export const Route = createFileRoute("/api/trades")({
 						);
 					}
 
+					if (notificationsOnly === "true") {
+						conditions.push(eq(backtestStats.notificationsOn, true));
+					}
+
 					// Build the JOIN query
 					const baseQuery = db
 						.select({
@@ -108,6 +113,7 @@ export const Route = createFileRoute("/api/trades")({
 							size: tradeActions.size,
 							ticker: backtestStats.ticker,
 							strategy: backtestStats.strategy,
+							notifications_on: backtestStats.notificationsOn,
 						})
 						.from(tradeActions)
 						.innerJoin(backtestStats, eq(tradeActions.backtest_id, backtestStats.id))

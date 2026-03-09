@@ -89,6 +89,7 @@ export interface TradeWithBacktest {
 	// JOINed fields from backtest_stats
 	ticker: string;
 	strategy: string;
+	notifications_on: boolean;
 }
 
 export interface TradesParams {

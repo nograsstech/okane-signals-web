@@ -8,6 +8,7 @@ import { TradesErrorState } from "./trades-error-state";
 const defaultFilters = {
 	ticker: "all",
 	actionType: "all" as "buy" | "sell" | "close" | "all",
+	notificationsOnly: false,
 	startDate: "",
 	endDate: "",
 	search: "",
@@ -21,6 +22,7 @@ export default function TradesContent() {
 	const apiParams = {
 		...(filters.ticker !== "all" && { ticker: filters.ticker }),
 		...(filters.actionType !== "all" && { actionType: filters.actionType }),
+		...(filters.notificationsOnly && { notificationsOnly: "true" }),
 		...(filters.startDate && { startDate: filters.startDate }),
 		...(filters.endDate && { endDate: filters.endDate }),
 		...(filters.search && { search: filters.search }),
