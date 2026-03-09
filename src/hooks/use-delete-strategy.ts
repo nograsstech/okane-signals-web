@@ -27,7 +27,9 @@ export function useDeleteStrategy() {
 				["strategies"],
 				(old: KeyStrategyBacktestStats[] | undefined) => {
 					if (!old) return old;
-					return old.filter((strategy) => strategy.id !== variables);
+					return old.filter(
+						(strategy) => String(strategy.id) !== String(variables),
+					);
 				},
 			);
 
@@ -46,9 +48,6 @@ export function useDeleteStrategy() {
 			});
 		},
 		onSuccess: (_data, _variables) => {
-			// Invalidate queries to ensure fresh data
-			queryClient.invalidateQueries({ queryKey: ["strategies"] });
-
 			// Show success toast
 			toast.success("Strategy deleted", {
 				description: "The strategy has been permanently removed.",

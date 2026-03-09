@@ -92,8 +92,14 @@ export async function toggleNotification(
 	});
 
 	if (!response.ok) {
-		const error = (await response.json()) as { error: string };
-		throw new Error(error.error || "Failed to update notification");
+		let error = "Failed to update notification";
+		try {
+			const errorData = (await response.json()) as { error: string };
+			error = errorData.error || error;
+		} catch {
+			// Response wasn't JSON, use default error message
+		}
+		throw new Error(error);
 	}
 
 	return response.json();
@@ -111,8 +117,14 @@ export async function deleteStrategy(
 	});
 
 	if (!response.ok) {
-		const error = (await response.json()) as { error: string };
-		throw new Error(error.error || "Failed to delete strategy");
+		let error = "Failed to delete strategy";
+		try {
+			const errorData = (await response.json()) as { error: string };
+			error = errorData.error || error;
+		} catch {
+			// Response wasn't JSON, use default error message
+		}
+		throw new Error(error);
 	}
 
 	return response.json();
