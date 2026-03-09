@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeftRight, BarChart3, Home, Plus, TrendingUp } from "lucide-react";
+import { ArrowLeftRight, BarChart3, Plus, TrendingUp } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -49,7 +49,6 @@ export default function Layout({ children }: LayoutProps) {
   }, [isOpen, isMounted]);
 
   const navItems = [
-    { to: "/dashboard", icon: Home, label: "Dashboard", subtitle: "WIP" },
     { to: "/strategy", icon: BarChart3, label: "Strategies", exact: true },
     { to: "/strategy/create", icon: Plus, label: "Create Strategy" },
     { to: "/trades", icon: ArrowLeftRight, label: "Trades", subtitle: "Signal History" },
@@ -67,7 +66,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-start justify-start gap-3 px-0 py-3 data-[collapsed=true]:justify-center">
             <div className="relative shrink-0">
               <div className="bg-primary/20 absolute inset-0 blur-lg" />
-              <div className="from-primary to-primary/60 text-primary-foreground relative flex h-8 w-8 items-center justify-center bg-gradient-to-br">
+              <div className="from-primary to-primary/60 text-primary-foreground relative flex h-8 w-8 items-center justify-center bg-linear-to-br">
                 <TrendingUp size={16} strokeWidth={2.5} />
               </div>
             </div>
@@ -141,7 +140,7 @@ export default function Layout({ children }: LayoutProps) {
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="overflow-x-hidden">
         {/* Top Bar */}
         <header className="border-border/50 bg-background/80 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 border-b backdrop-blur-sm">
           <div className="flex items-center justify-between px-4 py-3">

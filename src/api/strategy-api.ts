@@ -15,14 +15,18 @@ export function getStrategyList(): Promise<KeyStrategyBacktestStats[]> {
 
 // Get single strategy backtest data
 export function getStrategy(id: string): Promise<KeyStrategyBacktestStats[]> {
-	return apiFetchOkaneSignals<KeyStrategyBacktestStats[]>(`/api/strategy?id=${id}`);
+	return apiFetchOkaneSignals<KeyStrategyBacktestStats[]>(
+		`/api/strategy?id=${id}`,
+	);
 }
 
 // Get trade actions for a backtest
 export function getTradeActions(
 	backtestId: string,
 ): Promise<{ tradeActionsList: TradeAction[] }> {
-	return apiFetchOkaneSignals(`/api/strategy/tradeActions?backtest_id=${backtestId}`);
+	return apiFetchOkaneSignals(
+		`/api/strategy/tradeActions?backtest_id=${backtestId}`,
+	);
 }
 
 // Get signals for a strategy
@@ -88,8 +92,39 @@ export async function toggleNotification(
 	});
 
 	if (!response.ok) {
-		const error = (await response.json()) as { error: string };
-		throw new Error(error.error || "Failed to update notification");
+		let error = "Failed to update notification";
+		try {
+			const errorData = (await response.json()) as { error: string };
+			error = errorData.error || error;
+		} catch {
+			// Response wasn't JSON, use default error message
+		}
+		throw new Error(error);
+	}
+
+	return response.json();
+}
+
+// Delete a strategy
+export async function deleteStrategy(
+	id: string,
+): Promise<{ success: boolean; id: number }> {
+	const response = await fetch(`/api/strategy/${id}`, {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+
+	if (!response.ok) {
+		let error = "Failed to delete strategy";
+		try {
+			const errorData = (await response.json()) as { error: string };
+			error = errorData.error || error;
+		} catch {
+			// Response wasn't JSON, use default error message
+		}
+		throw new Error(error);
 	}
 
 	return response.json();
