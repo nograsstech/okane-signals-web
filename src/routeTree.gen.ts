@@ -10,11 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TradesIndexRouteImport } from './routes/trades/index'
 import { Route as StrategyIndexRouteImport } from './routes/strategy/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as StrategyCreateRouteImport } from './routes/strategy.create'
 import { Route as StrategyIdRouteImport } from './routes/strategy/$id'
+import { Route as ApiTradesRouteImport } from './routes/api/trades'
 import { Route as ApiStrategyRouteImport } from './routes/api/strategy'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
@@ -30,6 +32,11 @@ import { Route as ApiStrategyIdBacktestRouteImport } from './routes/api/strategy
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TradesIndexRoute = TradesIndexRouteImport.update({
+  id: '/trades/',
+  path: '/trades/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StrategyIndexRoute = StrategyIndexRouteImport.update({
@@ -55,6 +62,11 @@ const StrategyCreateRoute = StrategyCreateRouteImport.update({
 const StrategyIdRoute = StrategyIdRouteImport.update({
   id: '/strategy/$id',
   path: '/strategy/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTradesRoute = ApiTradesRouteImport.update({
+  id: '/api/trades',
+  path: '/api/trades',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStrategyRoute = ApiStrategyRouteImport.update({
@@ -117,11 +129,13 @@ const ApiStrategyIdBacktestRoute = ApiStrategyIdBacktestRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
+  '/api/trades': typeof ApiTradesRoute
   '/strategy/$id': typeof StrategyIdRoute
   '/strategy/create': typeof StrategyCreateRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/strategy/': typeof StrategyIndexRoute
+  '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
@@ -136,11 +150,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
+  '/api/trades': typeof ApiTradesRoute
   '/strategy/$id': typeof StrategyIdRoute
   '/strategy/create': typeof StrategyCreateRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/strategy': typeof StrategyIndexRoute
+  '/trades': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
@@ -156,11 +172,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
+  '/api/trades': typeof ApiTradesRoute
   '/strategy/$id': typeof StrategyIdRoute
   '/strategy/create': typeof StrategyCreateRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/strategy/': typeof StrategyIndexRoute
+  '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
@@ -177,11 +195,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api/strategy'
+    | '/api/trades'
     | '/strategy/$id'
     | '/strategy/create'
     | '/auth/'
     | '/dashboard/'
     | '/strategy/'
+    | '/trades/'
     | '/api/auth/$'
     | '/api/strategy/backtest'
     | '/api/strategy/list'
@@ -196,11 +216,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api/strategy'
+    | '/api/trades'
     | '/strategy/$id'
     | '/strategy/create'
     | '/auth'
     | '/dashboard'
     | '/strategy'
+    | '/trades'
     | '/api/auth/$'
     | '/api/strategy/backtest'
     | '/api/strategy/list'
@@ -215,11 +237,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/api/strategy'
+    | '/api/trades'
     | '/strategy/$id'
     | '/strategy/create'
     | '/auth/'
     | '/dashboard/'
     | '/strategy/'
+    | '/trades/'
     | '/api/auth/$'
     | '/api/strategy/backtest'
     | '/api/strategy/list'
@@ -235,11 +259,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiStrategyRoute: typeof ApiStrategyRouteWithChildren
+  ApiTradesRoute: typeof ApiTradesRoute
   StrategyIdRoute: typeof StrategyIdRoute
   StrategyCreateRoute: typeof StrategyCreateRoute
   AuthIndexRoute: typeof AuthIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   StrategyIndexRoute: typeof StrategyIndexRoute
+  TradesIndexRoute: typeof TradesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   StrategyIdBacktestRoute: typeof StrategyIdBacktestRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
@@ -253,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trades/': {
+      id: '/trades/'
+      path: '/trades'
+      fullPath: '/trades/'
+      preLoaderRoute: typeof TradesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/strategy/': {
@@ -288,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/strategy/$id'
       fullPath: '/strategy/$id'
       preLoaderRoute: typeof StrategyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/trades': {
+      id: '/api/trades'
+      path: '/api/trades'
+      fullPath: '/api/trades'
+      preLoaderRoute: typeof ApiTradesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/strategy': {
@@ -395,11 +435,13 @@ const ApiStrategyRouteWithChildren = ApiStrategyRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiStrategyRoute: ApiStrategyRouteWithChildren,
+  ApiTradesRoute: ApiTradesRoute,
   StrategyIdRoute: StrategyIdRoute,
   StrategyCreateRoute: StrategyCreateRoute,
   AuthIndexRoute: AuthIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   StrategyIndexRoute: StrategyIndexRoute,
+  TradesIndexRoute: TradesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   StrategyIdBacktestRoute: StrategyIdBacktestRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,

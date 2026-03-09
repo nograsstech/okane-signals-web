@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Home, Plus, TrendingUp } from "lucide-react";
+import { ArrowLeftRight, BarChart3, Home, Plus, TrendingUp } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -52,6 +52,7 @@ export default function Layout({ children }: LayoutProps) {
     { to: "/dashboard", icon: Home, label: "Dashboard", subtitle: "WIP" },
     { to: "/strategy", icon: BarChart3, label: "Strategies", exact: true },
     { to: "/strategy/create", icon: Plus, label: "Create Strategy" },
+    { to: "/trades", icon: ArrowLeftRight, label: "Trades", subtitle: "Signal History" },
   ];
 
   // Don't render until mounted to prevent hydration mismatch
@@ -88,7 +89,7 @@ export default function Layout({ children }: LayoutProps) {
                 {navItems.map(({ to, icon: Icon, label, subtitle, exact }) => {
                   const isActive = exact
                     ? currentPath === to
-                    : currentPath === to || currentPath.startsWith(to + "/");
+                    : currentPath === to || currentPath.startsWith(`${to}/`);
                   return (
                     <SidebarMenuItem key={to}>
                       <SidebarMenuButton

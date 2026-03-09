@@ -73,3 +73,40 @@ export interface TablePagination {
 	pageIndex: number;
 	pageSize: number;
 }
+
+// Trades page types
+export interface TradeWithBacktest {
+	id: number;
+	created_at: Date;
+	backtest_id: number;
+	datetime: Date;
+	trade_action: "buy" | "sell" | "close";
+	entry_price: number | null;
+	price: number | null;
+	sl: number | null;
+	tp: number | null;
+	size: number | null;
+	// JOINed fields from backtest_stats
+	ticker: string;
+	strategy: string;
+}
+
+export interface TradesParams {
+	page?: number;
+	pageSize?: number;
+	ticker?: string;
+	actionType?: "buy" | "sell" | "close";
+	startDate?: string; // ISO date string
+	endDate?: string; // ISO date string
+	search?: string; // Global search term
+}
+
+export interface TradesResponse {
+	trades: TradeWithBacktest[];
+	pagination: {
+		page: number;
+		pageSize: number;
+		totalCount: number;
+		totalPages: number;
+	};
+}
