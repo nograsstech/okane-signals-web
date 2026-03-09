@@ -2,6 +2,8 @@ import {
 	ArrowDown,
 	ArrowLeftRight,
 	ArrowUp,
+	Bell,
+	BellOff,
 	ChevronLeft,
 	ChevronRight,
 } from "lucide-react";
@@ -76,9 +78,20 @@ const columns: ColumnDef<TradeWithBacktest>[] = [
 		header: "Ticker",
 		cell: ({ row }) => (
 			<div className="flex flex-col">
-				<Badge variant="outline" className="w-fit text-xs font-mono">
-					{row.original.ticker}
-				</Badge>
+				<div className="flex items-center gap-1.5">
+					<Badge variant="outline" className="w-fit text-xs font-mono">
+						{row.original.ticker}
+					</Badge>
+					{row.original.notifications_on ? (
+						<div className="flex items-center gap-1 text-[10px] text-amber-500" title="Notifications Enabled">
+							<Bell className="w-3 h-3 animate-pulse" />
+						</div>
+					) : (
+						<div className="flex items-center gap-1 text-[10px] text-muted-foreground/40" title="Notifications Disabled">
+							<BellOff className="w-3 h-3" />
+						</div>
+					)}
+				</div>
 				<span className="text-[9px] text-muted-foreground font-mono mt-0.5">
 					{row.original.strategy}
 				</span>

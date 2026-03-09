@@ -2,6 +2,7 @@ import { Search, X } from "lucide-react";
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -14,6 +15,7 @@ interface TradesFilterBarProps {
 	filters: {
 		ticker: string;
 		actionType: "buy" | "sell" | "close" | "all";
+		notificationsOnly: boolean;
 		startDate: string;
 		endDate: string;
 		search: string;
@@ -42,13 +44,14 @@ export function TradesFilterBar({
 	const endDateId = useId();
 	const searchId = useId();
 
-	const updateFilter = (key: keyof TradesFilterBarProps["filters"], value: string) => {
+	const updateFilter = (key: keyof TradesFilterBarProps["filters"], value: string | boolean) => {
 		onFiltersChange({ ...filters, [key]: value });
 	};
 
 	const hasActiveFilters =
 		filters.ticker !== "all" ||
 		filters.actionType !== "all" ||
+		filters.notificationsOnly ||
 		filters.startDate ||
 		filters.endDate ||
 		filters.search;
@@ -108,6 +111,22 @@ export function TradesFilterBar({
 								))}
 							</SelectContent>
 						</Select>
+					</div>
+
+					{/* Notifications Only Filter */}
+					<div className="flex items-end gap-2">
+						<div className="flex items-center gap-2 h-9 px-3 border border-border/50 rounded-md bg-muted/20">
+							<input
+								type="checkbox"
+								id="notifications-only"
+								checked={filters.notificationsOnly}
+								onChange={(e) => updateFilter("notificationsOnly", e.target.checked)}
+								className="w-4 h-4 rounded border-border/50"
+							/>
+							<label htmlFor="notifications-only" className="text-[10px] font-mono font-semibold tracking-wider uppercase text-muted-foreground cursor-pointer">
+								Notifications Only
+							</label>
+						</div>
 					</div>
 
 					{/* Date Range - Start */}
