@@ -1,18 +1,19 @@
 // Strategy detail route
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronLeft } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth";
 import Layout from "@/components/Layout";
-import { useStrategyDetail } from "@/hooks/use-strategy-detail";
-import { StrategyStats } from "@/components/strategy/strategy-stats";
-import { TradeActionsTable } from "@/components/strategy/trade-actions-table";
 import { SignalsTable } from "@/components/strategy/signals-table";
+import { StatsLoadingSkeleton } from "@/components/strategy/stats-loading-skeleton";
+import { StrategyDeleteButton } from "@/components/strategy/strategy-delete-button";
+import { StrategyStats } from "@/components/strategy/strategy-stats";
+import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skeleton";
+import { TradeActionsTable } from "@/components/strategy/trade-actions-table";
 import { TradingViewAnalysisWidget } from "@/components/tradingview/tradingview-analysis-widget";
 import { TradingviewIframe } from "@/components/tradingview/tradingview-iframe";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { StatsLoadingSkeleton } from "@/components/strategy/stats-loading-skeleton";
-import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skeleton";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useStrategyDetail } from "@/hooks/use-strategy-detail";
 import { getTradingViewSymbol } from "@/lib/utils/tradingview-mapper";
 
 export const Route = createFileRoute("/strategy/$id")({
@@ -28,7 +29,7 @@ function StrategyDetailPage() {
 				<StrategyDetailContent id={id} />
 			</ProtectedRoute>
 		</Layout>
-	)
+	);
 }
 
 function StrategyDetailContent({ id }: { id: string }) {
@@ -38,12 +39,14 @@ function StrategyDetailContent({ id }: { id: string }) {
 	if (error) {
 		return (
 			<div className="min-h-screen p-6">
-				<Link to="/strategy">
-					<Button variant="link" className="px-0">
-						<ChevronLeft className="h-4 w-4" />
-						<span>Back to Strategies</span>
-					</Button>
-				</Link>
+				<div className="flex items-center justify-between mb-6">
+					<Link to="/strategy">
+						<Button variant="link" className="px-0">
+							<ChevronLeft className="h-4 w-4" />
+							<span>Back to Strategies</span>
+						</Button>
+					</Link>
+				</div>
 				<div className="relative mt-6 p-6 border border-red-500/30 bg-red-500/5">
 					<div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-red-500/30" />
 					<div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-red-500/30" />
@@ -55,18 +58,29 @@ function StrategyDetailContent({ id }: { id: string }) {
 					<p className="text-sm text-foreground/70">{error.message}</p>
 				</div>
 			</div>
-		)
+		);
 	}
 
 	return (
 		<div className="min-h-screen p-6">
-			{/* Back Button */}
-			<Link to="/strategy">
-				<Button variant="link" className="px-0">
-					<ChevronLeft className="h-4 w-4" />
-					<span>Back to Strategies</span>
-				</Button>
-			</Link>
+			{/* Header with Back and Delete buttons */}
+			<div className="flex items-center justify-between mb-6">
+				<Link to="/strategy">
+					<Button variant="link" className="px-0">
+						<ChevronLeft className="h-4 w-4" />
+						<span>Back to Strategies</span>
+					</Button>
+				</Link>
+
+				{strategy && (
+					<StrategyDeleteButton
+						id={id}
+						strategy={strategy.strategy}
+						ticker={strategy.ticker}
+						variant="subtle"
+					/>
+				)}
+			</div>
 
 			{/* Stats Section */}
 			{isLoading ? (
@@ -123,5 +137,5 @@ function StrategyDetailContent({ id }: { id: string }) {
 				</>
 			)}
 		</div>
-	)
+	);
 }

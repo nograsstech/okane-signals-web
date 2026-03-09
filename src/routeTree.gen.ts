@@ -25,6 +25,7 @@ import { Route as ApiStrategyTradeActionsRouteImport } from './routes/api/strate
 import { Route as ApiStrategySignalsRouteImport } from './routes/api/strategy/signals'
 import { Route as ApiStrategyListRouteImport } from './routes/api/strategy/list'
 import { Route as ApiStrategyBacktestRouteImport } from './routes/api/strategy/backtest'
+import { Route as ApiStrategyIdRouteImport } from './routes/api/strategy/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiStrategyIdNotificationRouteImport } from './routes/api/strategy/$id/notification'
 import { Route as ApiStrategyIdBacktestRouteImport } from './routes/api/strategy/$id/backtest'
@@ -109,6 +110,11 @@ const ApiStrategyBacktestRoute = ApiStrategyBacktestRouteImport.update({
   path: '/backtest',
   getParentRoute: () => ApiStrategyRoute,
 } as any)
+const ApiStrategyIdRoute = ApiStrategyIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiStrategyRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -116,14 +122,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 } as any)
 const ApiStrategyIdNotificationRoute =
   ApiStrategyIdNotificationRouteImport.update({
-    id: '/$id/notification',
-    path: '/$id/notification',
-    getParentRoute: () => ApiStrategyRoute,
+    id: '/notification',
+    path: '/notification',
+    getParentRoute: () => ApiStrategyIdRoute,
   } as any)
 const ApiStrategyIdBacktestRoute = ApiStrategyIdBacktestRouteImport.update({
-  id: '/$id/backtest',
-  path: '/$id/backtest',
-  getParentRoute: () => ApiStrategyRoute,
+  id: '/backtest',
+  path: '/backtest',
+  getParentRoute: () => ApiStrategyIdRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/strategy/': typeof StrategyIndexRoute
   '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/strategy/$id': typeof ApiStrategyIdRouteWithChildren
   '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
   '/api/strategy/signals': typeof ApiStrategySignalsRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/strategy': typeof StrategyIndexRoute
   '/trades': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/strategy/$id': typeof ApiStrategyIdRouteWithChildren
   '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
   '/api/strategy/signals': typeof ApiStrategySignalsRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/strategy/': typeof StrategyIndexRoute
   '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/strategy/$id': typeof ApiStrategyIdRouteWithChildren
   '/api/strategy/backtest': typeof ApiStrategyBacktestRoute
   '/api/strategy/list': typeof ApiStrategyListRoute
   '/api/strategy/signals': typeof ApiStrategySignalsRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/strategy/'
     | '/trades/'
     | '/api/auth/$'
+    | '/api/strategy/$id'
     | '/api/strategy/backtest'
     | '/api/strategy/list'
     | '/api/strategy/signals'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/strategy'
     | '/trades'
     | '/api/auth/$'
+    | '/api/strategy/$id'
     | '/api/strategy/backtest'
     | '/api/strategy/list'
     | '/api/strategy/signals'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/strategy/'
     | '/trades/'
     | '/api/auth/$'
+    | '/api/strategy/$id'
     | '/api/strategy/backtest'
     | '/api/strategy/list'
     | '/api/strategy/signals'
@@ -386,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStrategyBacktestRouteImport
       parentRoute: typeof ApiStrategyRoute
     }
+    '/api/strategy/$id': {
+      id: '/api/strategy/$id'
+      path: '/$id'
+      fullPath: '/api/strategy/$id'
+      preLoaderRoute: typeof ApiStrategyIdRouteImport
+      parentRoute: typeof ApiStrategyRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -395,37 +414,49 @@ declare module '@tanstack/react-router' {
     }
     '/api/strategy/$id/notification': {
       id: '/api/strategy/$id/notification'
-      path: '/$id/notification'
+      path: '/notification'
       fullPath: '/api/strategy/$id/notification'
       preLoaderRoute: typeof ApiStrategyIdNotificationRouteImport
-      parentRoute: typeof ApiStrategyRoute
+      parentRoute: typeof ApiStrategyIdRoute
     }
     '/api/strategy/$id/backtest': {
       id: '/api/strategy/$id/backtest'
-      path: '/$id/backtest'
+      path: '/backtest'
       fullPath: '/api/strategy/$id/backtest'
       preLoaderRoute: typeof ApiStrategyIdBacktestRouteImport
-      parentRoute: typeof ApiStrategyRoute
+      parentRoute: typeof ApiStrategyIdRoute
     }
   }
 }
 
-interface ApiStrategyRouteChildren {
-  ApiStrategyBacktestRoute: typeof ApiStrategyBacktestRoute
-  ApiStrategyListRoute: typeof ApiStrategyListRoute
-  ApiStrategySignalsRoute: typeof ApiStrategySignalsRoute
-  ApiStrategyTradeActionsRoute: typeof ApiStrategyTradeActionsRoute
+interface ApiStrategyIdRouteChildren {
   ApiStrategyIdBacktestRoute: typeof ApiStrategyIdBacktestRoute
   ApiStrategyIdNotificationRoute: typeof ApiStrategyIdNotificationRoute
 }
 
+const ApiStrategyIdRouteChildren: ApiStrategyIdRouteChildren = {
+  ApiStrategyIdBacktestRoute: ApiStrategyIdBacktestRoute,
+  ApiStrategyIdNotificationRoute: ApiStrategyIdNotificationRoute,
+}
+
+const ApiStrategyIdRouteWithChildren = ApiStrategyIdRoute._addFileChildren(
+  ApiStrategyIdRouteChildren,
+)
+
+interface ApiStrategyRouteChildren {
+  ApiStrategyIdRoute: typeof ApiStrategyIdRouteWithChildren
+  ApiStrategyBacktestRoute: typeof ApiStrategyBacktestRoute
+  ApiStrategyListRoute: typeof ApiStrategyListRoute
+  ApiStrategySignalsRoute: typeof ApiStrategySignalsRoute
+  ApiStrategyTradeActionsRoute: typeof ApiStrategyTradeActionsRoute
+}
+
 const ApiStrategyRouteChildren: ApiStrategyRouteChildren = {
+  ApiStrategyIdRoute: ApiStrategyIdRouteWithChildren,
   ApiStrategyBacktestRoute: ApiStrategyBacktestRoute,
   ApiStrategyListRoute: ApiStrategyListRoute,
   ApiStrategySignalsRoute: ApiStrategySignalsRoute,
   ApiStrategyTradeActionsRoute: ApiStrategyTradeActionsRoute,
-  ApiStrategyIdBacktestRoute: ApiStrategyIdBacktestRoute,
-  ApiStrategyIdNotificationRoute: ApiStrategyIdNotificationRoute,
 }
 
 const ApiStrategyRouteWithChildren = ApiStrategyRoute._addFileChildren(
