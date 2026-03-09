@@ -32,7 +32,7 @@ export function useNotificationToggle() {
 				(old: KeyStrategyBacktestStats[] | undefined) => {
 					if (!old) return old;
 					return old.map((strategy) =>
-						strategy.id === variables.id
+						String(strategy.id) === String(variables.id)
 							? { ...strategy, notificationsOn: variables.notificationsOn }
 							: strategy,
 					);
@@ -42,7 +42,7 @@ export function useNotificationToggle() {
 			// Return context with previous value
 			return { previousStrategies };
 		},
-		onError: (error, variables, context) => {
+		onError: (error, _variables, context) => {
 			// Revert to previous value on error
 			if (context?.previousStrategies) {
 				queryClient.setQueryData(["strategies"], context.previousStrategies);
@@ -60,7 +60,9 @@ export function useNotificationToggle() {
 				(old: KeyStrategyBacktestStats[] | undefined) => {
 					if (!old) return old;
 					return old.map((strategy) =>
-						strategy.id === data.id ? { ...strategy, ...data } : strategy,
+						String(strategy.id) === String(data.id)
+							? { ...strategy, ...data }
+							: strategy,
 					);
 				},
 			);
