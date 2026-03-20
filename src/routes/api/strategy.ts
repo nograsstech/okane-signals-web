@@ -50,8 +50,12 @@ export const Route = createFileRoute("/api/strategy")({
 				}
 
 				// Fetch for existing backtest data using ticker, strategy, period, and interval
+				// NOTE: html column is excluded by default — only included when ?html=1 is passed
+				const { html: _html, ...restColumns } = getTableColumns(backtestStats);
+				const selectParam = withHTML ? getTableColumns(backtestStats) : restColumns;
+
 				const existingBacktestData = await db
-					.select()
+					.select(selectParam)
 					.from(backtestStats)
 					.where(
 						and(
@@ -103,10 +107,12 @@ export const Route = createFileRoute("/api/strategy")({
 						endTime: backtest_data.data.endTime,
 					} as unknown as typeof backtestStats.$inferInsert;
 
+					// Return all columns except html to avoid sending the large blob back over the wire
+					const { html: _htmlCol, ...returnColumns } = getTableColumns(backtestStats);
 					const result = await db
 						.insert(backtestStats)
 						.values(data)
-						.returning();
+						.returning(returnColumns);
 
 					return new Response(JSON.stringify(result), {
 						headers: {

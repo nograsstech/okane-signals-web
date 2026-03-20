@@ -15,6 +15,13 @@
       "when": 1773058903187,
       "tag": "0001_round_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774022051712,
+      "tag": "0002_previous_proemial_gods",
+      "breakpoints": true
     }
   ]
 }

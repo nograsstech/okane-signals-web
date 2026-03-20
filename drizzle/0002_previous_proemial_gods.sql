@@ -1,0 +1,1 @@
+CREATE INDEX "idx_backtest_stats_dedup" ON "backtest_stats" USING btree ("ticker","strategy","period","interval","created_at");
