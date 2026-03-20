@@ -7,7 +7,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProtectedRoute } from "@/components/auth";
 import Layout from "@/components/Layout";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ function StrategyBacktestPage() {
   const { data: replayResponse, isLoading, error } = useBacktestReplay(id);
   const replayData = replayResponse?.data ?? null;
   const [chartExpanded, setChartExpanded] = useState(false);
+  const decompressedHtml = useDecompressedHtml(replayData?.html ?? null);
 
   // Show loading state while fetching data
   if (isLoading) {
@@ -177,12 +178,21 @@ function StrategyBacktestPage() {
 
                     {replayData?.html && (
                       <TabsContent value="replay" className="m-0 h-full">
-                        <iframe
-                          srcDoc={replayData.html}
-                          title="Replay Visualization"
-                          className="h-full w-full border-none"
-                          sandbox="allow-scripts allow-same-origin allow-forms"
-                        />
+                        {decompressedHtml === null ? (
+                          <div className="flex h-full items-center justify-center">
+                            <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                              <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                              <span className="text-xs font-mono">Decompressing chart…</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <iframe
+                            srcDoc={decompressedHtml}
+                            title="Replay Visualization"
+                            className="h-full w-full border-none"
+                            sandbox="allow-scripts allow-same-origin allow-forms"
+                          />
+                        )}
                       </TabsContent>
                     )}
                   </div>
@@ -214,8 +224,6 @@ function CompactStatsDisplay({
 }) {
   const formatPercentage = (val: number) => `${val.toFixed(2)}%`;
   const formatNumber = (val: number) => val.toFixed(2);
-  const isPositive = (val: number) => val > 0;
-  const isNeutral = (val: number) => val === 0;
 
   const statRow = (
     label: string,
@@ -366,4 +374,87 @@ function CompactStatsDisplay({
       </div>
     </div>
   );
+}
+
+/**
+ * Decompresses a zlib-compressed, base64-encoded HTML string.
+ *
+ * The replay API returns the Bokeh HTML as:
+ *   base64( zlib.compress(html_content.encode('utf-8'), level=9) )
+ *
+ * We use the native browser DecompressionStream (deflate-raw) to reverse
+ * this. Falls back gracefully to raw content if the value is already plain
+ * HTML (e.g. during a rollback or API fallback path).
+ *
+ * Returns `null` while decompression is in progress — use as a loading signal.
+ */
+function useDecompressedHtml(compressed: string | null): string | null {
+  const [html, setHtml] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!compressed) {
+      setHtml(null);
+      return;
+    }
+
+    // Fast-path: already plain HTML — skip decompression entirely
+    const trimmed = compressed.trimStart();
+    if (trimmed.startsWith("<")) {
+      setHtml(compressed);
+      return;
+    }
+
+    let cancelled = false;
+
+    // Capture in a const so the async closure doesn't need non-null assertions
+    const encoded = compressed;
+
+    async function decompress() {
+      try {
+        // Decode base64 → binary Uint8Array
+        const binaryStr = atob(encoded);
+        const bytes = Uint8Array.from(binaryStr, (c) => c.charCodeAt(0));
+
+        // Python's zlib uses the RFC 1950 "deflate" format (with zlib header),
+        // which the browser exposes as "deflate" in DecompressionStream.
+        const ds = new DecompressionStream("deflate");
+        const writer = ds.writable.getWriter();
+        const reader = ds.readable.getReader();
+
+        writer.write(bytes);
+        writer.close();
+
+        const chunks: Uint8Array[] = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+
+        const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
+        const merged = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          merged.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        const decoded = new TextDecoder("utf-8").decode(merged);
+        if (!cancelled) setHtml(decoded);
+      } catch (err) {
+        console.error("[useDecompressedHtml] Decompression failed:", err);
+        // Last resort: render the raw value as-is
+        if (!cancelled) setHtml(compressed);
+      }
+    }
+
+    setHtml(null); // reset to null (triggers loading indicator) while working
+    decompress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [compressed]);
+
+  return html;
 }
