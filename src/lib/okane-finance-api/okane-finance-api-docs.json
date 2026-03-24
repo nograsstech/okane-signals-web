@@ -273,7 +273,12 @@
                     "eurjpy_bollinger_rsi_60m",
                     "grid_trading",
                     "super_safe_strategy",
-                    "fvg_confirmation"
+                    "fvg_confirmation",
+                    "swing-1",
+                    "double_candle",
+                    "mean_reversion_trend_filter",
+                    "5_min_orb",
+                    "5_min_orb_confirmation"
                   ],
                   "type": "string"
                 },
@@ -393,7 +398,12 @@
                     "eurjpy_bollinger_rsi_60m",
                     "grid_trading",
                     "super_safe_strategy",
-                    "fvg_confirmation"
+                    "fvg_confirmation",
+                    "swing-1",
+                    "double_candle",
+                    "mean_reversion_trend_filter",
+                    "5_min_orb",
+                    "5_min_orb_confirmation"
                   ],
                   "type": "string"
                 },
@@ -516,7 +526,12 @@
                     "eurjpy_bollinger_rsi_60m",
                     "grid_trading",
                     "super_safe_strategy",
-                    "fvg_confirmation"
+                    "fvg_confirmation",
+                    "swing-1",
+                    "double_candle",
+                    "mean_reversion_trend_filter",
+                    "5_min_orb",
+                    "5_min_orb_confirmation"
                   ],
                   "type": "string"
                 },
@@ -665,6 +680,122 @@
           "404": { "description": "Not found" }
         },
         "security": [{ "HTTPBasic": [] }]
+      }
+    },
+    "/signals/hmm/regimes": {
+      "get": {
+        "tags": ["signals"],
+        "summary": "Get Hmm Regimes",
+        "description": "Get Hidden Markov Model (HMM) market regime probabilities.\n\nReturns a time series of regime probabilities (Bull, Bear, Chop) for the given ticker.\nBased on a 3-state HMM with Bayesian updating.\n\nRegime characteristics:\n- Bull: Positive momentum, lower volatility\n- Bear: Negative momentum, higher volatility\n- Chop: Low momentum, high volatility (sideways/noise)\n\nResponse includes:\n- Full time series of regime probabilities\n- Current dominant regime and confidence score\n- Recommended trading strategy\n\nExample:\n    GET /signals/hmm/regimes?ticker=AAPL&period=365d&interval=1d",
+        "operationId": "get_hmm_regimes_signals_hmm_regimes_get",
+        "security": [{ "HTTPBasic": [] }],
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Ticker" }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Period"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "1d", "title": "Interval" }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "End"
+            }
+          },
+          {
+            "name": "length",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 5,
+              "default": 20,
+              "title": "Length"
+            }
+          },
+          {
+            "name": "p_stay_bull",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 0.99,
+              "minimum": 0.0,
+              "default": 0.8,
+              "title": "P Stay Bull"
+            }
+          },
+          {
+            "name": "p_stay_bear",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 0.99,
+              "minimum": 0.0,
+              "default": 0.8,
+              "title": "P Stay Bear"
+            }
+          },
+          {
+            "name": "p_stay_chop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 0.99,
+              "minimum": 0.0,
+              "default": 0.6,
+              "title": "P Stay Chop"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HMMResponseDTO" }
+              }
+            }
+          },
+          "404": { "description": "Not found" },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
       }
     },
     "/ai/chatbot-with-tool": {
@@ -887,6 +1018,194 @@
           "sl_coef"
         ],
         "title": "BacktestStats"
+      },
+      "DominantRegime": {
+        "type": "string",
+        "enum": ["bull", "bear", "chop"],
+        "title": "DominantRegime"
+      },
+      "HMMRegimeDataPoint": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "ISO 8601 timestamp"
+          },
+          "close": {
+            "type": "number",
+            "title": "Close",
+            "description": "Close price"
+          },
+          "obs_momentum": {
+            "type": "number",
+            "title": "Obs Momentum",
+            "description": "Standardized momentum observable"
+          },
+          "obs_volatility": {
+            "type": "number",
+            "title": "Obs Volatility",
+            "description": "Standardized volatility observable"
+          },
+          "prob_bull": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Prob Bull",
+            "description": "Bull regime probability (0-100)"
+          },
+          "prob_bear": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Prob Bear",
+            "description": "Bear regime probability (0-100)"
+          },
+          "prob_chop": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Prob Chop",
+            "description": "Chop regime probability (0-100)"
+          },
+          "dominant_regime": {
+            "$ref": "#/components/schemas/DominantRegime",
+            "description": "Dominant regime"
+          },
+          "confidence_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Confidence Score",
+            "description": "Confidence score (max probability)"
+          },
+          "regime_state": {
+            "type": "integer",
+            "title": "Regime State",
+            "description": "Regime state: 1 (bull), -1 (bear), 0 (chop)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "close",
+          "obs_momentum",
+          "obs_volatility",
+          "prob_bull",
+          "prob_bear",
+          "prob_chop",
+          "dominant_regime",
+          "confidence_score",
+          "regime_state"
+        ],
+        "title": "HMMRegimeDataPoint",
+        "description": "Single data point representing regime probabilities at a timestamp."
+      },
+      "HMMRegimeSummary": {
+        "properties": {
+          "current_regime": {
+            "$ref": "#/components/schemas/DominantRegime",
+            "description": "Current dominant regime"
+          },
+          "current_state": {
+            "type": "integer",
+            "title": "Current State",
+            "description": "Current regime state code"
+          },
+          "confidence": {
+            "type": "string",
+            "title": "Confidence",
+            "description": "Confidence level: 'HIGH', 'MEDIUM', or 'LOW'"
+          },
+          "confidence_score": {
+            "type": "number",
+            "title": "Confidence Score",
+            "description": "Current confidence score"
+          },
+          "prob_bull": {
+            "type": "number",
+            "title": "Prob Bull",
+            "description": "Current bull probability"
+          },
+          "prob_bear": {
+            "type": "number",
+            "title": "Prob Bear",
+            "description": "Current bear probability"
+          },
+          "prob_chop": {
+            "type": "number",
+            "title": "Prob Chop",
+            "description": "Current chop probability"
+          },
+          "recommended_strategy": {
+            "type": "string",
+            "title": "Recommended Strategy",
+            "description": "Recommended trading strategy"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_regime",
+          "current_state",
+          "confidence",
+          "confidence_score",
+          "prob_bull",
+          "prob_bear",
+          "prob_chop",
+          "recommended_strategy"
+        ],
+        "title": "HMMRegimeSummary",
+        "description": "Summary of current/latest regime state."
+      },
+      "HMMResponseDTO": {
+        "properties": {
+          "status": {
+            "type": "integer",
+            "title": "Status",
+            "description": "HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Response message"
+          },
+          "data": {
+            "items": { "$ref": "#/components/schemas/HMMRegimeDataPoint" },
+            "type": "array",
+            "title": "Data",
+            "description": "Time series of regime probabilities"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/HMMRegimeSummary",
+            "description": "Summary of current regime state"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker",
+            "description": "Ticker symbol"
+          },
+          "interval": {
+            "type": "string",
+            "title": "Interval",
+            "description": "Data interval used"
+          },
+          "data_points": {
+            "type": "integer",
+            "title": "Data Points",
+            "description": "Number of data points returned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "message",
+          "data",
+          "summary",
+          "ticker",
+          "interval",
+          "data_points"
+        ],
+        "title": "HMMResponseDTO",
+        "description": "Response model for HMM regime analysis endpoint."
       },
       "HTTPValidationError": {
         "properties": {
