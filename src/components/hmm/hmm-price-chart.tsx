@@ -4,6 +4,7 @@ import {
 	ColorType,
 	CrosshairMode,
 	LineSeries,
+	type UTCTimestamp,
 } from "lightweight-charts";
 import type { HMMRegimeDataPoint } from "@/lib/okane-finance-api/generated";
 import { DominantRegime } from "@/lib/okane-finance-api/generated";
@@ -19,9 +20,18 @@ const REGIME_COLORS: Record<DominantRegime, string> = {
 	[DominantRegime.Chop]: "#f59e0b",
 };
 
-function toChartTime(timestamp: string): string {
-	// Extract YYYY-MM-DD from ISO timestamp, handling potential duplicates
-	return timestamp.split("T")[0];
+// Unix seconds — preserves full intraday precision
+function toUnixSeconds(timestamp: string): number {
+	return Math.floor(new Date(timestamp).getTime() / 1000);
+}
+
+// Detect if data contains intraday bars (gap < 1 day between first two points)
+function isIntraday(data: HMMRegimeDataPoint[]): boolean {
+	if (data.length < 2) return false;
+	const diff =
+		new Date(data[1].timestamp).getTime() -
+		new Date(data[0].timestamp).getTime();
+	return diff < 24 * 60 * 60 * 1000;
 }
 
 export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
@@ -32,6 +42,7 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 		if (!containerRef.current || data.length === 0) return;
 
 		const container = containerRef.current;
+		const intraday = isIntraday(data);
 
 		const chart = createChart(container, {
 			layout: {
@@ -65,7 +76,7 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 			},
 			timeScale: {
 				borderColor: "rgba(255,255,255,0.08)",
-				timeVisible: false,
+				timeVisible: intraday,
 				secondsVisible: false,
 			},
 			handleScroll: { mouseWheel: true, pressedMouseMove: true },
@@ -76,14 +87,13 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 
 		chartRef.current = chart;
 
-		// Deduplicate by date (keep last occurrence if duplicates)
-		const seen = new Map<string, HMMRegimeDataPoint>();
+		// Sort and deduplicate by Unix timestamp
+		const seen = new Map<number, HMMRegimeDataPoint>();
 		for (const point of data) {
-			seen.set(toChartTime(point.timestamp), point);
+			seen.set(toUnixSeconds(point.timestamp), point);
 		}
 		const deduped = Array.from(seen.values()).sort(
-			(a, b) =>
-				new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+			(a, b) => toUnixSeconds(a.timestamp) - toUnixSeconds(b.timestamp),
 		);
 
 		const series = chart.addSeries(LineSeries, {
@@ -94,7 +104,7 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 
 		series.setData(
 			deduped.map((point) => ({
-				time: toChartTime(point.timestamp),
+				time: toUnixSeconds(point.timestamp) as UTCTimestamp,
 				value: point.close,
 				color: REGIME_COLORS[point.dominantRegime],
 			})),
@@ -102,14 +112,16 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 
 		chart.timeScale().fitContent();
 
-		// Crosshair sync
+		// Crosshair sync — emit YYYY-MM-DD for Recharts reference line
 		if (onCrosshairMove) {
 			chart.subscribeCrosshairMove((param) => {
 				if (!param.time) {
 					onCrosshairMove(null);
 					return;
 				}
-				onCrosshairMove(param.time as string);
+				const ms = (param.time as number) * 1000;
+				const dateStr = new Date(ms).toISOString().split("T")[0];
+				onCrosshairMove(dateStr);
 			});
 		}
 

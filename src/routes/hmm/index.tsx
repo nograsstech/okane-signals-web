@@ -22,6 +22,8 @@ export const Route = createFileRoute("/hmm/")({
 });
 
 const PERIOD_OPTIONS = [
+	{ value: "30d", label: "30 Days" },
+	{ value: "60d", label: "60 Days" },
 	{ value: "90d", label: "3 Months" },
 	{ value: "180d", label: "6 Months" },
 	{ value: "365d", label: "1 Year" },
@@ -29,6 +31,11 @@ const PERIOD_OPTIONS = [
 ];
 
 const INTERVAL_OPTIONS = [
+	{ value: "1m", label: "1 Min" },
+	{ value: "5m", label: "5 Min" },
+	{ value: "15m", label: "15 Min" },
+	{ value: "1h", label: "1 Hour" },
+	{ value: "4h", label: "4 Hour" },
 	{ value: "1d", label: "1 Day" },
 	{ value: "1wk", label: "1 Week" },
 ];
