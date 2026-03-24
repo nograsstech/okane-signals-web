@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TradesIndexRouteImport } from './routes/trades/index'
 import { Route as StrategyIndexRouteImport } from './routes/strategy/index'
+import { Route as HmmIndexRouteImport } from './routes/hmm/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as StrategyCreateRouteImport } from './routes/strategy.create'
@@ -43,6 +44,11 @@ const TradesIndexRoute = TradesIndexRouteImport.update({
 const StrategyIndexRoute = StrategyIndexRouteImport.update({
   id: '/strategy/',
   path: '/strategy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HmmIndexRoute = HmmIndexRouteImport.update({
+  id: '/hmm/',
+  path: '/hmm/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/strategy/create': typeof StrategyCreateRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/hmm/': typeof HmmIndexRoute
   '/strategy/': typeof StrategyIndexRoute
   '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/strategy/create': typeof StrategyCreateRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/hmm': typeof HmmIndexRoute
   '/strategy': typeof StrategyIndexRoute
   '/trades': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/strategy/create': typeof StrategyCreateRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/hmm/': typeof HmmIndexRoute
   '/strategy/': typeof StrategyIndexRoute
   '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/strategy/create'
     | '/auth/'
     | '/dashboard/'
+    | '/hmm/'
     | '/strategy/'
     | '/trades/'
     | '/api/auth/$'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/strategy/create'
     | '/auth'
     | '/dashboard'
+    | '/hmm'
     | '/strategy'
     | '/trades'
     | '/api/auth/$'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/strategy/create'
     | '/auth/'
     | '/dashboard/'
+    | '/hmm/'
     | '/strategy/'
     | '/trades/'
     | '/api/auth/$'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   StrategyCreateRoute: typeof StrategyCreateRoute
   AuthIndexRoute: typeof AuthIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  HmmIndexRoute: typeof HmmIndexRoute
   StrategyIndexRoute: typeof StrategyIndexRoute
   TradesIndexRoute: typeof TradesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/strategy'
       fullPath: '/strategy/'
       preLoaderRoute: typeof StrategyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hmm/': {
+      id: '/hmm/'
+      path: '/hmm'
+      fullPath: '/hmm/'
+      preLoaderRoute: typeof HmmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   StrategyCreateRoute: StrategyCreateRoute,
   AuthIndexRoute: AuthIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  HmmIndexRoute: HmmIndexRoute,
   StrategyIndexRoute: StrategyIndexRoute,
   TradesIndexRoute: TradesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
