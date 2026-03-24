@@ -23,6 +23,19 @@ interface ChartDataPoint {
 	probChop: number;
 }
 
+const MAX_CHART_POINTS = 500;
+
+// Uniform downsampling — keeps first, last, and evenly spaced points in between
+function downsample(points: HMMRegimeDataPoint[]): HMMRegimeDataPoint[] {
+	if (points.length <= MAX_CHART_POINTS) return points;
+	const result: HMMRegimeDataPoint[] = [];
+	const step = (points.length - 1) / (MAX_CHART_POINTS - 1);
+	for (let i = 0; i < MAX_CHART_POINTS; i++) {
+		result.push(points[Math.round(i * step)]);
+	}
+	return result;
+}
+
 function formatDate(timestamp: string): string {
 	const d = new Date(timestamp);
 	return d.toLocaleDateString("en-US", {
@@ -81,7 +94,7 @@ export function HmmProbabilityChart({
 	data,
 	activeDateStr,
 }: HmmProbabilityChartProps) {
-	const chartData: ChartDataPoint[] = data.map((point) => ({
+	const chartData: ChartDataPoint[] = downsample(data).map((point) => ({
 		date: point.timestamp.split("T")[0],
 		dateLabel: formatDate(point.timestamp),
 		probBull: Number(point.probBull.toFixed(2)),
@@ -208,6 +221,7 @@ export function HmmProbabilityChart({
 							fill="url(#gradBull)"
 							dot={false}
 							activeDot={{ r: 3, fill: "#10b981", stroke: "none" }}
+							isAnimationActive={false}
 						/>
 						<Area
 							type="monotone"
@@ -219,6 +233,7 @@ export function HmmProbabilityChart({
 							fill="url(#gradBear)"
 							dot={false}
 							activeDot={{ r: 3, fill: "#ef4444", stroke: "none" }}
+							isAnimationActive={false}
 						/>
 						<Area
 							type="monotone"
@@ -230,6 +245,7 @@ export function HmmProbabilityChart({
 							fill="url(#gradChop)"
 							dot={false}
 							activeDot={{ r: 3, fill: "#f59e0b", stroke: "none" }}
+							isAnimationActive={false}
 						/>
 					</AreaChart>
 				</ResponsiveContainer>
