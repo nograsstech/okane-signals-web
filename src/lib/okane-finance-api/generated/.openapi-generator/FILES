@@ -11,7 +11,11 @@ models/BacktestReplayResponseDTO.ts
 models/BacktestResponseDTO.ts
 models/BacktestStats.ts
 models/Description.ts
+models/DominantRegime.ts
 models/End.ts
+models/HMMRegimeDataPoint.ts
+models/HMMRegimeSummary.ts
+models/HMMResponseDTO.ts
 models/HTTPValidationError.ts
 models/Limit.ts
 models/MessageRequest.ts

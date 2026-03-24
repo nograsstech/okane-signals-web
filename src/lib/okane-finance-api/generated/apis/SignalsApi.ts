@@ -19,6 +19,7 @@ import type {
   BacktestReplayResponseDTO,
   BacktestResponseDTO,
   End,
+  HMMResponseDTO,
   HTTPValidationError,
   Parameters,
   Period,
@@ -37,6 +38,8 @@ import {
     BacktestResponseDTOToJSON,
     EndFromJSON,
     EndToJSON,
+    HMMResponseDTOFromJSON,
+    HMMResponseDTOToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
     ParametersFromJSON,
@@ -77,6 +80,18 @@ export interface BacktestSyncSignalsBacktestSyncGetRequest {
     end?: End;
     strategyId?: StrategyId;
     backtestProcessUuid?: BacktestProcessUuid;
+}
+
+export interface GetHmmRegimesSignalsHmmRegimesGetRequest {
+    ticker: string;
+    period?: Period;
+    interval?: string;
+    start?: Start;
+    end?: End;
+    length?: number;
+    pStayBull?: number;
+    pStayBear?: number;
+    pStayChop?: number;
 }
 
 export interface GetSignalsSignalsGetRequest {
@@ -259,6 +274,80 @@ export class SignalsApi extends runtime.BaseAPI {
      */
     async backtestSyncSignalsBacktestSyncGet(requestParameters: BacktestSyncSignalsBacktestSyncGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BacktestResponseDTO> {
         const response = await this.backtestSyncSignalsBacktestSyncGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Get Hidden Markov Model (HMM) market regime probabilities.  Returns a time series of regime probabilities (Bull, Bear, Chop) for the given ticker. Based on a 3-state HMM with Bayesian updating.  Regime characteristics: - Bull: Positive momentum, lower volatility - Bear: Negative momentum, higher volatility - Chop: Low momentum, high volatility (sideways/noise)  Response includes: - Full time series of regime probabilities - Current dominant regime and confidence score - Recommended trading strategy  Example:     GET /signals/hmm/regimes?ticker=AAPL&period=365d&interval=1d
+     * Get Hmm Regimes
+     */
+    async getHmmRegimesSignalsHmmRegimesGetRaw(requestParameters: GetHmmRegimesSignalsHmmRegimesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<HMMResponseDTO>> {
+        if (requestParameters['ticker'] == null) {
+            throw new runtime.RequiredError(
+                'ticker',
+                'Required parameter "ticker" was null or undefined when calling getHmmRegimesSignalsHmmRegimesGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['ticker'] != null) {
+            queryParameters['ticker'] = requestParameters['ticker'];
+        }
+
+        if (requestParameters['period'] != null) {
+            queryParameters['period'] = requestParameters['period'];
+        }
+
+        if (requestParameters['interval'] != null) {
+            queryParameters['interval'] = requestParameters['interval'];
+        }
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = requestParameters['start'];
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = requestParameters['end'];
+        }
+
+        if (requestParameters['length'] != null) {
+            queryParameters['length'] = requestParameters['length'];
+        }
+
+        if (requestParameters['pStayBull'] != null) {
+            queryParameters['p_stay_bull'] = requestParameters['pStayBull'];
+        }
+
+        if (requestParameters['pStayBear'] != null) {
+            queryParameters['p_stay_bear'] = requestParameters['pStayBear'];
+        }
+
+        if (requestParameters['pStayChop'] != null) {
+            queryParameters['p_stay_chop'] = requestParameters['pStayChop'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && (this.configuration.username !== undefined || this.configuration.password !== undefined)) {
+            headerParameters["Authorization"] = "Basic " + btoa(this.configuration.username + ":" + this.configuration.password);
+        }
+        const response = await this.request({
+            path: `/signals/hmm/regimes`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => HMMResponseDTOFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Hidden Markov Model (HMM) market regime probabilities.  Returns a time series of regime probabilities (Bull, Bear, Chop) for the given ticker. Based on a 3-state HMM with Bayesian updating.  Regime characteristics: - Bull: Positive momentum, lower volatility - Bear: Negative momentum, higher volatility - Chop: Low momentum, high volatility (sideways/noise)  Response includes: - Full time series of regime probabilities - Current dominant regime and confidence score - Recommended trading strategy  Example:     GET /signals/hmm/regimes?ticker=AAPL&period=365d&interval=1d
+     * Get Hmm Regimes
+     */
+    async getHmmRegimesSignalsHmmRegimesGet(requestParameters: GetHmmRegimesSignalsHmmRegimesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HMMResponseDTO> {
+        const response = await this.getHmmRegimesSignalsHmmRegimesGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
