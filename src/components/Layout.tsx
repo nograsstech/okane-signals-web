@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeftRight, BarChart3, Plus, TrendingUp } from "lucide-react";
+import { Activity, ArrowLeftRight, BarChart3, Plus, TrendingUp } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -52,6 +52,7 @@ export default function Layout({ children }: LayoutProps) {
     { to: "/strategy", icon: BarChart3, label: "Strategies", exact: true },
     { to: "/strategy/create", icon: Plus, label: "Create Strategy" },
     { to: "/trades", icon: ArrowLeftRight, label: "Trades", subtitle: "Signal History" },
+    { to: "/hmm", icon: Activity, label: "HMM Regimes", subtitle: "Market States" },
   ];
 
   // Don't render until mounted to prevent hydration mismatch
