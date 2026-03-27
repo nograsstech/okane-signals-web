@@ -29,6 +29,13 @@
       "when": 1774634234508,
       "tag": "0003_modern_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774634322300,
+      "tag": "0004_solid_thunderbolt_ross",
+      "breakpoints": true
     }
   ]
 }

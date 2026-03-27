@@ -1,0 +1,78 @@
+<h2>How should favorites be shown?</h2>
+<p class="subtitle">Where and how do users see their favorite strategies?</p>
+
+<div class="options">
+  <div class="option" data-choice="filter" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Filter toggle on main table</h3>
+      <p>Add a "Show Favorites Only" filter button above the strategy table. Favorites have a heart icon. Simple and keeps everything in one view.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Preview</div>
+        <div class="mockup-body" style="padding: 0.75rem;">
+          <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem;">
+            <button class="mock-button" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgb(16, 185, 129);">❤️ Favorites Only</button>
+            <button class="mock-button">All Strategies</button>
+            <input class="mock-input" placeholder="Filter..." style="margin-left: auto;">
+          </div>
+          <div class="mock-nav" style="font-size: 0.75rem; opacity: 0.6;">❤️ AAPL | EMA | 60d | 1d | Win: 52.1%</div>
+          <div class="mock-nav" style="font-size: 0.75rem; opacity: 0.6;">  TSLA | Bollinger | 1y | 1d | Win: 58.3%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="section" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Separate "My Favorites" section</h3>
+      <p>Dedicated section at the top showing favorite strategies in a compact card/grid layout. Main table below shows all strategies.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Preview</div>
+        <div class="mockup-body" style="padding: 0.75rem;">
+          <div style="margin-bottom: 0.5rem; font-size: 0.8rem; opacity: 0.7;">⭐ MY FAVORITES (3)</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem;">
+              <div>❤️ AAPL EMA</div>
+              <div style="opacity: 0.6;">Win: 52.1%</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem;">
+              <div>❤️ TSLA Bollinger</div>
+              <div style="opacity: 0.6;">Win: 58.3%</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem;">
+              <div>❤️ SPY MACD</div>
+              <div style="opacity: 0.6;">Win: 61.2%</div>
+            </div>
+          </div>
+          <div style="font-size: 0.7rem; opacity: 0.5; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.5rem;">All Strategies →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="both" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Both approaches</h3>
+      <p>Favorites section at top for quick access, plus filter toggle on the main table. Maximum visibility and flexibility.</p>
+      <div class="pros-cons" style="margin-top: 1rem;">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Always see favorites at top</li>
+            <li>Can filter main table too</li>
+            <li>Best of both worlds</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>More screen space</li>
+            <li>Slightly more complex UI</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,153 @@
+<h2>Design: Favorite Strategies Feature</h2>
+
+<div class="section">
+  <h3>📊 Database Schema</h3>
+
+  <p style="margin-bottom: 1rem;">New table to store user favorites:</p>
+
+  <div class="mockup">
+    <div class="mockup-header">user_favorite_strategies table</div>
+    <div class="mockup-body" style="padding: 1rem; font-family: monospace; font-size: 0.75rem;">
+      <div style="margin-bottom: 0.5rem; color: rgb(16, 185, 129);">-- Drizzle schema definition</div>
+      <div>export const userFavoriteStrategies = pgTable(</div>
+      <div style="padding-left: 1rem;">"user_favorite_strategies",</div>
+      <div style="padding-left: 1rem;">{</div>
+      <div style="padding-left: 2rem;">id: serial("id").primaryKey(),</div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">userId</span>: text("user_id").notNull().references(() => user.id),</div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">ticker</span>: text("ticker").notNull(),</div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">strategy</span>: text("strategy").notNull(),</div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">period</span>: text("period").notNull(),</div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">interval</span>: text("interval").notNull(),</div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">notes</span>: text("notes"), <span style="opacity: 0.5;">// Optional user notes</span></div>
+      <div style="padding-left: 2rem;"><span style="color: rgb(139, 92, 246);">createdAt</span>: timestamp("created_at").defaultNow(),</div>
+      <div style="padding-left: 1rem;">},</div>
+      <div style="padding-left: 1rem;">(table) => [</div>
+      <div style="padding-left: 2rem;">index("idx_user_favorites").on(table.userId),</div>
+      <div style="padding-left: 2rem;">index("idx_unique_favorite").on(table.userId, table.ticker, table.strategy, table.period, table.interval),</div>
+      <div style="padding-left: 1rem;">]</div>
+      <div>)</div>
+    </div>
+  </div>
+
+  <div class="pros-cons" style="margin-top: 1rem;">
+    <div class="pros">
+      <h4>Key Design Decisions</h4>
+      <ul>
+        <li><strong>Composite unique index</strong> prevents duplicate favorites for same configuration</li>
+        <li><strong>Separate table</strong> keeps favorites independent of backtest_stats (which can be deleted)</li>
+        <li><strong>Optional notes field</strong> for future customization (user can add why they favorited)</li>
+        <li><strong>Cascade delete</strong> if user is deleted</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🎨 UI Layout</h3>
+
+  <div class="mockup">
+    <div class="mockup-header">Strategy List Page Layout</div>
+    <div class="mockup-body" style="padding: 0;">
+      <div style="background: rgba(16, 185, 129, 0.1); border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div style="font-size: 1.1rem; font-weight: 600;">⭐ My Favorites</div>
+          <div style="display: flex; gap: 0.5rem; font-size: 0.7rem;">
+            <button class="mock-button">Sort: Win Rate ↓</button>
+            <button class="mock-button">Group: Ticker</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+          <div style="background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600;">AAPL EMA</span>
+              <span style="cursor: pointer;">❤️</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.65rem;">
+              <div>
+                <div style="opacity: 0.6;">Win Rate</div>
+                <div style="color: rgb(16, 185, 129);">52.1%</div>
+              </div>
+              <div>
+                <div style="opacity: 0.6;">Return</div>
+                <div style="color: rgb(16, 185, 129);">+15.3%</div>
+              </div>
+            </div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600;">TSLA Bollinger</span>
+              <span style="cursor: pointer;">❤️</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.65rem;">
+              <div>
+                <div style="opacity: 0.6;">Win Rate</div>
+                <div style="color: rgb(16, 185, 129);">58.3%</div>
+              </div>
+              <div>
+                <div style="opacity: 0.6;">Return</div>
+                <div style="color: rgb(16, 185, 129);">+22.1%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 1rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem;">
+          <input class="mock-input" placeholder="Filter by Ticker..." style="width: 200px;">
+          <input class="mock-input" placeholder="Filter Okane Signals..." style="width: 200px;">
+          <button class="mock-button" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgb(16, 185, 129);">❤️ Favorites Only</button>
+          <button class="mock-button">All Strategies</button>
+        </div>
+
+        <div style="font-size: 0.7rem; opacity: 0.6; padding: 0.5rem; background: rgba(255,255,255,0.02); margin-bottom: 0.5rem;">
+          ✨ | ❤️ Favorite | 🔔 Notify | Strategy | Ticker | Period | Interval | Win Rate % | Return % | ...
+        </div>
+        <div style="font-size: 0.7rem; padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <span>✨</span> | <span style="color: rgb(244, 63, 94);">❤️</span> | 🔔 | EMA Bollinger | AAPL | 60d | 1d | <span style="color: rgb(16, 185, 129);">52.10</span> | <span style="color: rgb(16, 185, 129);">15.30</span>
+        </div>
+        <div style="font-size: 0.7rem; padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <span></span> | <span style="opacity: 0.3;">🤍</span> | 🔕 | MACD | TSLA | 1y | 1d | <span style="color: rgb(16, 185, 129);">58.30</span> | <span style="color: rgb(16, 185, 129);">22.10</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🔄 Data Flow</h3>
+
+  <div style="font-size: 0.8rem; line-height: 1.8;">
+    <div><strong>1. Load favorites on mount:</strong></div>
+    <div style="padding-left: 1rem; opacity: 0.7;">GET /api/user/favorites → returns list of (ticker, strategy, period, interval) configs</div>
+
+    <div><strong>2. Fetch latest backtest for each favorite:</strong></div>
+    <div style="padding-left: 1rem; opacity: 0.7;">Use existing /api/strategy endpoint with dedup index to get latest run per config</div>
+
+    <div><strong>3. Toggle favorite:</strong></div>
+    <div style="padding-left: 1rem; opacity: 0.7;">
+      POST /api/user/favorites (add)<br>
+      DELETE /api/user/favorites (remove)<br>
+      <span style="opacity: 0.5;">→ Optimistic UI update, rollback on error</span>
+    </div>
+
+    <div><strong>4. Filter by favorites:</strong></div>
+    <div style="padding-left: 1rem; opacity: 0.7;">Client-side filter on table data using favorites list</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>📂 New Files & Components</h3>
+
+  <div style="font-size: 0.8rem; font-family: monospace;">
+    <div>src/db/schemas/userFavoriteStrategies.ts</div>
+    <div>src/components/favorite/favorite-cards.tsx <span style="opacity: 0.5;">// Grid of favorite cards</span></div>
+    <div>src/components/favorite/favorite-toggle.tsx <span style="opacity: 0.5;">// Heart icon component</span></div>
+    <div>src/routes/api/user/favorites.ts <span style="opacity: 0.5;">// REST endpoints</span></div>
+    <div>src/hooks/use-favorites.ts <span style="opacity: 0.5;">// TanStack Query mutation</span></div>
+  </div>
+</div>
+
+<button class="mock-button" style="width: 100%; margin-top: 1rem; padding: 0.75rem;" onclick="alert('Tell me in terminal: Does this design look good so far?')">
+✅ Approve & Continue
+</button>

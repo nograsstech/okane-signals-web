@@ -1,0 +1,62 @@
+<h2>Favorites limits and placement</h2>
+<p class="subtitle">A few practical details to nail down</p>
+
+<div style="margin-bottom: 2rem;">
+  <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Should there be a limit on the number of favorites?</h3>
+
+  <div class="options">
+    <div class="option" data-choice="unlimited" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>No limit</h3>
+        <p>Users can favorite as many strategies as they want. Simple and unrestricted.</p>
+      </div>
+    </div>
+
+    <div class="option" data-choice="limited" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>Soft limit (e.g., 20)</h3>
+        <p>Show a warning at 20, but allow more. Prevents abuse while keeping flexibility.</p>
+      </div>
+    </div>
+
+    <div class="option" data-choice="hard-limit" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>Hard limit (e.g., 10)</h3>
+        <p>Force curation. Users must unfavorite to add more. Keeps favorites section focused.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Where should the favorites section appear?</h3>
+
+  <div class="options">
+    <div class="option" data-choice="top-page" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>Top of the strategy list page</h3>
+        <p>Favorites appear above the main table on /strategy. First thing users see.</p>
+      </div>
+    </div>
+
+    <div class="option" data-choice="collapsible" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>Collapsible section at top</h3>
+        <p>Users can collapse the favorites section to save screen space. Remembers their preference.</p>
+      </div>
+    </div>
+
+    <div class="option" data-choice="separate-tab" onclick="toggleSelect(this)">
+      <div class="letter">3</div>
+      <div class="content">
+        <h3>Separate tab/section</h3>
+        <p>"My Favorites" as a separate page or tab alongside the main strategy list. More separation.</p>
+      </div>
+    </div>
+  </div>
+</div>
