@@ -14,7 +14,6 @@ import {
 } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown, Bell, BellOff, Heart } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useIsFavorite } from "@/hooks/use-favorites";
 import { toast } from "sonner";
 import { StrategyDeleteButton } from "@/components/strategy/strategy-delete-button";
 import { FavoriteToggle } from "@/components/favorite/favorite-toggle";
@@ -28,11 +27,11 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useIsFavorite } from "@/hooks/use-favorites";
 import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
-import { useIsFavorite } from "@/hooks/use-favorites";
 
 interface StrategyTableProps {
 	data: KeyStrategyBacktestStats[];

@@ -1,20 +1,18 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { FavoriteToggle } from "./favorite-toggle";
+import { useIsFavorite, useFavoriteToggle } from "@/hooks/use-favorites";
 
-// Mock the hooks
-const mockUseIsFavorite = global.vi.fn(() => ({ isFavorite: false }));
-const mockUseFavoriteToggle = global.vi.fn(() => ({
-  mutate: global.vi.fn(),
-  isPending: false,
+vi.mock("@/hooks/use-favorites", () => ({
+  useIsFavorite: vi.fn(() => ({ isFavorite: false })),
+  useFavoriteToggle: vi.fn(() => ({
+    mutate: vi.fn(),
+    isPending: false,
+  })),
 }));
 
-global.vi.mock("@/hooks/use-favorites", () => ({
-  useIsFavorite: mockUseIsFavorite,
-  useFavoriteToggle: mockUseFavoriteToggle,
-}));
-
-global.vi.mock("lucide-react", () => ({
-  Heart: global.vi.fn(() => <div data-testid="heart-icon">Heart</div>),
+vi.mock("lucide-react", () => ({
+  Heart: vi.fn(() => <div data-testid="heart-icon">Heart</div>),
 }));
 
 describe("FavoriteToggle", () => {
@@ -30,8 +28,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should render with default props", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -45,8 +43,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should render as favorited when isFavorite is true", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: true });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: true });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -59,8 +57,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should show appropriate styles when favorited with outline variant", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: true });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: true });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -74,8 +72,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should show appropriate styles when favorited with default variant", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: true });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: true });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -89,8 +87,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should show appropriate styles when not favorited with outline variant", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -104,8 +102,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should show appropriate styles when not favorited with default variant", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -119,8 +117,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should handle custom aria label", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -137,8 +135,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should render with custom size", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -148,8 +146,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should be disabled when disabled prop is true", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -161,8 +159,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should be disabled when mutation is pending", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: true,
     });
@@ -175,8 +173,8 @@ describe("FavoriteToggle", () => {
 
   it("should call mutate with correct parameters when clicked", () => {
     const mockMutate = vi.fn();
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: mockMutate,
       isPending: false,
     });
@@ -192,8 +190,8 @@ describe("FavoriteToggle", () => {
 
   it("should call onClick handler when provided", () => {
     const mockOnClick = vi.fn();
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -206,8 +204,8 @@ describe("FavoriteToggle", () => {
 
   it("should stop propagation on click", () => {
     const mockOnClick = vi.fn();
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -226,8 +224,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should render with custom className", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -241,8 +239,8 @@ describe("FavoriteToggle", () => {
   });
 
   it("should update color dynamically when isFavorite changes", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });
@@ -254,15 +252,15 @@ describe("FavoriteToggle", () => {
     expect(heartIcon).not.toHaveAttribute("style");
 
     // Update to favorited state
-    mockUseIsFavorite.mockReturnValue({ isFavorite: true });
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: true });
     rerender(<FavoriteToggle config={mockConfig} />);
 
     expect(heartIcon).toHaveAttribute("style", "color: rgb(239, 68, 68);");
   });
 
   it("should forward ref to button element", () => {
-    mockUseIsFavorite.mockReturnValue({ isFavorite: false });
-    mockUseFavoriteToggle.mockReturnValue({
+    (useIsFavorite as ReturnType<typeof vi.fn>).mockReturnValue({ isFavorite: false });
+    (useFavoriteToggle as ReturnType<typeof vi.fn>).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     });

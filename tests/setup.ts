@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import "@testing-library/jest-dom";
 
 // Mock global fetch
 global.fetch = vi.fn();
