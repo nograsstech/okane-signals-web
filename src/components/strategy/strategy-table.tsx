@@ -12,10 +12,12 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown, Bell, BellOff } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Bell, BellOff, Heart } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useIsFavorite } from "@/hooks/use-favorites";
 import { toast } from "sonner";
 import { StrategyDeleteButton } from "@/components/strategy/strategy-delete-button";
+import { FavoriteToggle } from "@/components/favorite/favorite-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +32,7 @@ import { useNotificationToggle } from "@/hooks/use-notification-toggle";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 import { cn } from "@/lib/utils";
 import { storage } from "@/lib/utils/storage";
+import { useIsFavorite } from "@/hooks/use-favorites";
 
 interface StrategyTableProps {
 	data: KeyStrategyBacktestStats[];
@@ -159,6 +162,34 @@ export function StrategyTable({ data }: StrategyTableProps) {
 	>(
 		() => [
 			{ accessorKey: "✨", header: "✨ Top Performer", size: 120 },
+			{
+				id: "favorite",
+				header: "",
+				size: 80,
+				cell: ({ row }) => {
+					const item = row.original as KeyStrategyBacktestStats;
+					const { isFavorite } = useIsFavorite({
+						ticker: item.ticker,
+						strategy: item.strategy,
+						period: item.period,
+						interval: item.interval,
+					});
+					return (
+						<FavoriteToggle
+							config={{
+								ticker: item.ticker,
+								strategy: item.strategy,
+								period: item.period,
+								interval: item.interval,
+							}}
+							variant="ghost"
+							size="icon"
+							onClick={(e) => e.stopPropagation()}
+							ariaLabel={isFavorite ? "Remove from favorites" : "Add to favorites"}
+						/>
+					);
+				},
+			},
 			{
 				id: "notifications",
 				header: "Notifications",
