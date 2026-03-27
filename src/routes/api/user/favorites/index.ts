@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { userFavoriteStrategies } from "@/db/schemas";
+import { userFavoriteStrategies } from "@/db/schemas/schema";
 import { auth } from "@/lib/auth";
 import { favoriteConfigSchema } from "@/lib/schemas/favorite-schema";
 import { ZodError } from "zod";
