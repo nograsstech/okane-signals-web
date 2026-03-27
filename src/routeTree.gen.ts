@@ -28,6 +28,7 @@ import { Route as ApiStrategyListRouteImport } from './routes/api/strategy/list'
 import { Route as ApiStrategyBacktestRouteImport } from './routes/api/strategy/backtest'
 import { Route as ApiStrategyIdRouteImport } from './routes/api/strategy/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiUserFavoritesIndexRouteImport } from './routes/api/user/favorites/index'
 import { Route as ApiStrategyIdNotificationRouteImport } from './routes/api/strategy/$id/notification'
 import { Route as ApiStrategyIdBacktestRouteImport } from './routes/api/strategy/$id/backtest'
 
@@ -126,6 +127,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserFavoritesIndexRoute = ApiUserFavoritesIndexRouteImport.update({
+  id: '/api/user/favorites/',
+  path: '/api/user/favorites/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStrategyIdNotificationRoute =
   ApiStrategyIdNotificationRouteImport.update({
     id: '/notification',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/api/strategy/$id/backtest': typeof ApiStrategyIdBacktestRoute
   '/api/strategy/$id/notification': typeof ApiStrategyIdNotificationRoute
+  '/api/user/favorites/': typeof ApiUserFavoritesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterIndexRoute
   '/api/strategy/$id/backtest': typeof ApiStrategyIdBacktestRoute
   '/api/strategy/$id/notification': typeof ApiStrategyIdNotificationRoute
+  '/api/user/favorites': typeof ApiUserFavoritesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/api/strategy/$id/backtest': typeof ApiStrategyIdBacktestRoute
   '/api/strategy/$id/notification': typeof ApiStrategyIdNotificationRoute
+  '/api/user/favorites/': typeof ApiUserFavoritesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/auth/register/'
     | '/api/strategy/$id/backtest'
     | '/api/strategy/$id/notification'
+    | '/api/user/favorites/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/api/strategy/$id/backtest'
     | '/api/strategy/$id/notification'
+    | '/api/user/favorites'
   id:
     | '__root__'
     | '/'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/auth/register/'
     | '/api/strategy/$id/backtest'
     | '/api/strategy/$id/notification'
+    | '/api/user/favorites/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   StrategyIdBacktestRoute: typeof StrategyIdBacktestRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
+  ApiUserFavoritesIndexRoute: typeof ApiUserFavoritesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user/favorites/': {
+      id: '/api/user/favorites/'
+      path: '/api/user/favorites'
+      fullPath: '/api/user/favorites/'
+      preLoaderRoute: typeof ApiUserFavoritesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/strategy/$id/notification': {
       id: '/api/strategy/$id/notification'
       path: '/notification'
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   StrategyIdBacktestRoute: StrategyIdBacktestRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
+  ApiUserFavoritesIndexRoute: ApiUserFavoritesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
