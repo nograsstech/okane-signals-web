@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LayoutGrid, List, Plus } from "lucide-react";
+import { LayoutGrid, List, Plus, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { StrategyGrid } from "@/components/strategy/strategy-grid";
 import { StrategyTable } from "@/components/strategy/strategy-table";
+import { FavoriteSection } from "@/components/favorite/favorite-section";
 import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skeleton";
 import { useStrategies } from "@/hooks/use-strategies";
 import { storage } from "@/lib/utils/storage";
@@ -94,6 +95,11 @@ function StrategyListContent() {
 						</Button>
 					</Link>
 				</div>
+			</div>
+
+			{/* Favorite Strategies Section */}
+			<div className="mb-8">
+				<FavoriteSection />
 			</div>
 
 			{strategies &&
