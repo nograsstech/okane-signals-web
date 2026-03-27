@@ -151,21 +151,39 @@ export function FavoriteSection({ className }: FavoriteSectionProps) {
 			<Card className={className}>
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
-						<Heart className="h-5 w-5" />
-						Favorite Strategies
+						<Heart className="h-5 w-5 text-red-500" />
+						Error Loading Favorites
 					</CardTitle>
 					<CardDescription>
-						Failed to load favorite strategies. Please try again.
+						Unable to load your favorite strategies. Please check your connection and try again.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex flex-col items-center justify-center py-8 space-y-4">
-						<p className="text-muted-foreground text-center">
-							{favoritesError?.message || backtestsError?.message || "An error occurred"}
-						</p>
-						<Button onClick={handleRetry} disabled={loading}>
-							{loading ? "Refreshing..." : "Retry"}
-							<RotateCcw className={`ml-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+						<div className="text-center space-y-2">
+							{favoritesError && (
+								<p className="text-sm text-muted-foreground">
+									Favorites Error: {favoritesError.message}
+								</p>
+							)}
+							{backtestsError && (
+								<p className="text-sm text-muted-foreground">
+									Strategy Data Error: {backtestsError.message}
+								</p>
+							)}
+						</div>
+						<Button onClick={handleRetry} disabled={loading} className="w-full">
+							{loading ? (
+								<>
+									<RotateCcw className="mr-2 h-4 w-4 animate-spin" />
+									Refreshing...
+								</>
+							) : (
+								<>
+									<RotateCcw className="mr-2 h-4 w-4" />
+									Retry
+								</>
+							)}
 						</Button>
 					</div>
 				</CardContent>
