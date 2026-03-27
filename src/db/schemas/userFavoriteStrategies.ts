@@ -4,6 +4,7 @@ import {
 	serial,
 	text,
 	timestamp,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { user } from "../schema";
 
@@ -23,7 +24,7 @@ export const userFavoriteStrategies = pgTable(
 	},
 	(table) => [
 		index("idx_user_favorites").on(table.userId),
-		index("idx_unique_favorite").on(
+		uniqueIndex("idx_unique_favorite").on(
 			table.userId,
 			table.ticker,
 			table.strategy,

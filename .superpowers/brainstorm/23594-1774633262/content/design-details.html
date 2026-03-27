@@ -1,0 +1,185 @@
+<h2>Design: Favorite Strategies - Details</h2>
+
+<div class="section">
+  <h3>⚠️ Error Handling</h3>
+
+  <div style="font-size: 0.8rem;">
+    <div style="margin-bottom: 1rem;">
+      <strong>Toggle Favorite Failures:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>Optimistic UI update (heart fills immediately)</li>
+        <li>On error: rollback UI state, show toast notification</li>
+        <li>Retry mechanism: user can click again</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <strong>Loading Favorites:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>Show skeleton loading state for favorites cards</li>
+        <li>If API fails: show "Unable to load favorites" message with retry button</li>
+        <li>Graceful degradation: main table still works</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <strong>Stale Favorites:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>Backtest may be deleted but favorite remains</li>
+        <li>Show "No recent data" state on card with option to unfavorite</li>
+        <li>Don't auto-delete favorites (user's choice)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🎯 Sorting & Grouping</h3>
+
+  <div class="mockup">
+    <div class="mockup-header">Sort Options</div>
+    <div class="mockup-body" style="padding: 1rem; font-size: 0.75rem;">
+      <div style="margin-bottom: 0.5rem;"><strong>By:</strong></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <button class="mock-button">Win Rate (desc)</button>
+        <button class="mock-button">Return % (desc)</button>
+        <button class="mock-button">Sharpe Ratio (desc)</button>
+        <button class="mock-button">Recently Added</button>
+        <button class="mock-button">Name (A-Z)</button>
+      </div>
+
+      <div style="margin: 1rem 0 0.5rem 0;"><strong>Group By:</strong></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <button class="mock-button">No Grouping</button>
+        <button class="mock-button">Ticker</button>
+        <button class="mock-button">Strategy Type</button>
+        <button class="mock-button">Period</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons" style="margin-top: 1rem;">
+    <div class="pros">
+      <h4>Implementation Notes</h4>
+      <ul>
+        <li><strong>Client-side sorting/grouping</strong> - favorites fit in memory, no need for server-side</li>
+        <li><strong>Persist preferences</strong> in localStorage (sort method, group method)</li>
+        <li><strong>Group headers</strong> collapsible for large groups</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🧪 Testing Strategy</h3>
+
+  <div style="font-size: 0.8rem;">
+    <div style="margin-bottom: 1rem;">
+      <strong>Database Layer:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>Test unique constraint prevents duplicate favorites</li>
+        <li>Test cascade delete when user is deleted</li>
+        <li>Test concurrent favorite/unfavorite operations</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <strong>API Endpoints:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>GET /api/user/favorites - returns only user's favorites</li>
+        <li>POST /api/user/favorites - creates favorite, validates params</li>
+        <li>DELETE /api/user/favorites - removes favorite, validates ownership</li>
+        <li>Test authentication required on all endpoints</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <strong>UI Components:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>FavoriteToggle: toggle updates optimistic state, calls API</li>
+        <li>FavoriteCards: renders loading state, empty state, populated state</li>
+        <li>Filter button: toggles between all/favorites view</li>
+        <li>Sort/group controls: update card arrangement</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <strong>Integration:</strong>
+      <ul style="padding-left: 1.5rem; opacity: 0.7;">
+        <li>Favorite configuration correctly matches latest backtest</li>
+        <li>Deleting a backtest doesn't delete the favorite</li>
+        <li>Notification toggle and favorite toggle work independently</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🚀 Phase 1 Scope (MVP)</h3>
+
+  <div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid rgb(16, 185, 129); padding: 1rem; margin: 1rem 0;">
+    <div style="font-weight: 600; margin-bottom: 0.5rem; color: rgb(16, 185, 129);">Included in initial release:</div>
+    <ul style="font-size: 0.8rem; padding-left: 1.5rem;">
+      <li>Database table and migration</li>
+      <li>API endpoints (GET, POST, DELETE)</li>
+      <li>Favorite toggle in table (heart icon column)</li>
+      <li>Favorites section at top of page (card grid)</li>
+      <li>"Favorites Only" filter button</li>
+      <li>Client-side sorting by win rate, return, name</li>
+      <li>Optimistic UI updates with error rollback</li>
+      <li>Persist sort preference in localStorage</li>
+    </ul>
+  </div>
+
+  <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid rgb(245, 158, 11); padding: 1rem; margin: 1rem 0;">
+    <div style="font-weight: 600; margin-bottom: 0.5rem; color: rgb(245, 158, 11);">Future enhancements (not in MVP):</div>
+    <ul style="font-size: 0.8rem; padding-left: 1.5rem;">
+      <li>Grouping by ticker/strategy/period</li>
+      <li>User notes on favorites</li>
+      <li>Favorites performance tracking over time</li>
+      <li>Notifications when favorite backtests update</li>
+      <li>Export/import favorites</li>
+      <li>Favorite folders/tags</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section">
+  <h3>📋 Implementation Order</h3>
+
+  <div style="font-size: 0.8rem; font-family: monospace;">
+    <div style="margin-bottom: 0.5rem;"><strong>1. Database</strong></div>
+    <div style="padding-left: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+      Create schema → Generate migration → Run migration
+    </div>
+
+    <div style="margin-bottom: 0.5rem;"><strong>2. API Layer</strong></div>
+    <div style="padding-left: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+      Create /api/user/favorites endpoints → Test with curl/Postman
+    </div>
+
+    <div style="margin-bottom: 0.5rem;"><strong>3. React Query Integration</strong></div>
+    <div style="padding-left: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+      Create useFavorites hook → Test mutation and queries
+    </div>
+
+    <div style="margin-bottom: 0.5rem;"><strong>4. UI Components</strong></div>
+    <div style="padding-left: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+      FavoriteToggle component → FavoriteCards component
+    </div>
+
+    <div style="margin-bottom: 0.5rem;"><strong>5. Integration</strong></div>
+    <div style="padding-left: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+      Add Favorite column to table → Add favorites section to page → Add filter button
+    </div>
+
+    <div style="margin-bottom: 0.5rem;"><strong>6. Polish</strong></div>
+    <div style="padding-left: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+      Sorting → Loading states → Error handling → Testing
+    </div>
+  </div>
+</div>
+
+<button class="mock-button" style="width: 100%; margin-top: 1rem; padding: 0.75rem;" onclick="alert('Tell me in terminal: Ready to write the spec?')">
+✅ Design Complete - Write Spec
+</button>

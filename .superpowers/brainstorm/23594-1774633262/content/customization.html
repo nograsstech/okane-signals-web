@@ -1,0 +1,116 @@
+<h2>What should users be able to customize?</h2>
+<p class="subtitle">What aspects of the favorites feature should be user-configurable?</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="card-layout" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Favorite card layout</h3>
+      <p>Users choose what metrics appear on their favorite cards (e.g., win rate, return, Sharpe ratio, custom notes). Personalize what matters most.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Example</div>
+        <div class="mockup-body" style="padding: 0.75rem;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>❤️ AAPL EMA</span>
+                <span style="opacity: 0.5;">⚙️</span>
+              </div>
+              <div style="opacity: 0.6; margin-top: 0.25rem;">Win: 52.1% | Sharpe: 1.8</div>
+              <div style="font-size: 0.6rem; opacity: 0.4; margin-top: 0.25rem; font-style: italic;">"My best performer"</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>❤️ TSLA Bollinger</span>
+                <span style="opacity: 0.5;">⚙️</span>
+              </div>
+              <div style="opacity: 0.6; margin-top: 0.25rem;">Ret: +22.1% | Trades: 45</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="ordering" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Favorite ordering and grouping</h3>
+      <p>Users can sort favorites (by win rate, return, name) or group them (by ticker, strategy type, custom tags/folders).</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Example</div>
+        <div class="mockup-body" style="padding: 0.75rem;">
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.7rem;">
+            <span style="opacity: 0.5;">Sort:</span>
+            <button class="mock-button" style="padding: 0.1rem 0.4rem;">Win Rate ↓</button>
+            <button class="mock-button" style="padding: 0.1rem 0.4rem; opacity: 0.5;">Return</button>
+            <button class="mock-button" style="padding: 0.1rem 0.4rem; opacity: 0.5;">Name</button>
+          </div>
+          <div style="font-size: 0.65rem; opacity: 0.6; margin-bottom: 0.25rem;">📁 Tech Stocks</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.5rem;">
+            <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px; font-size: 0.65rem;">❤️ AAPL EMA</div>
+            <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px; font-size: 0.65rem;">❤️ TSLA Bollinger</div>
+          </div>
+          <div style="font-size: 0.65rem; opacity: 0.6;">📁 Forex</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="limits" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Set favorite limits and alerts</h3>
+      <p>Configure maximum number of favorites, get notified when favorites backtest results update, or set performance thresholds.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Settings</div>
+        <div class="mockup-body" style="padding: 0.75rem; font-size: 0.75rem;">
+          <div style="margin-bottom: 0.5rem;">
+            <label style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+              <span>Max favorites</span>
+              <span style="opacity: 0.6;">10</span>
+            </label>
+            <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px;">
+              <div style="background: rgb(16, 185, 129); width: 60%; height: 100%; border-radius: 3px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0;">
+            <span>Notify on updates</span>
+            <div style="width: 32px; height: 18px; background: rgb(16, 185, 129); border-radius: 9px; position: relative;">
+              <div style="width: 14px; height: 14px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="none" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>Keep it simple for now</h3>
+      <p>Just basic favorites functionality first. Can add customization features later based on user feedback. Ship faster, iterate sooner.</p>
+      <div class="pros-cons" style="margin-top: 1rem;">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Faster to implement</li>
+            <li>Cleaner initial UX</li>
+            <li>Learn what users actually want</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>May need refactoring later</li>
+            <li>Less differentiated initially</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="text-align: center; font-size: 0.75rem; opacity: 0.6; margin-top: 1.5rem;">
+  💡 Select multiple options if desired
+</p>

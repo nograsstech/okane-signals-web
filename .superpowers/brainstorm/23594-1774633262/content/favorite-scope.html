@@ -1,0 +1,43 @@
+<h2>What does "favorite" mean?</h2>
+<p class="subtitle">Should users favorite individual backtest runs or strategy configurations?</p>
+
+<div class="options">
+  <div class="option" data-choice="run" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Favorite specific backtest runs</h3>
+      <p>Each backtest result is a separate favorite. User can have multiple favorites of the same strategy with different parameters or time periods.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Example</div>
+        <div class="mockup-body" style="padding: 1rem;">
+          <div style="font-size: 0.85rem; opacity: 0.7;">❤️ AAPL EMA (60d) — Win Rate: 45.2% — Jan 15, 2026</div>
+          <div style="font-size: 0.85rem; opacity: 0.7;">❤️ AAPL EMA (60d) — Win Rate: 52.1% — Feb 20, 2026</div>
+          <div style="font-size: 0.85rem; opacity: 0.7;">❤️ TSLA Bollinger (1y) — Win Rate: 58.3% — Feb 18, 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="config" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Favorite strategy configurations</h3>
+      <p>User favorites the combination (ticker + strategy + period + interval). Always shows the latest backtest run for that configuration.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Example</div>
+        <div class="mockup-body" style="padding: 1rem;">
+          <div style="font-size: 0.85rem; opacity: 0.7;">❤️ AAPL + EMA + 60d + 1d — Win Rate: 52.1%</div>
+          <div style="font-size: 0.85rem; opacity: 0.7;">❤️ TSLA + Bollinger + 1y + 1d — Win Rate: 58.3%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="custom" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Let me decide in the browser</h3>
+      <p>I want to see both options visualized in the UI mockup and pick the one that looks better.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<h2>How should users favorite/unfavorite strategies?</h2>
+<p class="subtitle">Where does the heart icon appear and how does it work?</p>
+
+<div class="options">
+  <div class="option" data-choice="column" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Dedicated "Favorite" column</h3>
+      <p>Add a heart icon column next to "Notifications". Always visible, one-click toggle. Similar UX to the existing notification toggle.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Preview</div>
+        <div class="mockup-body" style="padding: 0.5rem;">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.25rem; font-size: 0.65rem; opacity: 0.5; margin-bottom: 0.25rem;">
+            <div>Strategy</div>
+            <div>Favorite</div>
+            <div>Notify</div>
+            <div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.25rem; font-size: 0.7rem; padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div>AAPL EMA 60d</div>
+            <div style="text-align: center;">❤️</div>
+            <div style="text-align: center;">🔔</div>
+            <div style="text-align: center;">🗑️</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.25rem; font-size: 0.7rem; padding: 0.25rem 0;">
+            <div>TSLA Bollinger 1y</div>
+            <div style="text-align: center; opacity: 0.3;">🤍</div>
+            <div style="text-align: center; opacity: 0.3;">🔕</div>
+            <div style="text-align: center;">🗑️</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="row-action" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Row hover action</h3>
+      <p>Heart icon appears on row hover (or always visible at end of row). Click to toggle. Cleaner table with fewer columns.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Preview</div>
+        <div class="mockup-body" style="padding: 0.5rem;">
+          <div style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 0.25rem;">Strategy | Ticker | Period | Interval | Win Rate | Return |</div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.7rem; padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div>AAPL EMA | AAPL | 60d | 1d | 52.1% | +15.3%</div>
+            <div>❤️ 🔔 🗑️</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.7rem; padding: 0.25rem 0;">
+            <div>TSLA Bollinger | TSLA | 1y | 1d | 58.3% | +22.1%</div>
+            <div style="opacity: 0.4;">🤍 🔕 🗑️</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="card" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Heart on favorite cards only</h3>
+      <p>Toggle appears on the favorite cards in the "My Favorites" section. In the main table, use a context menu or long-press to favorite.</p>
+      <div class="mockup" style="margin-top: 1rem;">
+        <div class="mockup-header">Preview</div>
+        <div class="mockup-body" style="padding: 0.75rem;">
+          <div style="margin-bottom: 0.5rem; font-size: 0.8rem; opacity: 0.7;">⭐ MY FAVORITES</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem; position: relative;">
+              <div style="position: absolute; top: 0.25rem; right: 0.25rem; cursor: pointer;">❤️</div>
+              <div>AAPL EMA</div>
+              <div style="opacity: 0.6;">Win: 52.1%</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem; position: relative;">
+              <div style="position: absolute; top: 0.25rem; right: 0.25rem; cursor: pointer;">❤️</div>
+              <div>TSLA Bollinger</div>
+              <div style="opacity: 0.6;">Win: 58.3%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
