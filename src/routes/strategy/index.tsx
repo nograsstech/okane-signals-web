@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayoutGrid, List, Plus, Heart } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProtectedRoute } from "@/components/auth";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { StrategyTable } from "@/components/strategy/strategy-table";
 import { FavoriteSection } from "@/components/favorite/favorite-section";
 import { TableLoadingSkeleton } from "@/components/strategy/table-loading-skeleton";
 import { useStrategies } from "@/hooks/use-strategies";
+import { useFavorites } from "@/hooks/use-favorites";
 import { storage } from "@/lib/utils/storage";
 
 export const Route = createFileRoute("/strategy/")({
@@ -27,9 +28,26 @@ function StrategyListPage() {
 
 function StrategyListContent() {
 	const { data: strategies, isLoading, error } = useStrategies();
+	const { data: favorites } = useFavorites();
 	const [viewMode, setViewMode] = useState<"table" | "grid">(() => {
 		return storage.get<"table" | "grid">("strategy-view-mode") ?? "table";
 	});
+	const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+	// Filter strategies based on favorites status
+	const filteredStrategies = useMemo(() => {
+		if (!showFavoritesOnly || !favorites || !strategies) {
+			return strategies;
+		}
+
+		const favoriteSet = new Set(
+			favorites.map(fav => `${fav.ticker}-${fav.strategy}-${fav.period}-${fav.interval}`)
+		);
+
+		return strategies.filter(strategy =>
+			favoriteSet.has(`${strategy.ticker}-${strategy.strategy}-${strategy.period}-${strategy.interval}`)
+		);
+	}, [strategies, favorites, showFavoritesOnly]);
 
 	useEffect(() => {
 		storage.set("strategy-view-mode", viewMode);
@@ -95,6 +113,28 @@ function StrategyListContent() {
 						</Button>
 					</Link>
 				</div>
+
+				{/* Filter buttons */}
+				<div className="flex items-center gap-2">
+					<Button
+						variant={showFavoritesOnly ? "secondary" : "outline"}
+						size="sm"
+						onClick={() => setShowFavoritesOnly(false)}
+						className="flex items-center gap-2"
+					>
+						<List className="w-4 h-4" />
+						<span>All Strategies</span>
+					</Button>
+					<Button
+						variant={showFavoritesOnly ? "outline" : "secondary"}
+						size="sm"
+						onClick={() => setShowFavoritesOnly(true)}
+						className="flex items-center gap-2"
+					>
+						<Heart className="w-4 h-4" />
+						<span>Favorites Only</span>
+					</Button>
+				</div>
 			</div>
 
 			{/* Favorite Strategies Section */}
@@ -102,11 +142,11 @@ function StrategyListContent() {
 				<FavoriteSection />
 			</div>
 
-			{strategies &&
+			{filteredStrategies &&
 				(viewMode === "table" ? (
-					<StrategyTable data={strategies} />
+					<StrategyTable data={filteredStrategies} />
 				) : (
-					<StrategyGrid data={strategies} />
+					<StrategyGrid data={filteredStrategies} />
 				))}
 		</div>
 	);
