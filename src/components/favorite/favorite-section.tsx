@@ -5,20 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { FavoriteCards } from "./favorite-cards";
+import { FavoriteCards, type FavoriteWithStats } from "./favorite-cards";
 import { useFavorites } from "@/hooks/use-favorites";
 import { useBacktestList } from "@/hooks/use-backtest-list";
 import type { FavoriteStrategyConfig } from "@/lib/types/favorite";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
 
-// Extended interface for favorites with backtest data
-interface FavoriteWithBacktest extends FavoriteStrategyConfig {
-	backtestId: number | null;
-	winRate: number | null;
-	returnPercentage: number | null;
-	sharpeRatio: number | null;
-	lastUpdated: string | null;
-}
+type FavoriteWithBacktest = FavoriteWithStats;
 
 type SortBy = "winRate" | "return" | "sharpe" | "createdAt";
 type SortOrder = "asc" | "desc";

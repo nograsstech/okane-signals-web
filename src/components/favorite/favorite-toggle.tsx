@@ -7,8 +7,8 @@ import type { FavoriteStrategyConfig } from "@/lib/types/favorite";
 interface FavoriteToggleProps {
 	config: FavoriteStrategyConfig;
 	className?: string;
-	variant?: "default" | "outline";
-	size?: "default" | "sm" | "lg";
+	variant?: "default" | "outline" | "ghost";
+	size?: "default" | "sm" | "lg" | "icon";
 	disabled?: boolean;
 	onClick?: (event: React.MouseEvent) => void;
 	/**
@@ -39,7 +39,7 @@ const FavoriteToggle = React.forwardRef<HTMLButtonElement, FavoriteToggleProps>(
 				if (!disabled && !mutate.isPending) {
 					mutate.mutate({
 						...config,
-						isCurrentlyFavorite: isFavorite
+						isCurrentlyFavorite: isFavorite ?? false
 					});
 				}
 			},
@@ -48,12 +48,8 @@ const FavoriteToggle = React.forwardRef<HTMLButtonElement, FavoriteToggleProps>(
 
 		const buttonClasses = `${className} ${
 			isFavorite
-				? variant === "outline"
-					? "text-red-500 hover:text-red-600"
-					: "bg-red-500 text-white hover:bg-red-600"
-				: variant === "outline"
-					? "text-muted-foreground hover:text-accent-foreground"
-					: ""
+				? "text-red-500 hover:text-red-600"
+				: "text-muted-foreground hover:text-accent-foreground"
 		}`;
 
 		return (
@@ -64,7 +60,7 @@ const FavoriteToggle = React.forwardRef<HTMLButtonElement, FavoriteToggleProps>(
 				disabled={disabled || mutate.isPending}
 				onClick={handleClick}
 				aria-label={ariaLabel}
-				aria-pressed={isFavorite}
+				aria-pressed={isFavorite ?? false}
 				className={buttonClasses}
 				data-favorite={isFavorite ? "true" : "false"}
 			>

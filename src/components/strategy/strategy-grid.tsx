@@ -26,6 +26,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { StrategyDeleteButton } from "@/components/strategy/strategy-delete-button";
+import { FavoriteToggle } from "@/components/favorite/favorite-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -398,6 +399,19 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										</div>
 									</div>
 
+									{/* Favorite Toggle */}
+									<FavoriteToggle
+										config={{
+											ticker: item.ticker,
+											strategy: item.strategy,
+											period: item.period,
+											interval: item.interval,
+										}}
+										variant="ghost"
+										size="icon"
+										onClick={(e) => e.stopPropagation()}
+									/>
+
 									{/* Notification Toggle */}
 									<button
 										type="button"
@@ -407,7 +421,7 @@ export function StrategyGrid({ data }: StrategyGridProps) {
 										onKeyDown={(e) => {
 											if (e.key === "Enter" || e.key === " ") {
 												e.preventDefault();
-												e.stopPropagation();
+											e.stopPropagation();
 												handleToggleNotification(e, item.id, notificationsOn);
 											}
 										}}

@@ -1,244 +1,180 @@
 import * as React from "react";
-import { Heart, TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "@tanstack/react-router";
+import { Activity, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { FavoriteToggle } from "./favorite-toggle";
+import { cn } from "@/lib/utils";
 import type { FavoriteStrategyConfig } from "@/lib/types/favorite";
-import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
+import { FavoriteToggle } from "./favorite-toggle";
+
+interface FavoriteWithStats extends FavoriteStrategyConfig {
+	backtestId: string | null;
+	winRate: number | null;
+	returnPercentage: number | null;
+	sharpeRatio: number | null;
+	lastUpdated: Date | string | null;
+}
 
 interface FavoriteCardsProps {
-	favorites: FavoriteStrategyConfig[];
+	favorites: FavoriteWithStats[];
 	sortBy?: "winRate" | "return" | "sharpe" | "createdAt";
-	emptyMessage?: string;
 	className?: string;
 }
 
-// Fetch backtest stats for a favorite strategy
-async function fetchFavoriteStats(config: FavoriteStrategyConfig): Promise<KeyStrategyBacktestStats | null> {
-	try {
-		const response = await fetch(`/api/strategy?ticker=${config.ticker}&period=${config.period}&interval=${config.interval}&strategy=${config.strategy}`);
-		if (!response.ok) {
-			return null;
-		}
-		const data = await response.json();
-		return data[0] || null;
-	} catch (error) {
-		console.error("Failed to fetch stats for favorite:", error);
-		return null;
-	}
-}
-
-// Sort function for favorites
-function sortFavorites(favorites: FavoriteStrategyConfig[], statsMap: Map<string, KeyStrategyBacktestStats>, sortBy: "winRate" | "return" | "sharpe" | "createdAt"): FavoriteStrategyConfig[] {
-	return [...favorites].sort((a, b) => {
-		const statsA = statsMap.get(`${a.ticker}-${a.strategy}-${a.period}-${a.interval}`);
-		const statsB = statsMap.get(`${b.ticker}-${b.strategy}-${b.period}-${b.interval}`);
-
-		switch (sortBy) {
-			case "winRate":
-				const winRateA = statsA?.winRate || 0;
-				const winRateB = statsB?.winRate || 0;
-				return winRateB - winRateA;
-			case "return":
-				const returnA = statsA?.returnPercentage || 0;
-				const returnB = statsB?.returnPercentage || 0;
-				return returnB - returnA;
-			case "sharpe":
-				const sharpeA = statsA?.sharpeRatio || 0;
-				const sharpeB = statsB?.sharpeRatio || 0;
-				return sharpeB - sharpeA;
-			case "createdAt":
-				const dateA = statsA?.created_at ? new Date(statsA.created_at).getTime() : 0;
-				const dateB = statsB?.created_at ? new Date(statsB.created_at).getTime() : 0;
-				return dateB - dateA;
-			default:
-				return 0;
-		}
-	});
-}
-
-// Helper to get color for win rate
-function getWinRateColor(winRate: number): string {
-	if (winRate >= 0.6) return "text-green-600";
-	if (winRate >= 0.4) return "text-yellow-600";
-	return "text-red-600";
-}
-
-// Helper to get color for return
-function getReturnColor(returnPercentage: number): string {
-	if (returnPercentage > 0) return "text-green-600";
-	if (returnPercentage < 0) return "text-red-600";
-	return "text-gray-600";
-}
-
-// Helper to format percentage
-function formatPercentage(value: number): string {
-	return `${(value * 100).toFixed(1)}%`;
-}
-
-// Helper to get trend icon for return
-function getReturnIcon(returnPercentage: number) {
-	if (returnPercentage > 0) return <TrendingUp className="h-4 w-4 text-green-600" />;
-	if (returnPercentage < 0) return <TrendingDown className="h-4 w-4 text-red-600" />;
-	return <Minus className="h-4 w-4 text-gray-600" />;
-}
-
-// Helper to get trend icon for win rate
-function getWinRateIcon(winRate: number) {
-	if (winRate >= 0.6) return <TrendingUp className="h-4 w-4 text-green-600" />;
-	if (winRate >= 0.4) return <TrendingDown className="h-4 w-4 text-yellow-600" />;
-	return <TrendingDown className="h-4 w-4 text-red-600" />;
-}
-
 const FavoriteCards = React.forwardRef<HTMLDivElement, FavoriteCardsProps>(
-	({
-		favorites,
-		sortBy = "createdAt",
-		emptyMessage = "No favorite strategies found. Start favoriting strategies to see them here!",
-		className = ""
-	}, ref) => {
-		const [statsMap, setStatsMap] = React.useState<Map<string, KeyStrategyBacktestStats>>(new Map());
-		const [loadingStats, setLoadingStats] = React.useState<boolean>(true);
-
-		// Fetch stats for all favorites
-		React.useEffect(() => {
-			if (favorites.length === 0) {
-				setLoadingStats(false);
-				return;
-			}
-
-			const fetchAllStats = async () => {
-				const newStatsMap = new Map<string, KeyStrategyBacktestStats>();
-				const statsPromises = favorites.map(async (fav) => {
-					const stats = await fetchFavoriteStats(fav);
-					if (stats) {
-						newStatsMap.set(`${fav.ticker}-${fav.strategy}-${fav.period}-${fav.interval}`, stats);
-					}
-				});
-
-				await Promise.all(statsPromises);
-				setStatsMap(newStatsMap);
-				setLoadingStats(false);
-			};
-
-			fetchAllStats();
-		}, [favorites]);
-
-		// Sort favorites based on stats
-		const sortedFavorites = sortFavorites(favorites, statsMap, sortBy);
-
-		const renderFavoriteCard = (favorite: FavoriteStrategyConfig) => {
-			const stats = statsMap.get(`${favorite.ticker}-${favorite.strategy}-${favorite.period}-${favorite.interval}`);
-
-			return (
-				<Card key={`${favorite.ticker}-${favorite.strategy}-${favorite.period}-${favorite.interval}`} className="h-full flex flex-col">
-					<CardHeader className="flex flex-col h-48">
-						<div className="flex justify-between items-start">
-							<div className="flex-1 min-w-0">
-								<CardTitle className="text-lg font-mono truncate">
-									{favorite.ticker} | {favorite.strategy}
-								</CardTitle>
-								<CardDescription className="text-sm">
-									{favorite.period} • {favorite.interval}
-								</CardDescription>
-							</div>
-							<FavoriteToggle
-								config={favorite}
-								size="sm"
-								className="ml-2"
-							/>
-						</div>
-					</CardHeader>
-					<CardContent className="flex-1 flex flex-col space-y-4">
-						{stats ? (
-							<>
-								{/* Win Rate */}
-								<div className="space-y-1">
-									<div className="flex items-center justify-between">
-										<span className="text-sm font-medium">Win Rate</span>
-										{getWinRateIcon(stats.winRate)}
-									</div>
-									<p className={`text-lg font-semibold ${getWinRateColor(stats.winRate)}`}>
-										{formatPercentage(stats.winRate)}
-									</p>
-								</div>
-
-								{/* Return */}
-								<div className="space-y-1">
-									<div className="flex items-center justify-between">
-										<span className="text-sm font-medium">Return</span>
-										{getReturnIcon(stats.returnPercentage)}
-									</div>
-									<p className={`text-lg font-semibold ${getReturnColor(stats.returnPercentage)}`}>
-										{formatPercentage(stats.returnPercentage)}
-									</p>
-								</div>
-
-								{/* Sharpe Ratio */}
-								<div className="space-y-1">
-									<span className="text-sm font-medium">Sharpe Ratio</span>
-									<p className="text-lg font-semibold">
-										{stats.sharpeRatio.toFixed(2)}
-									</p>
-								</div>
-
-								 {/* Date Badge */}
-								<div className="mt-auto pt-2">
-									<Badge variant="outline" className="text-xs">
-										{new Date(stats.created_at).toLocaleDateString()}
-									</Badge>
-								</div>
-							</>
-						) : (
-							<div className="text-center text-muted-foreground py-8">
-								<Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-								<p className="text-sm">Stats not available</p>
-							</div>
-						)}
-					</CardContent>
-				</Card>
-			);
-		};
-
-		if (loadingStats) {
-			return (
-				<div ref={ref} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${className}`}>
-					{Array.from({ length: Math.min(favorites.length, 8) }).map((_, i) => (
-						<Card key={i} className="h-full">
-							<CardHeader className="flex flex-col h-48">
-								<Skeleton className="h-6 w-full" />
-								<Skeleton className="h-4 w-3/4" />
-							</CardHeader>
-							<CardContent className="flex-1 flex flex-col space-y-4">
-								<Skeleton className="h-4 w-full" />
-								<Skeleton className="h-4 w-full" />
-								<Skeleton className="h-4 w-2/3" />
-								<Skeleton className="h-8 w-20" />
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			);
-		}
-
-		if (sortedFavorites.length === 0) {
-			return (
-				<div ref={ref} className={`flex flex-col items-center justify-center py-12 ${className}`}>
-					<Heart className="h-12 w-12 text-muted-foreground mb-4" />
-					<p className="text-muted-foreground text-center">{emptyMessage}</p>
-				</div>
-			);
-		}
+	({ favorites, className = "" }, ref) => {
+		const formatPercent = (val: number) => Number(val).toFixed(2) + "%";
+		const formatDecimal = (val: number) => Number(val).toFixed(2);
 
 		return (
-			<div ref={ref} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${className}`}>
-				{sortedFavorites.map(renderFavoriteCard)}
+			<div
+				ref={ref}
+				className={cn(
+					"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr",
+					className,
+				)}
+			>
+				{favorites.map((item) => {
+					const winRateVal = item.winRate !== null ? Number(item.winRate) : null;
+					const returnVal = item.returnPercentage !== null ? Number(item.returnPercentage) : null;
+					const sharpeVal = item.sharpeRatio !== null ? Number(item.sharpeRatio) : null;
+
+					return (
+						<div
+							key={`${item.ticker}-${item.strategy}-${item.period}-${item.interval}`}
+							className="group relative flex flex-col bg-card border border-border/40 hover:border-border/80 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:shadow-lg"
+						>
+							{/* Top gradient accent */}
+							<div className="h-1 bg-linear-to-r from-primary/60 via-primary to-primary/60" />
+
+							{/* Header */}
+							<div className="p-4 pb-3 border-b border-border/20">
+								<div className="flex items-start justify-between gap-2">
+									<div className="min-w-0 flex-1">
+										<h3
+											className="font-semibold text-base leading-tight tracking-tight text-foreground truncate pr-2"
+											title={item.strategy}
+										>
+											{item.strategy}
+										</h3>
+										<div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+											<Badge className="text-[10px] px-1.5 py-0 font-medium bg-muted/70 text-foreground border-border/60">
+												{item.ticker}
+											</Badge>
+											<span className="text-[10px] text-muted-foreground font-mono">
+												{item.period}
+											</span>
+											<span className="text-[10px] text-muted-foreground/50">•</span>
+											<span className="text-[10px] text-muted-foreground font-mono">
+												{item.interval}
+											</span>
+										</div>
+									</div>
+									<FavoriteToggle
+										config={{
+											ticker: item.ticker,
+											strategy: item.strategy,
+											period: item.period,
+											interval: item.interval,
+										}}
+										variant="ghost"
+										size="icon"
+										ariaLabel="Remove from favorites"
+									/>
+								</div>
+							</div>
+
+							{/* Stats Grid */}
+							<div className="p-4 flex-1">
+								{winRateVal !== null || returnVal !== null || sharpeVal !== null ? (
+									<div className="grid grid-cols-2 gap-3">
+										<div className="space-y-0.5">
+											<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
+												<Target className="w-3 h-3" /> Win Rate
+											</span>
+											<div
+												className={cn(
+													"text-base font-mono tracking-tight font-medium",
+													winRateVal !== null && winRateVal >= 50 ? "text-emerald-500" : "text-red-500",
+												)}
+											>
+												{winRateVal !== null ? formatPercent(winRateVal) : "—"}
+											</div>
+										</div>
+
+										<div className="space-y-0.5">
+											<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
+												<Activity className="w-3 h-3" /> Return
+											</span>
+											<div
+												className={cn(
+													"text-base font-mono tracking-tight font-medium",
+													returnVal !== null && returnVal >= 0 ? "text-emerald-500" : "text-red-500",
+												)}
+											>
+												{returnVal !== null
+													? `${returnVal >= 0 ? "+" : ""}${formatPercent(returnVal)}`
+													: "—"}
+											</div>
+										</div>
+
+										<div className="space-y-0.5">
+											<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
+												<TrendingDown className="w-3 h-3" /> Sharpe
+											</span>
+											<div
+												className={cn(
+													"text-sm font-mono tracking-tight",
+													sharpeVal !== null && sharpeVal >= 1
+														? "text-emerald-500"
+														: "text-yellow-500",
+												)}
+											>
+												{sharpeVal !== null ? formatDecimal(sharpeVal) : "—"}
+											</div>
+										</div>
+
+										{item.lastUpdated && (
+											<div className="space-y-0.5">
+												<span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
+													<TrendingUp className="w-3 h-3" /> Updated
+												</span>
+												<div className="text-[10px] text-muted-foreground font-mono">
+													{new Date(item.lastUpdated as string | Date).toLocaleDateString()}
+												</div>
+											</div>
+										)}
+									</div>
+								) : (
+									<div className="flex items-center justify-center h-full py-4">
+										<p className="text-xs text-muted-foreground">No backtest data</p>
+									</div>
+								)}
+							</div>
+
+							{/* Footer Action */}
+							{item.backtestId && (
+								<div className="flex items-center divide-x divide-border/20">
+									<Link
+										to="/strategy/$id"
+										params={{ id: String(item.backtestId) }}
+										className="flex items-center justify-between flex-1 px-4 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors group/btn"
+									>
+										<span className="text-xs font-medium text-foreground/70 group-hover/btn:text-foreground transition-colors">
+											View Details
+										</span>
+										<ArrowUpRight className="w-4 h-4 text-foreground/50 group-hover/btn:text-foreground group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all" />
+									</Link>
+								</div>
+							)}
+						</div>
+					);
+				})}
 			</div>
 		);
-	}
+	},
 );
 
 FavoriteCards.displayName = "FavoriteCards";
 
 export { FavoriteCards };
+export type { FavoriteWithStats };
