@@ -4,3 +4,6 @@ export * from "./tradeActions";
 
 // Better Auth
 export * from "./auth-schema";
+
+// User Favorites
+export * from "./userFavoriteStrategies";
