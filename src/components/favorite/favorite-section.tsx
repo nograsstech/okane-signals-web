@@ -1,5 +1,6 @@
 import * as React from "react";
 import { SortAsc, SortDesc, RotateCcw, Heart } from "lucide-react";
+import { storage } from "@/lib/utils/storage";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,8 +92,12 @@ function sortFavorites(
 }
 
 export function FavoriteSection({ className }: FavoriteSectionProps) {
-	const [sortBy, setSortBy] = React.useState<SortBy>("createdAt");
-	const [sortOrder, setSortOrder] = React.useState<SortOrder>("desc");
+	const [sortBy, setSortBy] = React.useState<SortBy>(() => {
+		return storage.get<SortBy>("favorites-sort-by") ?? "createdAt";
+	});
+	const [sortOrder, setSortOrder] = React.useState<SortOrder>(() => {
+		return storage.get<SortOrder>("favorites-sort-order") ?? "desc";
+	});
 
 	const { data: favorites, isLoading: favoritesLoading, error: favoritesError, refetch: refetchFavorites } = useFavorites();
 	const { data: backtests, isLoading: backtestsLoading, error: backtestsError, refetch: refetchBacktests } = useBacktestList();
@@ -118,6 +123,15 @@ export function FavoriteSection({ className }: FavoriteSectionProps) {
 	const handleSortOrderToggle = () => {
 		setSortOrder(prev => prev === "asc" ? "desc" : "asc");
 	};
+
+	// Persist sort preferences to localStorage
+	React.useEffect(() => {
+		storage.set("favorites-sort-by", sortBy);
+	}, [sortBy]);
+
+	React.useEffect(() => {
+		storage.set("favorites-sort-order", sortOrder);
+	}, [sortOrder]);
 
 	const handleRetry = async () => {
 		setLoading(true);
