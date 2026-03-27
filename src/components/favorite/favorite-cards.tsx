@@ -2,13 +2,10 @@ import * as React from "react";
 import { Heart, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FavoriteToggle } from "./favorite-toggle";
-import type { FavoriteStrategyConfig, FavoriteStrategy } from "@/lib/types/favorite";
+import type { FavoriteStrategyConfig } from "@/lib/types/favorite";
 import type { KeyStrategyBacktestStats } from "@/lib/types/strategy";
-import { getSignals } from "@/api/strategy-api";
 
 interface FavoriteCardsProps {
 	favorites: FavoriteStrategyConfig[];
@@ -148,7 +145,6 @@ const FavoriteCards = React.forwardRef<HTMLDivElement, FavoriteCardsProps>(
 							</div>
 							<FavoriteToggle
 								config={favorite}
-								variant="ghost"
 								size="sm"
 								className="ml-2"
 							/>
