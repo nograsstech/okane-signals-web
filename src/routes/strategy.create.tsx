@@ -1,8 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ChevronLeft, Plus } from "lucide-react";
 import { useState } from "react";
+import { ZodError } from "zod";
 import { ProtectedRoute } from "@/components/auth";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import {
+	Field,
+	FieldContent,
+	FieldDescription,
+	FieldError,
+	FieldGroup,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,20 +21,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	Field,
-	FieldContent,
-	FieldDescription,
-	FieldError,
-	FieldGroup,
-} from "@/components/ui/field";
-import { ChevronLeft, Plus } from "lucide-react";
-import {
-	createStrategySchema,
-	type CreateStrategyFormInput,
-} from "@/lib/schemas/strategy-schema";
-import { ZodError } from "zod";
 import { getOkaneClient } from "@/lib/okane-finance-api/okane-client";
+import {
+	type CreateStrategyFormInput,
+	createStrategySchema,
+} from "@/lib/schemas/strategy-schema";
 
 export const Route = createFileRoute("/strategy/create")({
 	component: CreateStrategyPage,
@@ -161,7 +161,7 @@ function CreateStrategyContent() {
 						<FieldContent>
 							<Input
 								id="ticker"
-								placeholder="e.g., AAPL, EURJPY=X"
+								placeholder="e.g., AAPL, GC=F, BTC-USD, ^SPX"
 								value={formData.ticker}
 								onChange={(e) =>
 									handleInputChange("ticker", e.target.value)
@@ -170,8 +170,8 @@ function CreateStrategyContent() {
 								disabled={isSubmitting}
 							/>
 							<FieldDescription>
-								Enter the stock ticker or forex pair (e.g., AAPL,
-								EURJPY=X)
+								Enter a ticker symbol (e.g., AAPL, GC=F, BTC-USD,
+								^SPX)
 							</FieldDescription>
 							{errors.ticker && (
 								<FieldError

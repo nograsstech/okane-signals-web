@@ -7,7 +7,10 @@ export const createStrategySchema = z.object({
 	ticker: z
 		.string()
 		.min(1, "Ticker is required")
-		.regex(/^[A-Z]+=?[A-Z]*$/, "Invalid ticker format (e.g., AAPL, EURJPY=X)"),
+		.regex(
+			/^\^?[A-Z0-9]+([-=][A-Z0-9]+)?$/,
+			"Invalid ticker format (e.g., AAPL, GC=F, BTC-USD, ^SPX)",
+		),
 	period: z
 		.string()
 		.min(1, "Period is required")
