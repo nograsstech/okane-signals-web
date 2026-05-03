@@ -50,10 +50,8 @@ export function useDeleteStrategy() {
 				description: "The strategy has been permanently removed.",
 			});
 
-			// Delay refetch to ensure backend has processed the deletion
-			setTimeout(() => {
-				queryClient.invalidateQueries({ queryKey: ["strategies"] });
-			}, 500);
+			// Sync with DB — HTTP cache bypassed via cache: "no-store" in getStrategyList
+			queryClient.invalidateQueries({ queryKey: ["strategies"] });
 
 			// Navigate back to strategy list if on detail page
 			const currentPath = window.location.pathname;

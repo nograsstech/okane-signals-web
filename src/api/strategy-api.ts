@@ -10,7 +10,7 @@ import { apiFetchOkaneSignals } from "./api-client";
 
 // Get all strategies list
 export function getStrategyList(): Promise<KeyStrategyBacktestStats[]> {
-	return apiFetchOkaneSignals<KeyStrategyBacktestStats[]>("/api/strategy/list");
+	return apiFetchOkaneSignals<KeyStrategyBacktestStats[]>("/api/strategy/list", { cache: "no-store" });
 }
 
 // Get single strategy backtest data
