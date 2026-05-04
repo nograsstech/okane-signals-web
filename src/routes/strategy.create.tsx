@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Plus } from "lucide-react";
 import { useState } from "react";
@@ -53,6 +54,7 @@ function CreateStrategyPage() {
 
 function CreateStrategyContent() {
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const { strategies } = Route.useLoaderData();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
@@ -116,6 +118,9 @@ function CreateStrategyContent() {
 				const errorData = await response.json();
 				throw new Error(errorData.error || "Failed to create strategy");
 			}
+
+			// Invalidate strategies query so the list refreshes immediately
+			queryClient.invalidateQueries({ queryKey: ["strategies"] });
 
 			// Navigate to the strategy list page after success
 			navigate({ to: "/strategy" });
