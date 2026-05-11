@@ -1,4 +1,6 @@
 // Strategy detail route
+
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth";
@@ -14,6 +16,7 @@ import { TradingviewIframe } from "@/components/tradingview/tradingview-iframe";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStrategyDetail } from "@/hooks/use-strategy-detail";
+import { getOkaneClient } from "@/lib/okane-finance-api/okane-client";
 import { getTradingViewSymbol } from "@/lib/utils/tradingview-mapper";
 
 export const Route = createFileRoute("/strategy/$id")({
@@ -35,6 +38,21 @@ function StrategyDetailPage() {
 function StrategyDetailContent({ id }: { id: string }) {
 	const { strategy, tradeActions, signals, isLoading, error } =
 		useStrategyDetail(id);
+
+	// Fetch strategy metadata (descriptions) from backend API
+	const { data: strategyMeta } = useQuery({
+		queryKey: ["strategyMeta"],
+		queryFn: async () => {
+			const client = getOkaneClient();
+			const response = await client.getStrategiesSignalsStrategiesGet();
+			return response.data;
+		},
+		staleTime: 30 * 60 * 1000,
+	});
+
+	const strategyDescription = strategyMeta?.find(
+		(s) => s.id === strategy?.strategy,
+	)?.description as string | undefined;
 
 	if (error) {
 		return (
@@ -86,7 +104,10 @@ function StrategyDetailContent({ id }: { id: string }) {
 			{isLoading ? (
 				<StatsLoadingSkeleton />
 			) : strategy ? (
-				<StrategyStats backtestData={strategy} />
+				<StrategyStats
+					backtestData={strategy}
+					strategyDescription={strategyDescription}
+				/>
 			) : null}
 
 			{/* Tabs Section */}

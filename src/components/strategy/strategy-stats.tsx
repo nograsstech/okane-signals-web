@@ -22,9 +22,13 @@ import { StrategyStatCard } from "./strategy-stat-card";
 
 interface StrategyStatsProps {
 	backtestData: KeyStrategyBacktestStats;
+	strategyDescription?: string;
 }
 
-export function StrategyStats({ backtestData }: StrategyStatsProps) {
+export function StrategyStats({
+	backtestData,
+	strategyDescription,
+}: StrategyStatsProps) {
 	const [open, setOpen] = useState(false);
 
 	const isPositiveValue = (value: number) => value >= 0;
@@ -43,6 +47,11 @@ export function StrategyStats({ backtestData }: StrategyStatsProps) {
 						<CardDescription>
 							Updated: {new Date(backtestData.updated_at).toLocaleString()}
 						</CardDescription>
+						{strategyDescription && (
+							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+								{strategyDescription}
+							</p>
+						)}
 					</div>
 					<Button variant="secondary" asChild>
 						{/* <a
@@ -119,9 +128,7 @@ export function StrategyStats({ backtestData }: StrategyStatsProps) {
 									field="Win Rate %"
 									value={backtestData.winRate}
 									description="Win percentage"
-									textColor={
-										"positive"
-									}
+									textColor={"positive"}
 								/>
 							</>
 						)}
