@@ -119,7 +119,7 @@ function CreateStrategyContent() {
 				throw new Error(errorData.error || "Failed to create strategy");
 			}
 
-			// Invalidate strategy list so the new strategy appears immediately
+			// Invalidate strategies query so the list refreshes immediately
 			queryClient.invalidateQueries({ queryKey: ["strategies"] });
 
 			// Navigate to the strategy list page after success

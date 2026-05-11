@@ -77,7 +77,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 			}
 
 			onSuccess?.();
-			navigate({ to: "/" });
+			navigate({ to: "/strategy" });
 		} catch (error) {
 			setErrors({
 				form: error instanceof Error ? error.message : "An error occurred",
@@ -92,7 +92,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 		try {
 			await authClient.signIn.social({
 				provider,
-				callbackURL: "/",
+				callbackURL: "/strategy",
 			});
 		} catch (error) {
 			setErrors({

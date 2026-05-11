@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Activity, ArrowRight, BarChart2, BrainCircuit, ChevronDown, LogOut, Settings, TrendingUp } from "lucide-react";
+import {
+	Activity,
+	ArrowRight,
+	BarChart2,
+	BrainCircuit,
+	ChevronDown,
+	Github,
+	LogOut,
+	Settings,
+	TrendingUp,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +30,7 @@ function UserAccountMenu() {
 	const { data: session, isPending } = authClient.useSession();
 
 	if (isPending) {
-		return (
-			<div className="h-9 w-9 bg-zinc-800 animate-pulse rounded-full" />
-		);
+		return <div className="h-9 w-9 bg-zinc-800 animate-pulse rounded-full" />;
 	}
 
 	if (session?.user) {
@@ -50,7 +58,10 @@ function UserAccountMenu() {
 						<ChevronDown size={14} className="text-zinc-500" />
 					</button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-zinc-800">
+				<DropdownMenuContent
+					align="end"
+					className="w-56 bg-zinc-900 border-zinc-800"
+				>
 					<DropdownMenuLabel className="font-normal">
 						<div className="flex flex-col space-y-1">
 							<p className="text-sm font-medium leading-none text-zinc-100">
@@ -100,7 +111,7 @@ function UserAccountMenu() {
 
 function Landing() {
 	return (
-<div className="min-h-screen bg-black text-zinc-100 selection:bg-zinc-800 selection:text-white flex flex-col">
+		<div className="min-h-screen bg-black text-zinc-100 selection:bg-zinc-800 selection:text-white flex flex-col">
 			{/* Nav — matches Header.tsx brand identity exactly */}
 			<header className="flex items-center justify-between px-4 py-3 border-b border-zinc-900/60 shrink-0 bg-black/80 backdrop-blur-sm">
 				<Link to="/" className="flex items-center gap-2">
@@ -108,16 +119,67 @@ function Landing() {
 						<TrendingUp size={18} />
 					</div>
 					<div className="flex flex-col">
-						<span className="text-sm font-semibold tracking-tight">OKANE SIGNALS</span>
-						<span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Financial Terminal</span>
+						<span className="text-sm font-semibold tracking-tight">
+							OKANE SIGNALS
+						</span>
+						<span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+							Financial Terminal
+						</span>
 					</div>
 				</Link>
 
 				<div className="flex items-center gap-4">
 					<div className="hidden sm:flex items-center gap-4">
 						<span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-						<span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Market: Open</span>
+						<span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
+							Market: Open
+						</span>
 					</div>
+
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button
+								type="button"
+								className="text-zinc-500 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-600 rounded-sm"
+								aria-label="GitHub repositories"
+							>
+								<Github size={18} />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="end"
+							className="w-56 bg-zinc-900 border-zinc-800"
+						>
+							<DropdownMenuLabel className="font-normal">
+								<span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
+									Open Source
+								</span>
+							</DropdownMenuLabel>
+							<DropdownMenuSeparator className="bg-zinc-800" />
+							<DropdownMenuItem asChild>
+								<a
+									href="https://github.com/nograsstech/okane-signals-web"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="cursor-pointer focus:bg-zinc-800"
+								>
+									<Github size={16} />
+									<span>Signals Web</span>
+								</a>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<a
+									href="https://github.com/nograsstech/okane-finance-api"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="cursor-pointer focus:bg-zinc-800"
+								>
+									<Github size={16} />
+									<span>Finance API</span>
+								</a>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 
 					<UserAccountMenu />
 				</div>
@@ -142,7 +204,8 @@ function Landing() {
 					</h1>
 
 					<p className="max-w-xl text-lg md:text-xl text-zinc-400 font-light leading-relaxed mb-12">
-						Run equity strategies, backtest them against historical data, and get AI-powered market analysis — all in one systematic platform.
+						Run equity strategies, backtest them against historical data, and
+						get AI-powered market analysis — all in one systematic platform.
 					</p>
 
 					<div className="flex flex-col sm:flex-row items-start gap-4">
@@ -172,23 +235,32 @@ function Landing() {
 			<footer className="grid grid-cols-1 md:grid-cols-3 border-t border-zinc-900 shrink-0">
 				<div className="p-8 border-b md:border-b-0 md:border-r border-zinc-900 group cursor-pointer hover:bg-zinc-950 transition-colors">
 					<Activity className="w-5 h-5 text-zinc-600 mb-6 group-hover:text-white transition-colors" />
-					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">Live Signals</h3>
+					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">
+						Live Signals
+					</h3>
 					<p className="text-xs text-zinc-500 leading-relaxed">
-						Systematic buy/sell signals generated from equity strategies running on periodically refreshed market data.
+						Systematic buy/sell signals generated from equity strategies running
+						on periodically refreshed market data.
 					</p>
 				</div>
 				<div className="p-8 border-b md:border-b-0 md:border-r border-zinc-900 group cursor-pointer hover:bg-zinc-950 transition-colors">
 					<BarChart2 className="w-5 h-5 text-zinc-600 mb-6 group-hover:text-white transition-colors" />
-					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">Strategy Backtesting</h3>
+					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">
+						Strategy Backtesting
+					</h3>
 					<p className="text-xs text-zinc-500 leading-relaxed">
-						Validate strategies against historical OHLCV data. Track performance stats, drawdowns, and trade actions.
+						Validate strategies against historical OHLCV data. Track performance
+						stats, drawdowns, and trade actions.
 					</p>
 				</div>
 				<div className="p-8 group cursor-pointer hover:bg-zinc-950 transition-colors">
 					<BrainCircuit className="w-5 h-5 text-zinc-600 mb-6 group-hover:text-white transition-colors" />
-					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">AI Market Analysis</h3>
+					<h3 className="text-sm font-medium text-zinc-200 uppercase tracking-wide mb-2">
+						AI Market Analysis
+					</h3>
 					<p className="text-xs text-zinc-500 leading-relaxed">
-						AI-powered analysis of ticker data and market news, surfacing context that complements quantitative signals.
+						AI-powered analysis of ticker data and market news, surfacing
+						context that complements quantitative signals.
 					</p>
 				</div>
 			</footer>
