@@ -48,7 +48,7 @@ export function StrategyStats({
 							Updated: {new Date(backtestData.updated_at).toLocaleString()}
 						</CardDescription>
 						{strategyDescription && (
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+							<p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">
 								{strategyDescription}
 							</p>
 						)}

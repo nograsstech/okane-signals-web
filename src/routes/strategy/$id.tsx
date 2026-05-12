@@ -40,8 +40,8 @@ function StrategyDetailContent({ id }: { id: string }) {
 		useStrategyDetail(id);
 
 	// Fetch strategy metadata (descriptions) from backend API
-	const { data: strategyMeta } = useQuery({
-		queryKey: ["strategyMeta"],
+	const { data: strategies } = useQuery({
+		queryKey: ["strategies", "list"],
 		queryFn: async () => {
 			const client = getOkaneClient();
 			const response = await client.getStrategiesSignalsStrategiesGet();
@@ -50,9 +50,9 @@ function StrategyDetailContent({ id }: { id: string }) {
 		staleTime: 30 * 60 * 1000,
 	});
 
-	const strategyDescription = strategyMeta?.find(
+	const strategyDescription = strategies?.find(
 		(s) => s.id === strategy?.strategy,
-	)?.description as string | undefined;
+	)?.description;
 
 	if (error) {
 		return (
