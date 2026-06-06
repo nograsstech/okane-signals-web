@@ -1,3 +1,4 @@
+import { useMemo, useEffect, useRef } from "react";
 import {
 	AreaChart,
 	Area,
@@ -5,7 +6,7 @@ import {
 	YAxis,
 	CartesianGrid,
 	Tooltip,
-	ReferenceLine,
+	Customized,
 	ResponsiveContainer,
 } from "recharts";
 import type { HMMRegimeDataPoint } from "@/lib/okane-finance-api/generated";
@@ -13,6 +14,9 @@ import type { HMMRegimeDataPoint } from "@/lib/okane-finance-api/generated";
 interface HmmProbabilityChartProps {
 	data: HMMRegimeDataPoint[];
 	activeDateStr?: string | null;
+	onCrosshairMove?: (dateStr: string | null) => void;
+	visibleRange?: { from: string; to: string } | null;
+	onWheelZoom?: (deltaY: number) => void;
 }
 
 interface ChartDataPoint {
@@ -25,7 +29,6 @@ interface ChartDataPoint {
 
 const MAX_CHART_POINTS = 500;
 
-// Uniform downsampling — keeps first, last, and evenly spaced points in between
 function downsample(points: HMMRegimeDataPoint[]): HMMRegimeDataPoint[] {
 	if (points.length <= MAX_CHART_POINTS) return points;
 	const result: HMMRegimeDataPoint[] = [];
@@ -44,6 +47,16 @@ function formatDate(timestamp: string): string {
 		year: "2-digit",
 	});
 }
+
+type BandScale = ((value: string) => number | undefined) & {
+	bandwidth?: () => number;
+};
+
+type CustomizedChartProps = {
+	xAxisMap?: Record<string, { scale?: BandScale }>;
+	offset?: { top: number; height: number };
+	activeDateStr?: string;
+};
 
 type TooltipPayloadEntry = {
 	name: string;
@@ -93,16 +106,59 @@ function CustomTooltip({
 export function HmmProbabilityChart({
 	data,
 	activeDateStr,
+	onCrosshairMove,
+	visibleRange,
+	onWheelZoom,
 }: HmmProbabilityChartProps) {
-	const chartData: ChartDataPoint[] = downsample(data).map((point) => ({
-		date: point.timestamp.split("T")[0],
-		dateLabel: formatDate(point.timestamp),
-		probBull: Number(point.probBull.toFixed(2)),
-		probBear: Number(point.probBear.toFixed(2)),
-		probChop: Number(point.probChop.toFixed(2)),
-	}));
+	const containerRef = useRef<HTMLDivElement>(null);
 
-	// Tick every ~10% of data points
+	const allChartData: ChartDataPoint[] = useMemo(
+		() =>
+			downsample(data).map((point) => ({
+				date: point.timestamp.split("T")[0],
+				dateLabel: formatDate(point.timestamp),
+				probBull: Number(point.probBull.toFixed(2)),
+				probBear: Number(point.probBear.toFixed(2)),
+				probChop: Number(point.probChop.toFixed(2)),
+			})),
+		[data],
+	);
+
+	const chartData = useMemo(() => {
+		if (!visibleRange) return allChartData;
+		return allChartData.filter(
+			(p) => p.date >= visibleRange.from && p.date <= visibleRange.to,
+		);
+	}, [allChartData, visibleRange]);
+
+	// ReferenceLine x must exactly match a category in chartData — snap to nearest
+	const snappedActiveDateStr = useMemo(() => {
+		if (!activeDateStr || chartData.length === 0) return null;
+		const target = new Date(activeDateStr).getTime();
+		let nearest = chartData[0];
+		let minDiff = Math.abs(new Date(chartData[0].date).getTime() - target);
+		for (const point of chartData) {
+			const diff = Math.abs(new Date(point.date).getTime() - target);
+			if (diff < minDiff) {
+				minDiff = diff;
+				nearest = point;
+			}
+		}
+		return nearest.date;
+	}, [activeDateStr, chartData]);
+
+	// Non-passive wheel listener so preventDefault works correctly
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el || !onWheelZoom) return;
+		const handler = (e: WheelEvent) => {
+			e.preventDefault();
+			onWheelZoom(e.deltaY);
+		};
+		el.addEventListener("wheel", handler, { passive: false });
+		return () => el.removeEventListener("wheel", handler);
+	}, [onWheelZoom]);
+
 	const tickInterval = Math.max(1, Math.floor(chartData.length / 8));
 
 	return (
@@ -132,12 +188,19 @@ export function HmmProbabilityChart({
 				</div>
 			</div>
 
-			<div className="w-full h-52 rounded border border-border/20 overflow-hidden">
+			<div
+				ref={containerRef}
+				className="w-full h-52 rounded border border-border/20 overflow-hidden"
+			>
 				<ResponsiveContainer width="100%" height="100%">
 					<AreaChart
 						data={chartData}
 						margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
 						style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}
+						onMouseMove={(e) => {
+							if (e.activeLabel) onCrosshairMove?.(e.activeLabel as string);
+						}}
+						onMouseLeave={() => onCrosshairMove?.(null)}
 					>
 						<defs>
 							<linearGradient id="gradBull" x1="0" y1="0" x2="0" y2="1">
@@ -164,6 +227,7 @@ export function HmmProbabilityChart({
 							dataKey="date"
 							tickLine={false}
 							axisLine={false}
+							padding={{ left: 16, right: 16 }}
 							tick={{
 								fill: "rgba(156,163,175,0.5)",
 								fontSize: 9,
@@ -201,16 +265,6 @@ export function HmmProbabilityChart({
 							}}
 						/>
 
-						{/* Crosshair reference line synced from price chart */}
-						{activeDateStr && (
-							<ReferenceLine
-								x={activeDateStr}
-								stroke="rgba(255,255,255,0.25)"
-								strokeWidth={1}
-								strokeDasharray="3 3"
-							/>
-						)}
-
 						<Area
 							type="monotone"
 							dataKey="probBull"
@@ -247,6 +301,40 @@ export function HmmProbabilityChart({
 							activeDot={{ r: 3, fill: "#f59e0b", stroke: "none" }}
 							isAnimationActive={false}
 						/>
+
+						{snappedActiveDateStr && (
+							<Customized
+								activeDateStr={snappedActiveDateStr}
+								component={({
+									xAxisMap,
+									offset,
+									activeDateStr: dateStr,
+								}: CustomizedChartProps) => {
+									if (!dateStr) return null;
+									const scale =
+										Object.values(xAxisMap ?? {})[0]?.scale;
+									if (!scale) return null;
+									const left = scale(dateStr);
+									if (left == null || Number.isNaN(left)) return null;
+									const bw = scale.bandwidth?.() ?? 0;
+									const cx = left + bw / 2;
+									const y1 = offset?.top ?? 0;
+									const y2 = (offset?.top ?? 0) + (offset?.height ?? 200);
+									return (
+										<line
+											x1={cx}
+											x2={cx}
+											y1={y1}
+											y2={y2}
+											stroke="rgba(255,255,255,0.65)"
+											strokeWidth={1}
+											strokeDasharray="3 3"
+											pointerEvents="none"
+										/>
+									);
+								}}
+							/>
+						)}
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>

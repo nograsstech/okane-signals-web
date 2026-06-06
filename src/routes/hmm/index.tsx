@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Activity, Search } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { z } from "zod";
 import { ProtectedRoute } from "@/components/auth";
-import { HmmPriceChart } from "@/components/hmm/hmm-price-chart";
+import { HmmPriceChart, type HmmPriceChartHandle } from "@/components/hmm/hmm-price-chart";
 import { HmmProbabilityChart } from "@/components/hmm/hmm-probability-chart";
 import { HmmRegimeSummary } from "@/components/hmm/hmm-regime-summary";
 import Layout from "@/components/Layout";
@@ -67,6 +67,11 @@ function HmmContent() {
 	const [pendingInterval, setPendingInterval] = useState(interval);
 
 	const [activeDateStr, setActiveDateStr] = useState<string | null>(null);
+	const [visibleRange, setVisibleRange] = useState<{
+		from: string;
+		to: string;
+	} | null>(null);
+	const priceChartRef = useRef<HmmPriceChartHandle>(null);
 
 	const { data, isLoading, error, isFetching } = useHmmRegimes({
 		ticker,
@@ -87,8 +92,26 @@ function HmmContent() {
 		if (e.key === "Enter") handleAnalyze();
 	};
 
-	const handleCrosshairMove = useCallback((dateStr: string | null) => {
+	const handlePriceCrosshairMove = useCallback((dateStr: string | null) => {
 		setActiveDateStr(dateStr);
+	}, []);
+
+	const handleProbabilityCrosshairMove = useCallback(
+		(dateStr: string | null) => {
+			priceChartRef.current?.setCrosshairDate(dateStr);
+		},
+		[],
+	);
+
+	const handleVisibleRangeChange = useCallback((from: string, to: string) => {
+		setVisibleRange({ from, to });
+	}, []);
+
+	const handleWheelZoom = useCallback((deltaY: number) => {
+		// Math.exp gives smooth device-agnostic scaling:
+		// trackpad (deltaY ≈ 5) → ~0.5% per event, mouse wheel (deltaY ≈ 100) → ~10%
+		const factor = Math.exp(deltaY * 0.001);
+		priceChartRef.current?.zoomBy(factor);
 	}, []);
 
 	return (
@@ -228,12 +251,17 @@ function HmmContent() {
 					{/* Charts */}
 					<div className="flex flex-col gap-4">
 						<HmmPriceChart
+							ref={priceChartRef}
 							data={data.data}
-							onCrosshairMove={handleCrosshairMove}
+							onCrosshairMove={handlePriceCrosshairMove}
+							onVisibleRangeChange={handleVisibleRangeChange}
 						/>
 						<HmmProbabilityChart
 							data={data.data}
 							activeDateStr={activeDateStr}
+							onCrosshairMove={handleProbabilityCrosshairMove}
+							visibleRange={visibleRange}
+							onWheelZoom={handleWheelZoom}
 						/>
 					</div>
 				</div>
