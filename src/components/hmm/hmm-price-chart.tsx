@@ -1,17 +1,26 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useImperativeHandle, type Ref } from "react";
 import {
 	createChart,
 	ColorType,
 	CrosshairMode,
 	LineSeries,
 	type UTCTimestamp,
+	type ISeriesApi,
+	type SeriesType,
 } from "lightweight-charts";
 import type { HMMRegimeDataPoint } from "@/lib/okane-finance-api/generated";
 import { DominantRegime } from "@/lib/okane-finance-api/generated";
 
+export interface HmmPriceChartHandle {
+	setCrosshairDate(dateStr: string | null): void;
+	zoomBy(factor: number): void;
+}
+
 interface HmmPriceChartProps {
+	ref?: Ref<HmmPriceChartHandle>;
 	data: HMMRegimeDataPoint[];
 	onCrosshairMove?: (dateStr: string | null) => void;
+	onVisibleRangeChange?: (from: string, to: string) => void;
 }
 
 const REGIME_COLORS: Record<DominantRegime, string> = {
@@ -20,12 +29,10 @@ const REGIME_COLORS: Record<DominantRegime, string> = {
 	[DominantRegime.Chop]: "#f59e0b",
 };
 
-// Unix seconds — preserves full intraday precision
 function toUnixSeconds(timestamp: string): number {
 	return Math.floor(new Date(timestamp).getTime() / 1000);
 }
 
-// Detect if data contains intraday bars (gap < 1 day between first two points)
 function isIntraday(data: HMMRegimeDataPoint[]): boolean {
 	if (data.length < 2) return false;
 	const diff =
@@ -34,9 +41,55 @@ function isIntraday(data: HMMRegimeDataPoint[]): boolean {
 	return diff < 24 * 60 * 60 * 1000;
 }
 
-export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
+export function HmmPriceChart({
+	ref,
+	data,
+	onCrosshairMove,
+	onVisibleRangeChange,
+}: HmmPriceChartProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const chartRef = useRef<ReturnType<typeof createChart> | null>(null);
+	const seriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
+	const dataRef = useRef<HMMRegimeDataPoint[]>([]);
+
+	// Store callbacks in refs so subscriptions don't need to re-register when they change
+	const onCrosshairMoveRef = useRef(onCrosshairMove);
+	const onVisibleRangeChangeRef = useRef(onVisibleRangeChange);
+	useEffect(() => {
+		onCrosshairMoveRef.current = onCrosshairMove;
+	}, [onCrosshairMove]);
+	useEffect(() => {
+		onVisibleRangeChangeRef.current = onVisibleRangeChange;
+	}, [onVisibleRangeChange]);
+
+	useImperativeHandle(ref, () => ({
+		setCrosshairDate(dateStr: string | null) {
+			if (!chartRef.current || !seriesRef.current) return;
+			if (!dateStr) {
+				chartRef.current.clearCrosshairPosition();
+				return;
+			}
+			const point = dataRef.current.find((p) =>
+				p.timestamp.startsWith(dateStr),
+			);
+			if (!point) return;
+			const ts = toUnixSeconds(point.timestamp) as UTCTimestamp;
+			chartRef.current.setCrosshairPosition(point.close, ts, seriesRef.current);
+		},
+		zoomBy(factor: number) {
+			if (!chartRef.current) return;
+			const range = chartRef.current.timeScale().getVisibleRange();
+			if (!range) return;
+			const from = range.from as number;
+			const to = range.to as number;
+			const center = (from + to) / 2;
+			const halfSpan = (to - from) / 2;
+			chartRef.current.timeScale().setVisibleRange({
+				from: (center - halfSpan * factor) as UTCTimestamp,
+				to: (center + halfSpan * factor) as UTCTimestamp,
+			});
+		},
+	}));
 
 	useEffect(() => {
 		if (!containerRef.current || data.length === 0) return;
@@ -87,7 +140,6 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 
 		chartRef.current = chart;
 
-		// Sort and deduplicate by Unix timestamp
 		const seen = new Map<number, HMMRegimeDataPoint>();
 		for (const point of data) {
 			seen.set(toUnixSeconds(point.timestamp), point);
@@ -95,6 +147,7 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 		const deduped = Array.from(seen.values()).sort(
 			(a, b) => toUnixSeconds(a.timestamp) - toUnixSeconds(b.timestamp),
 		);
+		dataRef.current = deduped;
 
 		const series = chart.addSeries(LineSeries, {
 			lineWidth: 2,
@@ -110,22 +163,30 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 			})),
 		);
 
+		seriesRef.current = series;
 		chart.timeScale().fitContent();
 
-		// Crosshair sync — emit YYYY-MM-DD for Recharts reference line
-		if (onCrosshairMove) {
-			chart.subscribeCrosshairMove((param) => {
-				if (!param.time) {
-					onCrosshairMove(null);
-					return;
-				}
-				const ms = (param.time as number) * 1000;
-				const dateStr = new Date(ms).toISOString().split("T")[0];
-				onCrosshairMove(dateStr);
-			});
-		}
+		chart.subscribeCrosshairMove((param) => {
+			if (!param.time) {
+				onCrosshairMoveRef.current?.(null);
+				return;
+			}
+			const ms = (param.time as number) * 1000;
+			const dateStr = new Date(ms).toISOString().split("T")[0];
+			onCrosshairMoveRef.current?.(dateStr);
+		});
 
-		// Resize observer
+		chart.timeScale().subscribeVisibleTimeRangeChange((range) => {
+			if (!range) return;
+			const from = new Date((range.from as number) * 1000)
+				.toISOString()
+				.split("T")[0];
+			const to = new Date((range.to as number) * 1000)
+				.toISOString()
+				.split("T")[0];
+			onVisibleRangeChangeRef.current?.(from, to);
+		});
+
 		const ro = new ResizeObserver(() => {
 			if (container) {
 				chart.applyOptions({
@@ -140,8 +201,9 @@ export function HmmPriceChart({ data, onCrosshairMove }: HmmPriceChartProps) {
 			ro.disconnect();
 			chart.remove();
 			chartRef.current = null;
+			seriesRef.current = null;
 		};
-	}, [data, onCrosshairMove]);
+	}, [data]);
 
 	return (
 		<div className="flex flex-col gap-2">
