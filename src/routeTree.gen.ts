@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TradesIndexRouteImport } from './routes/trades/index'
 import { Route as StrategyIndexRouteImport } from './routes/strategy/index'
+import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as HmmIndexRouteImport } from './routes/hmm/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
@@ -19,6 +20,7 @@ import { Route as StrategyCreateRouteImport } from './routes/strategy.create'
 import { Route as StrategyIdRouteImport } from './routes/strategy/$id'
 import { Route as ApiTradesRouteImport } from './routes/api/trades'
 import { Route as ApiStrategyRouteImport } from './routes/api/strategy'
+import { Route as ApiPortfolioReplayRouteImport } from './routes/api/portfolio-replay'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as StrategyIdBacktestRouteImport } from './routes/strategy_.$id.backtest'
@@ -45,6 +47,11 @@ const TradesIndexRoute = TradesIndexRouteImport.update({
 const StrategyIndexRoute = StrategyIndexRouteImport.update({
   id: '/strategy/',
   path: '/strategy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioIndexRoute = PortfolioIndexRouteImport.update({
+  id: '/portfolio/',
+  path: '/portfolio/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HmmIndexRoute = HmmIndexRouteImport.update({
@@ -80,6 +87,11 @@ const ApiTradesRoute = ApiTradesRouteImport.update({
 const ApiStrategyRoute = ApiStrategyRouteImport.update({
   id: '/api/strategy',
   path: '/api/strategy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPortfolioReplayRoute = ApiPortfolioReplayRouteImport.update({
+  id: '/api/portfolio-replay',
+  path: '/api/portfolio-replay',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterIndexRoute = AuthRegisterIndexRouteImport.update({
@@ -146,6 +158,7 @@ const ApiStrategyIdBacktestRoute = ApiStrategyIdBacktestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/portfolio-replay': typeof ApiPortfolioReplayRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
   '/api/trades': typeof ApiTradesRoute
   '/strategy/$id': typeof StrategyIdRoute
@@ -153,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/hmm/': typeof HmmIndexRoute
+  '/portfolio/': typeof PortfolioIndexRoute
   '/strategy/': typeof StrategyIndexRoute
   '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -170,6 +184,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/portfolio-replay': typeof ApiPortfolioReplayRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
   '/api/trades': typeof ApiTradesRoute
   '/strategy/$id': typeof StrategyIdRoute
@@ -177,6 +192,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/hmm': typeof HmmIndexRoute
+  '/portfolio': typeof PortfolioIndexRoute
   '/strategy': typeof StrategyIndexRoute
   '/trades': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -195,6 +211,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/portfolio-replay': typeof ApiPortfolioReplayRoute
   '/api/strategy': typeof ApiStrategyRouteWithChildren
   '/api/trades': typeof ApiTradesRoute
   '/strategy/$id': typeof StrategyIdRoute
@@ -202,6 +219,7 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/hmm/': typeof HmmIndexRoute
+  '/portfolio/': typeof PortfolioIndexRoute
   '/strategy/': typeof StrategyIndexRoute
   '/trades/': typeof TradesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -221,6 +239,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api/portfolio-replay'
     | '/api/strategy'
     | '/api/trades'
     | '/strategy/$id'
@@ -228,6 +247,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/dashboard/'
     | '/hmm/'
+    | '/portfolio/'
     | '/strategy/'
     | '/trades/'
     | '/api/auth/$'
@@ -245,6 +265,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/portfolio-replay'
     | '/api/strategy'
     | '/api/trades'
     | '/strategy/$id'
@@ -252,6 +273,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/hmm'
+    | '/portfolio'
     | '/strategy'
     | '/trades'
     | '/api/auth/$'
@@ -269,6 +291,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api/portfolio-replay'
     | '/api/strategy'
     | '/api/trades'
     | '/strategy/$id'
@@ -276,6 +299,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/dashboard/'
     | '/hmm/'
+    | '/portfolio/'
     | '/strategy/'
     | '/trades/'
     | '/api/auth/$'
@@ -294,6 +318,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPortfolioReplayRoute: typeof ApiPortfolioReplayRoute
   ApiStrategyRoute: typeof ApiStrategyRouteWithChildren
   ApiTradesRoute: typeof ApiTradesRoute
   StrategyIdRoute: typeof StrategyIdRoute
@@ -301,6 +326,7 @@ export interface RootRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   HmmIndexRoute: typeof HmmIndexRoute
+  PortfolioIndexRoute: typeof PortfolioIndexRoute
   StrategyIndexRoute: typeof StrategyIndexRoute
   TradesIndexRoute: typeof TradesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -331,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/strategy'
       fullPath: '/strategy/'
       preLoaderRoute: typeof StrategyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio/': {
+      id: '/portfolio/'
+      path: '/portfolio'
+      fullPath: '/portfolio/'
+      preLoaderRoute: typeof PortfolioIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hmm/': {
@@ -380,6 +413,13 @@ declare module '@tanstack/react-router' {
       path: '/api/strategy'
       fullPath: '/api/strategy'
       preLoaderRoute: typeof ApiStrategyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/portfolio-replay': {
+      id: '/api/portfolio-replay'
+      path: '/api/portfolio-replay'
+      fullPath: '/api/portfolio-replay'
+      preLoaderRoute: typeof ApiPortfolioReplayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register/': {
@@ -505,6 +545,7 @@ const ApiStrategyRouteWithChildren = ApiStrategyRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPortfolioReplayRoute: ApiPortfolioReplayRoute,
   ApiStrategyRoute: ApiStrategyRouteWithChildren,
   ApiTradesRoute: ApiTradesRoute,
   StrategyIdRoute: StrategyIdRoute,
@@ -512,6 +553,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   HmmIndexRoute: HmmIndexRoute,
+  PortfolioIndexRoute: PortfolioIndexRoute,
   StrategyIndexRoute: StrategyIndexRoute,
   TradesIndexRoute: TradesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

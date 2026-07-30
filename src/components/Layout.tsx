@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ArrowLeftRight, BarChart3, Plus, TrendingUp } from "lucide-react";
+import { Activity, ArrowLeftRight, BarChart3, Plus, TrendingUp, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -22,7 +22,6 @@ import BetterAuthHeader from "@/integrations/better-auth/header-user";
 interface LayoutProps {
   children: ReactNode;
 }
-
 const STORAGE_KEY = "okane-sidebar-state";
 
 export default function Layout({ children }: LayoutProps) {
@@ -52,6 +51,7 @@ export default function Layout({ children }: LayoutProps) {
     { to: "/strategy", icon: BarChart3, label: "Strategies", exact: true },
     { to: "/strategy/create", icon: Plus, label: "Create Strategy" },
     { to: "/trades", icon: ArrowLeftRight, label: "Trades", subtitle: "Signal History" },
+    { to: "/portfolio", icon: Wallet, label: "Portfolio Replay", subtitle: "Equity Simulation" },
     { to: "/hmm", icon: Activity, label: "HMM Regimes", subtitle: "Market States" },
   ];
 
