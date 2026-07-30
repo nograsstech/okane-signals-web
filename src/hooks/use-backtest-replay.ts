@@ -2,13 +2,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { getBacktestReplay } from "@/api/backtest-api";
 
-export function useBacktestReplay(backtestId: string | number) {
-	const id = typeof backtestId === "string" ? parseInt(backtestId, 10) : backtestId;
+export function useBacktestReplay(
+	backtestId: string | number,
+	replayEnabled = true,
+) {
+	const id =
+		typeof backtestId === "string" ? parseInt(backtestId, 10) : backtestId;
 
 	return useQuery({
 		queryKey: ["backtestReplay", id],
 		queryFn: () => getBacktestReplay(id),
-		enabled: !!id && !Number.isNaN(id),
+		enabled: replayEnabled && !!id && !Number.isNaN(id),
 		staleTime: 10 * 60 * 1000, // 10 minutes - replay data doesn't change often
 		retry: 1,
 	});
