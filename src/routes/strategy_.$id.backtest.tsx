@@ -25,13 +25,18 @@ export const Route = createFileRoute("/strategy_/$id/backtest")({
 
 function StrategyBacktestPage() {
   const { id } = Route.useParams();
-  const { data: replayResponse, isLoading, error } = useBacktestReplay(id);
+  const [activeTab, setActiveTab] = useState("original");
+  const replayEnabled = activeTab === "replay";
+  const { data: replayResponse, isLoading, error } = useBacktestReplay(
+    id,
+    replayEnabled,
+  );
   const replayData = replayResponse?.data ?? null;
   const [chartExpanded, setChartExpanded] = useState(false);
   const decompressedHtml = useDecompressedHtml(replayData?.html ?? null);
 
-  // Show loading state while fetching data
-  if (isLoading) {
+  // Show loading state only after the user requests a replay.
+  if (replayEnabled && isLoading) {
     return (
       <Layout>
         <ProtectedRoute>
@@ -41,8 +46,8 @@ function StrategyBacktestPage() {
     );
   }
 
-  // Show error state
-  if (error) {
+  // Show replay errors only after the user requests a replay.
+  if (replayEnabled && error) {
     return (
       <Layout>
         <ProtectedRoute>
@@ -138,7 +143,11 @@ function StrategyBacktestPage() {
 
                 <Separator orientation="vertical" className="bg-foreground" />
 
-                <Tabs defaultValue="original" className="w-full">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full"
+                >
                   <div className="border-border/50 border-b px-4">
                     <TabsList className="h-10 gap-2 rounded-none border-0 bg-transparent">
                       <TabsTrigger
@@ -147,20 +156,18 @@ function StrategyBacktestPage() {
                       >
                         Original Backtest
                       </TabsTrigger>
-                      {replayData?.html && (
-                        <TabsTrigger
-                          value="replay"
-                          className="data-[state=active]:bg-muted data-[state=active]:border-primary rounded-none px-4 data-[state=active]:border-b-2"
+                      <TabsTrigger
+                        value="replay"
+                        className="data-[state=active]:bg-muted data-[state=active]:border-primary rounded-none px-4 data-[state=active]:border-b-2"
+                      >
+                        Replay Visualization
+                        <Badge
+                          variant="secondary"
+                          className="ml-2 h-4 px-1.5 text-[10px]"
                         >
-                          Replay Visualization
-                          <Badge
-                            variant="secondary"
-                            className="ml-2 h-4 px-1.5 text-[10px]"
-                          >
-                            LIVE
-                          </Badge>
-                        </TabsTrigger>
-                      )}
+                          LIVE
+                        </Badge>
+                      </TabsTrigger>
                     </TabsList>
                   </div>
 
@@ -176,25 +183,29 @@ function StrategyBacktestPage() {
                       />
                     </TabsContent>
 
-                    {replayData?.html && (
-                      <TabsContent value="replay" className="m-0 h-full">
-                        {decompressedHtml === null ? (
-                          <div className="flex h-full items-center justify-center">
-                            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-                              <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                              <span className="text-xs font-mono">Decompressing chart…</span>
-                            </div>
+                    <TabsContent value="replay" className="m-0 h-full">
+                      {replayData?.html && decompressedHtml === null ? (
+                        <div className="flex h-full items-center justify-center">
+                          <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            <span className="text-xs font-mono">Decompressing chart…</span>
                           </div>
-                        ) : (
-                          <iframe
-                            srcDoc={decompressedHtml}
-                            title="Replay Visualization"
-                            className="h-full w-full border-none"
-                            sandbox="allow-scripts allow-same-origin allow-forms"
-                          />
-                        )}
-                      </TabsContent>
-                    )}
+                        </div>
+                      ) : decompressedHtml ? (
+                        <iframe
+                          srcDoc={decompressedHtml}
+                          title="Replay Visualization"
+                          className="h-full w-full border-none"
+                          sandbox="allow-scripts allow-same-origin allow-forms"
+                        />
+                      ) : (
+                          <div className="flex h-full items-center justify-center">
+                            <span className="text-sm text-muted-foreground">
+                              Replay data is unavailable.
+                            </span>
+                          </div>
+                      )}
+                    </TabsContent>
                   </div>
                 </Tabs>
               </div>
